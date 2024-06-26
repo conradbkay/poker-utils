@@ -13,6 +13,10 @@ export const weak = (risk: number, reward: number) => {
 }
 
 export const alphaToPot = (alpha: number) => {
+  if (alpha > 1) {
+    alpha /= 100
+  }
+
   const y = -alpha / (alpha - 1)
 
   return y
