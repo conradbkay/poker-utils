@@ -1,7 +1,7 @@
 {
-  "name": "y",
+  "name": "poker-utils",
   "version": "1.0.0",
-  "description": "poker-utils",
+  "description": "NLHE",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
@@ -40,16 +40,19 @@
   "engines": {
     "node": ">=10"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pdetail": "^0.4.1",
+    "prange": "^0.2.3"
+  },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/node": "^20.14.9",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "ava": "^3.12.1",
     "codecov": "^3.5.0",
     "cspell": "^4.1.0",
-    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
@@ -84,11 +87,6 @@
     "files": [
       "!build/module/**"
     ]
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
