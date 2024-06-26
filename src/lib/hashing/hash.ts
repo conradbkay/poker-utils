@@ -34,22 +34,23 @@ for (let i = 0; i < allCombosStrs.length; i++) {
 const genEquityHash = (
   range: number[][],
   vsRange: number[][],
-  flops: [string, number][]
+  flops: [string, number][],
+  ranksFile: string
 ) => {
   const hash: EquityHash = {}
 
   for (const [flop] of flops) {
-    const equities = flopEquities(flop, range, vsRange)
+    const equities = flopEquities(flop, range, vsRange, ranksFile)
     hash[flop] = equities
   }
 
   return hash
 }
 
-export const hash = async (range: Range) => {
+export const hash = async (range: Range, ranksFile: string) => {
   const writePath = `resources/generic.json`
 
-  const result = genEquityHash(allCombos, range, flops)
+  const result = genEquityHash(allCombos, range, flops, ranksFile)
 
   await writeFile(writePath, JSON.stringify(result))
 }

@@ -18,6 +18,7 @@ export type EvalOptions = {
   customStreet?: number
   fastTurns?: boolean
   flopHash: EquityHash
+  ranksFile: string
 }
 
 // returns [[vsOopRangeFlop, vsIpRangeFlop],...]
@@ -27,7 +28,8 @@ export const equityEval = ({
   customStreet,
   fastTurns,
   ranges,
-  flopHash
+  flopHash,
+  ranksFile
 }: EvalOptions): number[] => {
   if (customStreet === undefined) {
     customStreet = -1
@@ -48,7 +50,12 @@ export const equityEval = ({
           shuffleDeck(deck)
 
           for (let j = 1; j < 13; j++) {
-            sum += equityCalc([...board.slice(0, 4), j], hand, vsRange)
+            sum += equityCalc(
+              [...board.slice(0, 4), j],
+              hand,
+              vsRange,
+              ranksFile
+            )
             incs++
           }
         } else {
@@ -56,14 +63,21 @@ export const equityEval = ({
             if (board.slice(0, 4).includes(j) || hand.includes(j)) {
               continue
             }
-            sum += equityCalc([...board.slice(0, 4), j], hand, vsRange)
+            sum += equityCalc(
+              [...board.slice(0, 4), j],
+              hand,
+              vsRange,
+              ranksFile
+            )
             incs++
           }
         }
 
         result.push(Math.round((sum / incs) * 100) / 100)
       } else {
-        result.push(Math.round(equityCalc(board, hand, vsRange) * 100) / 100)
+        result.push(
+          Math.round(equityCalc(board, hand, vsRange, ranksFile) * 100) / 100
+        )
       }
     }
 
@@ -90,7 +104,8 @@ export const equityEval = ({
 export const equityCalc = (
   board: number[],
   hand: number[],
-  vsRange: number[][]
+  vsRange: number[][],
+  ranksFile: string
 ) => {
   const blocked = [...hand, ...board]
 
@@ -99,10 +114,10 @@ export const equityCalc = (
   })
 
   const vsRangeRankings = afterBlockers.map((combo) => {
-    return evaluate([...combo, ...board]).value
+    return evaluate([...combo, ...board], ranksFile).value
   })
 
-  const handRanking = evaluate(blocked).value
+  const handRanking = evaluate(blocked, ranksFile).value
 
   let beats = 0
 
@@ -120,13 +135,14 @@ export const equityCalc = (
 export const rangeEquityCalc = (
   board: number[],
   range: number[][],
-  vsRange: number[][]
+  vsRange: number[][],
+  ranksFile: string
 ) => {
   const getRangeRankings = (r: number[][]) => {
     return r
       .filter(([c1, c2]) => !board.includes(c1) && !board.includes(c2))
       .map((combo) => {
-        return [combo, evaluate([...combo, ...board]).value] as [
+        return [combo, evaluate([...combo, ...board], ranksFile).value] as [
           number[],
           number
         ]
@@ -177,7 +193,8 @@ export const rangeEquityCalc = (
 export const flopEquities = (
   flop: string,
   range: number[][],
-  vsRange: number[][]
+  vsRange: number[][],
+  ranksFile: string
 ) => {
   const boardCards: string[] = []
 
@@ -196,7 +213,7 @@ export const flopEquities = (
     for (let m = k + 1; m < deck.length; m++) {
       const fullBoard = [deck[k], deck[m], ...boardInts]
 
-      const equities = rangeEquityCalc(fullBoard, range, vsRange)
+      const equities = rangeEquityCalc(fullBoard, range, vsRange, ranksFile)
 
       for (const [hand, equity] of equities) {
         if (hash[hand] === -1) {

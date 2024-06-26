@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 
 /**
  * most of this code is copied from https://github.com/Sukhmai/poker-evaluator
@@ -129,11 +128,14 @@ export type Split = {
   ways: number
 }
 
-const RANKS_DATA = fs.readFileSync(path.resolve('./src/lib/data/HandRanks.dat'))
+let RANKS_DATA = null
 
-export function evalHand(cards: number[] | string[]): EvaluatedHand {
+export function evalHand(
+  cards: number[] | string[],
+  ranksPath: string
+): EvaluatedHand {
   if (!RANKS_DATA) {
-    throw new Error('HandRanks.dat not loaded.')
+    RANKS_DATA = fs.readFileSync(ranksPath)
   }
 
   if (cards.length !== 7 && cards.length !== 6 && cards.length !== 5) {
@@ -176,7 +178,14 @@ function cardsAreValidNumbers(cards: string[] | number[]): boolean {
   )
 }
 
-export function evaluate(cardValues: number[]): EvaluatedHand {
+export function evaluate(
+  cardValues: number[],
+  ranksPath?: string
+): EvaluatedHand {
+  if (!RANKS_DATA && ranksPath) {
+    RANKS_DATA = fs.readFileSync(ranksPath)
+  }
+
   let p = 53
   cardValues.forEach((cardValue) => (p = evalCard(p + cardValue)))
 
