@@ -1,7 +1,10 @@
-import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
-import { flopEquities } from '../eval/equity'
 import { writeFile } from 'fs/promises'
+
+import { flopEquities } from '../eval/equity'
+import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
+
 import { Range } from '../ranges'
+
 import { flops } from './flops'
 
 /**

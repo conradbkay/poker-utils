@@ -1,5 +1,5 @@
 export const alpha = (risk: number, reward: number) => {
-  return risk / (risk + reward) / 100
+  return risk / (risk + reward)
 }
 
 export const mdf = (risk: number, reward: number) => {
@@ -27,19 +27,30 @@ export const potToAlpha = (pct: number) => {
 }
 
 export const raiseAlphaToWeak = (alpha: number, faced: number) => {
-  const raiseSize = alphaToRaise(alpha, faced)
-  const facedPct = alphaToPot(faced)
+  if (alpha > 1) {
+    alpha /= 100
+  }
 
-  return (raiseSize - facedPct) / (1 + 2 * raiseSize)
+  const raiseSize = alphaToRaise(alpha, faced)
+
+  return (raiseSize - faced) / (1 + 2 * raiseSize)
 }
 
 export const alphaToWeak = (alpha: number) => {
+  if (alpha > 1) {
+    alpha /= 100
+  }
+
   const pct = alphaToPot(alpha)
 
   return pct / (pct + pct + 1)
 }
 
 export const bluffEV = (fold: number, alpha: number) => {
+  if (fold > 1) {
+    fold /= 100
+  }
+
   const size = alphaToPot(alpha)
 
   return fold - (1 - fold) * size
@@ -54,6 +65,10 @@ export const catchEVFromOdds = (weak: number, raise: number, bet: number) => {
 }
 
 export const alphaToRaise = (alpha: number, faced: number) => {
+  if (alpha > 1) {
+    alpha /= 100
+  }
+
   return (-1 * alpha * faced - alpha) / (alpha - 1)
 }
 
@@ -62,8 +77,8 @@ export const alphaToRaise = (alpha: number, faced: number) => {
  * @param precision how many decimal places should be in the result
  * @returns number
  */
-export const toPct = (value: number, precision: number = 1) => {
+export const toPct = (value: number, precision = 1) => {
   const mult = Math.pow(10, precision + 2)
 
-  return Math.round(value * mult) / mult
+  return (Math.round(value * mult) * 100) / mult
 }

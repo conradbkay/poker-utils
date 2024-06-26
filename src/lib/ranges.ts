@@ -1,5 +1,7 @@
 import { detailRange } from 'pdetail'
+
 import prange from 'prange'
+
 import { convertCardsToNumbers } from './eval/strength'
 
 export type Combo = [number, number]
