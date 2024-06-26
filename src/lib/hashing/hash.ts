@@ -2,6 +2,7 @@ import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
 import { flopEquities } from '../eval/equity'
 import { readFile, writeFile } from 'fs/promises'
 import { Range } from '../ranges'
+import { flops } from './flops'
 
 /**
  * Flops are the most computationally expensive to calculate equities for
@@ -46,15 +47,6 @@ const genEquityHash = (
 }
 
 export const hash = async (range: Range) => {
-  const flopsTxt = await readFile('resources/flops.txt', 'utf8')
-  const flopsInfo = flopsTxt.split('\r\n')
-
-  const flops = flopsInfo.map((flopInfo) => {
-    const split = flopInfo.split(':')
-
-    return [split[0], parseInt(split[1])] as [string, number] // board, weight
-  })
-
   const writePath = `resources/generic.json`
 
   const result = genEquityHash(allCombos, range, flops)
@@ -79,6 +71,7 @@ export const equityFromHash = (
   return hash[boardToUnique(board).join('')][combosMap[y + ' ' + x]]
 }
 
+// follows pio strategically unique grouping
 const boardToUnique = (board: number[]) => {
   const sorted = [...board].sort((a, b) => b - a)
 
