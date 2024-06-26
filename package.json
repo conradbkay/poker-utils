@@ -4,6 +4,7 @@
   "description": "NLHE",
   "author": "Conrad Kay",
   "main": "build/main/index.js",
+  "types": "build/module/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/YOUR_GITHUB_USER_NAME/y",
   "license": "MIT",
