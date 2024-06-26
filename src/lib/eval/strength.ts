@@ -1,3 +1,6 @@
+import fs from 'fs'
+import path from 'path'
+
 /**
  * most of this code is copied from https://github.com/Sukhmai/poker-evaluator
  */
@@ -125,8 +128,8 @@ export type Split = {
   rate: number
   ways: number
 }
-// This is outside the class so evaluate is static, to keep same api as @chenosaurus/poker-evaluator
-const RANKS_DATA = fs.readFileSync('resources/HandRanks.dat')
+
+const RANKS_DATA = fs.readFileSync(path.resolve('./src/lib/data/HandRanks.dat'))
 
 export function evalHand(cards: number[] | string[]): EvaluatedHand {
   if (!RANKS_DATA) {
