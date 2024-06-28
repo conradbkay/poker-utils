@@ -13,10 +13,6 @@ export const weak = (risk: number, reward: number) => {
 }
 
 export const alphaToPot = (alpha: number) => {
-  if (alpha > 1) {
-    alpha /= 100
-  }
-
   const y = -alpha / (alpha - 1)
 
   return y
@@ -27,30 +23,18 @@ export const potToAlpha = (pct: number) => {
 }
 
 export const raiseAlphaToWeak = (alpha: number, faced: number) => {
-  if (alpha > 1) {
-    alpha /= 100
-  }
-
   const raiseSize = alphaToRaise(alpha, faced)
 
   return (raiseSize - faced) / (1 + 2 * raiseSize)
 }
 
 export const alphaToWeak = (alpha: number) => {
-  if (alpha > 1) {
-    alpha /= 100
-  }
-
   const pct = alphaToPot(alpha)
 
   return pct / (pct + pct + 1)
 }
 
 export const bluffEV = (fold: number, alpha: number) => {
-  if (fold > 1) {
-    fold /= 100
-  }
-
   const size = alphaToPot(alpha)
 
   return fold - (1 - fold) * size
@@ -65,10 +49,6 @@ export const catchEVFromOdds = (weak: number, raise: number, bet: number) => {
 }
 
 export const alphaToRaise = (alpha: number, faced: number) => {
-  if (alpha > 1) {
-    alpha /= 100
-  }
-
   return (-1 * alpha * faced - alpha) / (alpha - 1)
 }
 
