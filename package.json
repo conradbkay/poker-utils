@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "NLHE",
   "author": "Conrad Kay",
   "main": "build/main/index.js",
