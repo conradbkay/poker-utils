@@ -1,4 +1,5 @@
 import fs from 'fs'
+import hash from './combinationsHash'
 
 /**
  * most of this code is copied from https://github.com/Sukhmai/poker-evaluator
@@ -130,6 +131,42 @@ export type Split = {
 
 let RANKS_DATA = null
 
+// in Omaha you need to use exactly 2 hole cards (and therefore 3 from the board)
+export function evalOmaha(
+  board: number[],
+  holeCards: number[],
+  ranksPath: string
+) {
+  if (!RANKS_DATA) {
+    RANKS_DATA = fs.readFileSync(ranksPath)
+  }
+
+  const holeIdxsArr = hash[holeCards.length][2]
+  const boardIdxsArr = hash[board.length][3]
+
+  let max = -Infinity
+  let result: EvaluatedHand | null = null
+
+  for (const holeIdxs of holeIdxsArr) {
+    for (const boardIdxs of boardIdxsArr) {
+      const evaluated = evaluate([
+        holeCards[holeIdxs[0]],
+        holeCards[holeIdxs[1]],
+        board[boardIdxs[0]],
+        board[boardIdxs[1]],
+        board[boardIdxs[2]]
+      ])
+
+      if (evaluated.value > max) {
+        max = evaluated.value
+        result = evaluated
+      }
+    }
+  }
+
+  return result!
+}
+
 export function evalHand(
   cards: number[] | string[],
   ranksPath: string
@@ -138,11 +175,12 @@ export function evalHand(
     RANKS_DATA = fs.readFileSync(ranksPath)
   }
 
-  if (cards.length !== 7 && cards.length !== 6 && cards.length !== 5) {
+  if (cards.length < 5) {
     throw new Error(
-      `Hand must be 5, 6, or 7 cards, but ${cards.length} cards were provided`
+      `Hand must be at least 5 cards, but ${cards.length} cards were provided`
     )
   }
+
   if (cardsAreValidNumbers(cards)) {
     return evaluate(cards as number[])
   } else if (cardsAreValidStrings(cards)) {
@@ -152,7 +190,6 @@ export function evalHand(
   } else {
     throw new Error(`
       Please supply input as a valid string[] | number[] of "cards".
-      See src/constants/deck.const.ts for the deck's values
     `)
   }
 }
