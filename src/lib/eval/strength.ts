@@ -2,7 +2,8 @@ import fs from 'fs'
 import hash from './combinationsHash'
 
 /**
- * most of this code is copied from https://github.com/Sukhmai/poker-evaluator
+ * some of this code is copied from https://github.com/Sukhmai/poker-evaluator
+ * omaha is added, as well as passing a reference to the ranksData obj
  */
 
 export interface Deck {
