@@ -21,7 +21,7 @@ export type EvalOptions = {
   ranksFile: string
 }
 
-// returns [[vsOopRangeFlop, vsIpRangeFlop],...]
+// returns [vsOopRangeFlop, vsIpRangeFlop,vsOopRangeTurn, ...]
 export const equityEval = ({
   board,
   hand,
