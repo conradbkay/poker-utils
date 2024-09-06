@@ -1753,6 +1753,6 @@ Ts2h2d:12
 3s2s2h:12
 3s2h2d:12
 2s2h2d:4`
-  .split('\r\n')
+  .split('\n')
   .map((line) => line.split(':'))
   .map((entry) => [entry[0], parseInt(entry[1])] as [string, number])

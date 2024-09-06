@@ -18,8 +18,6 @@ const genAllFlops = () => {
 
 const allFlops = genAllFlops()
 
-console.log(allFlops.length)
-
 test('flop hash', (t) => {
   const flopStrs = flops.map((f) => f[0])
 

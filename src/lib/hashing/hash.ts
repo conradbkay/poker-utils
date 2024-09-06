@@ -6,6 +6,7 @@ import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
 import { Range } from '../ranges'
 
 import { flops } from './flops'
+import { CARD_RANKS, DECK } from '../eval/strength'
 
 /**
  * Flops are the most computationally expensive to calculate equities for
@@ -50,9 +51,11 @@ const genEquityHash = (
   return hash
 }
 
-export const hash = async (range: Range, ranksFile: string) => {
-  const writePath = `resources/generic.json`
-
+export const hash = async (
+  range: Range,
+  ranksFile: string,
+  writePath: string
+) => {
   const result = genEquityHash(allCombos, range, flops, ranksFile)
 
   await writeFile(writePath, JSON.stringify(result))
@@ -102,6 +105,44 @@ export const boardToUnique = (board: number[]) => {
   }
 
   const result = sorted.map((s, i) => getRankStr(s) + suitMap[i])
+
+  return result
+}
+
+// definitely a bad implementation, and even slightly inaccurate with respect to which cards match suits
+export const handToUnique = (
+  hand: number[],
+  board: number[],
+  origBoard: number[]
+) => {
+  const valid = (card: number) => {
+    const suit = getSuit(card)
+
+    const matchedSuits = origBoard.filter((c) => getSuit(c) === suit)
+    const newMatchSuits = board.filter((c) => getSuit(c) === suit)
+
+    const dupe = board.includes(card)
+    const changedDraw = newMatchSuits !== matchedSuits
+
+    return !dupe && !changedDraw
+  }
+
+  const result: number[] = []
+
+  for (const card of hand) {
+    const rankStr = CARD_RANKS[getRank(card)]
+
+    for (const suit of ['c', 'd', 'h', 's']) {
+      const edited = DECK[rankStr + suit]
+      if (valid(edited)) {
+        result.push(edited)
+      }
+    }
+  }
+
+  if (result.length < 2) {
+    throw new Error('could not make card isomorphic')
+  }
 
   return result
 }
