@@ -109,41 +109,67 @@ export const boardToUnique = (board: number[]) => {
   return result
 }
 
-// definitely a bad implementation, and even slightly inaccurate with respect to which cards match suits
+const suits = ['c', 'd', 'h', 's']
+
+const genOffsuitPossible = () => {
+  const result: string[] = []
+
+  for (let i = 0; i < suits.length; i++) {
+    for (let j = 0; j < suits.length; j++) {
+      if (i === j) {
+        continue
+      }
+
+      result.push(suits[i] + suits[j])
+    }
+  }
+
+  return result
+}
+
+const offsuitPossible = genOffsuitPossible()
+
+const maxSuitsPerCard = (hand: number[], board: number[]) => {
+  const boardSuits = board.map((c) => getSuit(c))
+
+  return hand.map((card) => {
+    const suit = getSuit(card)
+
+    return boardSuits.filter((s) => s === suit)
+  })
+}
+
+// definitely a bad implementation, and even slightly inaccurate with respect to which cards match suits. Only works for 2 cards
 export const handToUnique = (
   hand: number[],
   board: number[],
   origBoard: number[]
 ) => {
-  const valid = (card: number) => {
-    const suit = getSuit(card)
+  const suited = getSuit(hand[0]) === getSuit(hand[1])
 
-    const matchedSuits = origBoard.filter((c) => getSuit(c) === suit).length
-    const newMatchSuits = board.filter((c) => getSuit(c) === suit).length
+  const possibilities = suited ? ['ss', 'cc', 'hh', 'dd'] : offsuitPossible
 
-    const dupe = board.includes(card)
+  const matchedSuits = maxSuitsPerCard(hand, origBoard).join(' ')
+
+  const valid = (cards: number[]) => {
+    const newMatchSuits = maxSuitsPerCard(cards, board).join(' ')
+
+    const dupe = board.includes(cards[0]) || board.includes(cards[1])
+
     const changedDraw = newMatchSuits !== matchedSuits
 
     return !dupe && !changedDraw
   }
 
-  const result: number[] = []
+  for (const possible of possibilities) {
+    const newHand = hand.map(
+      (h, i) => DECK[CARD_RANKS[getRank(h)] + possible[i]]
+    )
 
-  for (const card of hand) {
-    const rankStr = CARD_RANKS[getRank(card)]
-
-    for (const suit of ['c', 'd', 'h', 's']) {
-      const edited = DECK[rankStr + suit]
-      if (valid(edited)) {
-        result.push(edited)
-        break
-      }
+    if (valid(newHand)) {
+      return newHand
     }
   }
 
-  if (result.length < 2) {
-    throw new Error('could not make hand isomorphic')
-  }
-
-  return result
+  throw new Error('could not make hand isomorphic')
 }
