@@ -76,7 +76,7 @@ export const equityFromHash = (
 }
 
 // follows pio strategically unique grouping
-const boardToUnique = (board: number[]) => {
+export const boardToUnique = (board: number[]) => {
   const sorted = [...board].sort((a, b) => b - a)
 
   const mostSuits = mostSuit(board)
