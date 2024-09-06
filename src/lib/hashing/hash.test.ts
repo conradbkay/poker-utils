@@ -1,6 +1,7 @@
 import test from 'ava'
 import { flops } from './flops'
-import { boardToUnique } from './hash'
+import { boardToUnique, handToUnique } from './hash'
+import { convertCardsToNumbers } from '../eval/strength'
 
 const genAllFlops = () => {
   const result: number[][] = []
@@ -26,4 +27,11 @@ test('flop hash', (t) => {
 
     t.assert(flopStrs.includes(flopStr), flopStr)
   }
+})
+
+test('hand isomorphism', (t) => {
+  const board = [22, 24, 51]
+  t.assert(
+    handToUnique([43, 42], convertCardsToNumbers(boardToUnique(board)), board)
+  )
 })

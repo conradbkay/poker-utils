@@ -118,8 +118,8 @@ export const handToUnique = (
   const valid = (card: number) => {
     const suit = getSuit(card)
 
-    const matchedSuits = origBoard.filter((c) => getSuit(c) === suit)
-    const newMatchSuits = board.filter((c) => getSuit(c) === suit)
+    const matchedSuits = origBoard.filter((c) => getSuit(c) === suit).length
+    const newMatchSuits = board.filter((c) => getSuit(c) === suit).length
 
     const dupe = board.includes(card)
     const changedDraw = newMatchSuits !== matchedSuits
@@ -136,12 +136,13 @@ export const handToUnique = (
       const edited = DECK[rankStr + suit]
       if (valid(edited)) {
         result.push(edited)
+        break
       }
     }
   }
 
   if (result.length < 2) {
-    throw new Error('could not make card isomorphic')
+    throw new Error('could not make hand isomorphic')
   }
 
   return result
