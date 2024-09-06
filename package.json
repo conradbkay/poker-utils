@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "4.6.0",
+  "version": "5.0.0",
   "description": "NLHE",
   "author": "Conrad Kay",
   "main": "build/main/index.js",
@@ -24,6 +24,7 @@
     "node": ">=10"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "pdetail": "^0.4.1",
     "prange": "^0.2.3"
   },
@@ -60,13 +61,13 @@
     "README.md"
   ],
   "ava": {
-		"typescript": {
-			"rewritePaths": {
-				"src/": "build/main/"
-			},
-			"compile": "tsc"
-		}
-	},
+    "typescript": {
+      "rewritePaths": {
+        "src/": "build/main/"
+      },
+      "compile": "tsc"
+    }
+  },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript",
     "exclude": [

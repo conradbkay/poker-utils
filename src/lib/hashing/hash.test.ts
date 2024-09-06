@@ -1,4 +1,5 @@
 import test from 'ava'
+import { random } from 'lodash'
 import { flops } from './flops'
 import { boardToUnique, handToUnique } from './hash'
 import { convertCardsToNumbers } from '../eval/strength'
@@ -30,8 +31,22 @@ test('flop hash', (t) => {
 })
 
 test('hand isomorphism', (t) => {
-  const board = [22, 24, 51]
-  t.assert(
-    handToUnique([43, 42], convertCardsToNumbers(boardToUnique(board)), board)
-  )
+  for (let i = 0; i < 1000; i++) {
+    const board = new Array(3)
+      .fill(0)
+      .map(() => random(1, 52, false))
+      .sort((a, b) => b - a)
+    const hand = new Array(2)
+      .fill(0)
+      .map(() => random(1, 52, false))
+      .sort((a, b) => b - a)
+
+    if (new Set([...board, ...hand]).size !== 5) {
+      continue
+    }
+
+    t.assert(
+      handToUnique(hand, convertCardsToNumbers(boardToUnique(board)), board)
+    )
+  }
 })

@@ -6,7 +6,7 @@ import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
 import { Range } from '../ranges'
 
 import { flops } from './flops'
-import { CARD_RANKS, DECK } from '../eval/strength'
+import { CARD_RANKS, DECK, formatCards } from '../eval/strength'
 
 /**
  * Flops are the most computationally expensive to calculate equities for
@@ -135,7 +135,7 @@ const maxSuitsPerCard = (hand: number[], board: number[]) => {
   return hand.map((card) => {
     const suit = getSuit(card)
 
-    return boardSuits.filter((s) => s === suit)
+    return boardSuits.filter((s) => s === suit).length
   })
 }
 
@@ -156,7 +156,9 @@ export const handToUnique = (
 
     const dupe = board.includes(cards[0]) || board.includes(cards[1])
 
-    const changedDraw = newMatchSuits !== matchedSuits
+    const changedDraw =
+      newMatchSuits !== matchedSuits &&
+      newMatchSuits !== matchedSuits.split('').reverse().join('') // extra scuffed
 
     return !dupe && !changedDraw
   }
@@ -170,6 +172,13 @@ export const handToUnique = (
       return newHand
     }
   }
+
+  console.log(
+    possibilities,
+    formatCards(hand),
+    formatCards(board),
+    formatCards(origBoard)
+  )
 
   throw new Error('could not make hand isomorphic')
 }

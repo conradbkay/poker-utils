@@ -11,6 +11,8 @@ export interface Deck {
 }
 
 export const CARD_RANKS = [
+  null,
+  null,
   '2',
   '3',
   '4',
@@ -93,6 +95,14 @@ export const DECK: Deck = {
   ah: 51,
   as: 52
 }
+
+export const formatCard = (card: number) => {
+  const key = Object.keys(DECK).find((k) => DECK[k] === card)
+
+  return key[0].toUpperCase() + key[1]
+}
+
+export const formatCards = (cards: number[]) => cards.map(formatCard)
 
 export const DECK_KEYS = new Set(Object.keys(DECK))
 export const DECK_VALUES = new Set(Object.values(DECK))
