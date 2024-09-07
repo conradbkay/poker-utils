@@ -1,7 +1,14 @@
-import { EquityHash, combosMap, equityFromHash } from '../hashing/hash'
+import {
+  EquityHash,
+  boardToUnique,
+  combosMap,
+  equityFromHash,
+  handToUnique
+} from '../hashing/hash'
 
 import {
   convertCardsToNumbers,
+  DECK,
   deckWithoutSpecifiedCards,
   evaluate,
   shuffleDeck
@@ -40,7 +47,13 @@ export const equityEval = ({
 
     const addStreet = (i: number) => {
       if (i === 3) {
-        result.push(equityFromHash(flopHash, board.slice(0, 3), hand))
+        const isoBoard = boardToUnique(board.slice(0, 3)).map(
+          (s) => DECK[s.toLowerCase()]
+        )
+
+        const isoHand = handToUnique(hand, isoBoard, board.slice(0, 3))
+
+        result.push(equityFromHash(flopHash, isoBoard, isoHand))
       } else if (i === 4) {
         let sum = 0
         let incs = 0
