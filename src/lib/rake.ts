@@ -1,5 +1,6 @@
 export const rake = {
   Stars: {
+    atEnd: false,
     percent: 0.05, // ! inaccurate, they charge 4.5% on some stakes
     cap: {
       2: [30, 30, 30, 30, 30, 30, 30, 30],
@@ -18,6 +19,7 @@ export const rake = {
     }
   },
   GG: {
+    atEnd: true,
     raked3bets: true,
     percent: 0.05,
     cap: {
@@ -38,6 +40,7 @@ export const rake = {
     }
   },
   ACR: {
+    atEnd: false,
     percent: 0.05,
     cap: {
       2: [100, 100, 200, 300, 300, 300, 300, 300],
