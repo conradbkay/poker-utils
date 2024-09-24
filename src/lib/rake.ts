@@ -62,11 +62,33 @@ const acrInfo = {
   }
 }
 
+const iggyInfo = {
+  atEnd: false,
+  percent: 0.05,
+  cap: {
+    5: [50, 100, 100, 200, 200, 200, 200, 200],
+    10: [50, 100, 100, 200, 200, 200, 200, 200],
+    25: [50, 100, 100, 200, 200, 200, 200, 200],
+    50: [100, 200, 300, 300, 400, 400, 400, 400],
+    100: [100, 200, 300, 300, 400, 400, 400, 400],
+    200: [100, 200, 300, 300, 400, 400, 400, 400],
+    500: [100, 200, 300, 300, 400, 400, 400, 400],
+    1000: [100, 200, 300, 300, 400, 400, 400, 400],
+    2000: [100, 200, 300, 300, 400, 400, 400, 400]
+  }
+}
+
 export const rake = {
   Stars: starsInfo,
   PokerStars: starsInfo,
   GG: ggInfo,
   GGPoker: ggInfo,
+  Natural8: ggInfo,
   ACR: acrInfo,
-  WPN: acrInfo
+  BCP: acrInfo,
+  WPN: acrInfo,
+  Ignition: iggyInfo,
+  PWL: iggyInfo,
+  Bodog: iggyInfo,
+  Bovada: iggyInfo
 }
