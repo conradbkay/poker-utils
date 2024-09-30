@@ -79,7 +79,10 @@ const iggyInfo = {
   }
 }
 
-export const rake: Record<string, typeof iggyInfo> = {
+export const rake: Record<
+  string,
+  { atEnd: boolean; percent: number; cap: Record<number, number[]> }
+> = {
   Stars: starsInfo,
   PokerStars: starsInfo,
   GG: ggInfo,
