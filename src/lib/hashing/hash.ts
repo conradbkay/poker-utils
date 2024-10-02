@@ -145,6 +145,8 @@ export const handToUnique = (
   board: number[],
   origBoard: number[]
 ) => {
+  hand = [...hand].sort((a, b) => b - a)
+
   const suited = getSuit(hand[0]) === getSuit(hand[1])
 
   const possibilities = suited ? ['ss', 'cc', 'hh', 'dd'] : offsuitPossible

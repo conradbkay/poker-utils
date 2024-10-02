@@ -45,7 +45,7 @@ const starsCutoffs: Cutoff[] = [
 const cap = (cutoffs: Cutoff[]) => (BB: number, dealt: number) => {
   const useIdx = cutoffs.findLastIndex((c) => BB <= c[0])
 
-  return cutoffs[1][useIdx[Math.min(4, dealt - 2)]]
+  return cutoffs[useIdx][1][Math.min(4, dealt - 2)]
 }
 
 // this changed some time around, ideally they should pass in an epoch (or just provide a separate "Stars Old" rake obj)
