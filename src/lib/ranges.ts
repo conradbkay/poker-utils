@@ -42,6 +42,11 @@ const ipFlat = '88-55, AQs-ATs, A7s, A5s, KTs+, QTs+, JTs, T9s, 98s'
 
 const generic = '22+, A2s+, K5s+, Q8s+, J9s+, T9s, 76s, 65s, 54s, ATo+, KQo'
 
+const hu3b =
+  '77+, AKs-A7s, A5s-A3s, AKo-ATo, KJo, KQo, KQs-K9s, QJs-Q6s, JTs-J7s, T9s-T7s, 98s, 97s, 87s, 86s, 85s, 76s, 65s, 54s, 74s, K7o, Q8, T9o, A5o, K6s'
+const huFlat3b =
+  'AJs-A2s, KQs-K2s, QJs-Q3s, JTs-J5s, 88-22, T9s-T7s, 98s-96s, 86s, 85s, 76s-74s, 65s-63s, 54s, 53s, 43s, A9o, ATo, AJo, KQo, KJo, KTo, QJo, QTo, JTo, T9o'
+
 const rangesStrs = {
   ep3b,
   late3b,
@@ -53,7 +58,9 @@ const rangesStrs = {
   flat4b,
   limp,
   ipFlat,
-  generic
+  generic,
+  hu3b,
+  huFlat3b
 }
 
 export const ranges: {
@@ -114,7 +121,10 @@ const bbFlatOpenRanges = {
   ),
   '-2': rangeStrToCombos(
     '55-22,A7s-A6s,A2s,K8s,K4s-K2s,Q8s,Q5s-Q2s,J6s-J2s,T5s-T2s,95s-92s,84s-83s,74s-73s,64s-63s,53s-52s,42s+,32s,A9o-A8o,A6o-A2o,KJo-K9o,K7o-K5o,QTo+,Q8o-Q6o,J9o-J7o,T7o+,97o+,86o+,76o,65o'
-  )
+  ),
+  '-1': rangeStrToCombos(
+    '99-22,ATs-A6s,A3s-A2s,KTs,K8s-K7s,K5s-K2s,QTs-Q2s,J9s-J2s,T8s-T5s,T3s,97s-94s,86s-84s,75s-73s,63s+,53s-52s,42s+,32s,AJo-A7o,A5o-A3o,K8o+,K6o,QTo+,Q8o,J9o+,T8o+,98o,87o,76o'
+  ) // (HU limp call), copied from BvB for now
 }
 
 // returns [oopRange, ipRange]
@@ -126,7 +136,8 @@ export const resolveRanges = (
 ) => {
   const pot = ['limp', 'or', '3b', '4b'][Math.min(potType, 3)]
 
-  const aggPos = Math.min(aggIdx === 0 ? oopPos : ipPos, 5) // very rarely position will be out of bounds IDK
+  const aggPos = Math.min(aggIdx === 0 ? oopPos : ipPos, 5) // 6-max only
+  const pfcPos = Math.min(aggIdx === 1 ? oopPos : ipPos, 5)
 
   if (pot === 'limp') {
     return [ranges['limp'], ranges['limp']]
@@ -137,11 +148,13 @@ export const resolveRanges = (
   }
 
   if (pot === 'or') {
-    return [openRanges[aggPos], bbFlatOpenRanges[aggPos]]
+    return aggIdx === 0
+      ? [openRanges[aggPos], bbFlatOpenRanges[pfcPos]]
+      : [bbFlatOpenRanges[pfcPos], openRanges[aggPos]]
   }
 
-  if (pot === '3b' && ipPos === -2) {
-    return [ranges['BvB3b'], ranges['flatLate3b']] // todo HU 3b
+  if (pot === '3b' && ipPos === -1) {
+    return [ranges['hu3b'], ranges['huFlat3b']]
   }
 
   if (oopPos === 1 && ipPos === 2 && pot === '3b') {
