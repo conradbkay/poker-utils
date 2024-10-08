@@ -1,5 +1,6 @@
 import {
   EquityHash,
+  RiverEquityHash,
   boardToUnique,
   combosMap,
   equityFromHash,
@@ -10,8 +11,7 @@ import {
   convertCardsToNumbers,
   DECK,
   deckWithoutSpecifiedCards,
-  evaluate,
-  shuffleDeck
+  evaluate
 } from './strength'
 
 type Combo = [number, number]
@@ -21,74 +21,54 @@ type Range = Combo[]
 export type EvalOptions = {
   board: number[]
   hand: number[]
-  customStreet?: number
-  fastTurns?: boolean
-  flopHash: EquityHash
+  flopHash: EquityHash | RiverEquityHash
   ranksFile: string
+  chopIsWin?: boolean
 }
 
+// returns equity for every river, or whatever is inside the flop hash
 export const equityEval = ({
   board,
   hand,
-  customStreet,
-  fastTurns,
   flopHash,
   ranksFile,
-  vsRange
+  vsRange,
+  chopIsWin
 }: EvalOptions & { vsRange: Range }) => {
-  if (customStreet === undefined) {
-    customStreet = -1
-  }
-
   const result: number[] = []
 
-  const addStreet = (i: number) => {
-    if (i === 3) {
-      const isoBoard = boardToUnique(board.slice(0, 3)).map(
-        (s) => DECK[s.toLowerCase()]
-      )
+  if (board.length === 3) {
+    const isoBoard = boardToUnique(board.slice(0, 3)).map(
+      (s) => DECK[s.toLowerCase()]
+    )
 
-      const isoHand = handToUnique(hand, isoBoard, board.slice(0, 3))
+    const isoHand = handToUnique(hand, isoBoard, board.slice(0, 3))
 
-      result.push(equityFromHash(flopHash, isoBoard, isoHand))
-    } else if (i === 4) {
-      let sum = 0
-      let incs = 0
+    return equityFromHash(flopHash, isoBoard, isoHand)
+  } else if (board.length === 4) {
+    const turnCards = new Set(board.slice(0, 4))
 
-      if (fastTurns) {
-        const deck = deckWithoutSpecifiedCards([...hand, ...board])
-        shuffleDeck(deck)
-
-        for (let j = 1; j < 13; j++) {
-          sum += equityCalc([...board.slice(0, 4), j], hand, vsRange, ranksFile)
-          incs++
-        }
-      } else {
-        for (let j = 1; j <= 52; j++) {
-          if (board.slice(0, 4).includes(j) || hand.includes(j)) {
-            continue
-          }
-          sum += equityCalc([...board.slice(0, 4), j], hand, vsRange, ranksFile)
-          incs++
-        }
+    for (let j = 1; j <= 52; j++) {
+      if (turnCards.has(j) || hand.includes(j)) {
+        continue
       }
-
-      result.push(Math.round((sum / incs) * 100) / 100)
-    } else {
       result.push(
-        Math.round(equityCalc(board, hand, vsRange, ranksFile) * 100) / 100
+        equityCalc(
+          [...board.slice(0, 4), j],
+          hand,
+          vsRange,
+          ranksFile,
+          chopIsWin
+        )
       )
     }
+  } else {
+    result.push(
+      Math.round(equityCalc(board, hand, vsRange, ranksFile, chopIsWin))
+    )
   }
 
-  if (customStreet !== -1) {
-    addStreet(customStreet + 3)
-  } else {
-    for (let i = 3; i <= board.length; i++) {
-      addStreet(i)
-    }
-  }
-  return result
+  return result.map((eq) => Math.round(eq * 100) / 100)
 }
 
 // returns [vsOopRangeFlop, vsIpRangeFlop,vsOopRangeTurn, ...]
@@ -97,7 +77,7 @@ export const rangesEquityEval = (
 ): number[] => {
   const both = args.ranges.map((vsRange) => {
     return equityEval({ ...args, vsRange })
-  })
+  }) as number[][]
 
   const result: number[] = []
 
@@ -113,19 +93,21 @@ export const equityCalc = (
   board: number[],
   hand: number[],
   vsRange: number[][],
-  ranksFile: string
+  ranksFile: string,
+  chopIsWin?: boolean
 ) => {
-  const blocked = [...hand, ...board]
+  const evalCards = [...hand, ...board]
+  const blocked = new Set(evalCards)
 
   const afterBlockers = vsRange.filter((combo) => {
-    return !blocked.includes(combo[0]) && !blocked.includes(combo[1])
+    return !blocked.has(combo[0]) && !blocked.has(combo[1])
   })
 
   const vsRangeRankings = afterBlockers.map((combo) => {
     return evaluate([...combo, ...board], ranksFile).value
   })
 
-  const handRanking = evaluate(blocked, ranksFile).value
+  const handRanking = evaluate(evalCards, ranksFile).value
 
   let beats = 0
 
@@ -133,7 +115,7 @@ export const equityCalc = (
     if (handRanking > value) {
       beats += 1
     } else if (handRanking === value) {
-      beats += 0.5
+      beats += chopIsWin ? 1 : 0.5
     }
   }
 
@@ -144,7 +126,8 @@ export const rangeEquityCalc = (
   board: number[],
   range: number[][],
   vsRange: number[][],
-  ranksFile: string
+  ranksFile: string,
+  chopIsWin?: boolean
 ) => {
   const getRangeRankings = (r: number[][]) => {
     return r
@@ -178,7 +161,7 @@ export const rangeEquityCalc = (
       if (handRanking > value) {
         beats += 1
       } else if (handRanking === value) {
-        beats += 0.5
+        beats += chopIsWin ? 1 : 0.5
       }
 
       matchups++
