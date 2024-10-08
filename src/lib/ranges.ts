@@ -63,15 +63,23 @@ const rangesStrs = {
   huFlat3b
 }
 
+const random = rangeStrToCombos(
+  '22+,A2s+,K2s+,Q2s+,J2s+,T2s+,92s+,82s+,72s+,62s+,52s+,42s+,32s,A2o+,K2o+,Q2o+,J2o+,T2o+,92o+,82o+,72o+,62o+,52o'
+)
+
 export const ranges: {
   [key: string]: [number, number][]
-} = {}
+} = {
+  a2c: random,
+  atc: random,
+  random: random
+}
 
 for (const key in rangesStrs) {
   ranges[key] = rangeStrToCombos(rangesStrs[key])
 }
 
-const openRanges: { [key: string]: Combo[] } = {
+export const openRanges: { [key: string]: Combo[] } = {
   '-2': rangeStrToCombos(
     '22+,A2s+,K2s+,Q2s+,J2s+,T2s+,92s+,82s+,72s+,62s+,52s+,42s+,32s,A2o+,K2o+,Q3o+,J4o+,T5o+,95o+,85o+,75o+,64o+,54o'
   ),
@@ -100,7 +108,7 @@ const openRanges: { [key: string]: Combo[] } = {
   8: rangeStrToCombos('55+,A3s+,K7s+,K5s,Q9s+,J9s+,T9s,76s,54s,ATo+,KQo,QJo')
 }
 
-const bbFlatOpenRanges = {
+export const bbFlatOpenRanges = {
   1: rangeStrToCombos(
     '99-22,ATs-A6s,A3s-A2s,KTs,K8s-K7s,K5s-K2s,QTs-Q2s,J9s-J2s,T8s-T5s,T3s,97s-94s,86s-84s,75s-73s,63s+,53s-52s,42s+,32s,AJo-A7o,A5o-A3o,K8o+,K6o,QTo+,Q8o,J9o+,T8o+,98o,87o,76o'
   ), // bvb
