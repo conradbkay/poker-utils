@@ -6,14 +6,13 @@ import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
 import { Range } from '../ranges'
 
 import { flops } from './flops'
-import { CARD_RANKS, DECK, formatCards } from '../eval/strength'
-
+import { CARD_RANKS, DECK } from '../eval/strength'
 /**
  * Flops are the most computationally expensive to calculate equities for
  * But there's only 1755 unique flops so we can precompute every combo's equity on every flop vs a range
  */
 
-const genAllCombos = () => {
+export const genAllCombos = () => {
   const result: number[][] = []
 
   for (let i = 1; i <= 51; i++) {
@@ -36,15 +35,14 @@ for (let i = 0; i < allCombosStrs.length; i++) {
 }
 
 const genEquityHash = (
-  range: number[][],
-  vsRange: number[][],
+  vsRange: Range,
   flops: [string, number][],
   ranksFile: string
 ) => {
-  const hash: EquityHash = {}
+  const hash: RiverEquityHash = {}
 
   for (const [flop] of flops) {
-    const equities = flopEquities(flop, range, vsRange, ranksFile)
+    const equities = flopEquities(flop, vsRange, ranksFile)
     hash[flop] = equities
   }
 
@@ -52,21 +50,21 @@ const genEquityHash = (
 }
 
 export const hash = async (
-  range: Range,
+  vsRange: Range,
   ranksFile: string,
   writePath: string
 ) => {
-  const result = genEquityHash(allCombos, range, flops, ranksFile)
+  const result = genEquityHash(vsRange, flops, ranksFile)
 
   await writeFile(writePath, JSON.stringify(result))
 }
 
 export type EquityHash = {
-  [board: string]: number[] // each combo
+  [board: string]: number[][] // (high card [0-50]) -> (lower card [0-50])
 }
 
 export type RiverEquityHash = {
-  [board: string]: number[][] // equity buckets on each river for every combo
+  [board: string]: number[][][] // same as above but instead of an equity, it's the 23 length buckets arr
 }
 
 export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
@@ -79,7 +77,7 @@ export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
   const x = hand[idxOfLarger === 0 ? 1 : 0],
     y = hand[idxOfLarger]
 
-  return hash[boardToUnique(board).join('')][combosMap[y + ' ' + x]]
+  return hash[boardToUnique(board).join('')][combosMap[x - 2][y - 1]]
 }
 
 // follows pio strategically unique grouping
@@ -178,13 +176,6 @@ export const handToUnique = (
       return newHand
     }
   }
-
-  console.log(
-    possibilities,
-    formatCards(hand),
-    formatCards(board),
-    formatCards(origBoard)
-  )
 
   throw new Error('could not make hand isomorphic')
 }

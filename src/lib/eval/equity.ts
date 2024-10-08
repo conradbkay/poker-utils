@@ -2,8 +2,8 @@ import {
   EquityHash,
   RiverEquityHash,
   boardToUnique,
-  combosMap,
   equityFromHash,
+  genAllCombos,
   handToUnique
 } from '../hashing/hash'
 
@@ -63,9 +63,7 @@ export const equityEval = ({
       )
     }
   } else {
-    result.push(
-      Math.round(equityCalc(board, hand, vsRange, ranksFile, chopIsWin))
-    )
+    result.push(equityCalc(board, hand, vsRange, ranksFile, chopIsWin))
   }
 
   return result.map((eq) => Math.round(eq * 100) / 100)
@@ -122,69 +120,30 @@ export const equityCalc = (
   return (beats / vsRangeRankings.length) * 100
 }
 
-export const rangeEquityCalc = (
-  board: number[],
-  range: number[][],
-  vsRange: number[][],
-  ranksFile: string,
-  chopIsWin?: boolean
-) => {
-  const getRangeRankings = (r: number[][]) => {
-    return r
-      .filter(([c1, c2]) => !board.includes(c1) && !board.includes(c2))
-      .map((combo) => {
-        return [combo, evaluate([...combo, ...board], ranksFile).value] as [
-          number[],
-          number
-        ]
-      })
-  }
+export const equityBuckets = [
+  0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90,
+  92.5, 95, 97.5, 100
+]
 
-  const vsRangeRankings = getRangeRankings(vsRange)
-  const rangeRankings = getRangeRankings(range)
+export const closestToIdx = (counts: number[], value: number) => {
+  let result = Infinity
+  let resultIdx = 0
 
-  const hash: [number, number][] = []
+  for (let i = 0; i < counts.length; i++) {
+    const diff = Math.abs(counts[i] - value)
 
-  for (let i = 0; i < rangeRankings.length; i++) {
-    const [hand, handRanking] = rangeRankings[i]
-
-    let beats = 0
-    let matchups = 0
-
-    for (let j = 0; j < vsRangeRankings.length; j++) {
-      const [villainHand, value] = vsRangeRankings[j]
-      // impossible matchup, shouldn't count
-      if (hand.includes(villainHand[0]) || hand.includes(villainHand[1])) {
-        continue
-      }
-
-      if (handRanking > value) {
-        beats += 1
-      } else if (handRanking === value) {
-        beats += chopIsWin ? 1 : 0.5
-      }
-
-      matchups++
+    if (diff < result) {
+      result = diff
+      resultIdx = i
     }
-
-    const idxOfLarger = hand.indexOf(Math.max(...hand))
-
-    const x = hand[idxOfLarger === 0 ? 1 : 0],
-      y = hand[idxOfLarger]
-    // [2,1] turns into 52+0
-    hash.push([
-      combosMap[y + ' ' + x],
-      Math.round((beats / matchups) * 10000) / 100
-    ])
   }
 
-  return hash
+  return resultIdx
 }
 
 export const flopEquities = (
   flop: string,
-  range: number[][],
-  vsRange: number[][],
+  vsRange: Range,
   ranksFile: string
 ) => {
   const boardCards: string[] = []
@@ -197,25 +156,31 @@ export const flopEquities = (
 
   const deck = deckWithoutSpecifiedCards(boardInts)
 
-  const hash = new Array(1326).fill(-1)
+  const hash: number[][][] = new Array(51).fill(0).map((_) => new Array(51))
 
-  // 2162 runouts per flop, maybe we could do like 400 without much loss
-  for (let k = 0; k < deck.length - 1; k++) {
-    for (let m = k + 1; m < deck.length; m++) {
-      const fullBoard = [deck[k], deck[m], ...boardInts]
+  for (const [j, i] of genAllCombos()) {
+    let result = new Array(23).fill(0)
 
-      const equities = rangeEquityCalc(fullBoard, range, vsRange, ranksFile)
+    // 2162 runouts per flop, maybe we could do like 400 without much loss
+    for (let k = 0; k < deck.length - 1; k++) {
+      for (let m = k + 1; m < deck.length; m++) {
+        const fullBoard = [...boardInts, deck[k], deck[m]]
+        const used = new Set(fullBoard)
 
-      for (const [hand, equity] of equities) {
-        if (hash[hand] === -1) {
-          hash[hand] = [0, 0]
+        if (used.has(j) || used.has(i)) {
+          continue
         }
 
-        hash[hand][0] += equity
-        hash[hand][1]++
+        const eq = equityCalc(fullBoard, [j, i], vsRange, ranksFile, true)
+
+        const eqSlot = closestToIdx(equityBuckets, eq)
+
+        result[eqSlot]++
       }
     }
+
+    hash[j - 2][i - 1] = result
   }
 
-  return hash.map((h) => Math.round((h[0] / h[1]) * 100) / 100)
+  return hash
 }
