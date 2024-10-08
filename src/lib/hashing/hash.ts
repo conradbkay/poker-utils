@@ -62,14 +62,18 @@ export const hash = async (
 }
 
 export type EquityHash = {
-  [board: string]: number[]
+  [board: string]: number[] // each combo
 }
 
-export const equityFromHash = (
-  hash: EquityHash,
+export type RiverEquityHash = {
+  [board: string]: number[][] // equity buckets on each river for every combo
+}
+
+export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
+  hash: T,
   board: number[],
   hand: number[]
-) => {
+): T['board'][0] => {
   const idxOfLarger = hand.indexOf(Math.max(...hand))
 
   const x = hand[idxOfLarger === 0 ? 1 : 0],
@@ -160,7 +164,7 @@ export const handToUnique = (
 
     const changedDraw =
       newMatchSuits !== matchedSuits &&
-      newMatchSuits !== matchedSuits.split('').reverse().join('') // extra scuffed
+      newMatchSuits !== matchedSuits.split('').reverse().join('') // extra terrible
 
     return !dupe && !changedDraw
   }

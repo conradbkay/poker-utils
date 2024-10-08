@@ -21,87 +21,82 @@ type Range = Combo[]
 export type EvalOptions = {
   board: number[]
   hand: number[]
-  ranges: Range[]
   customStreet?: number
   fastTurns?: boolean
   flopHash: EquityHash
   ranksFile: string
 }
 
-// returns [vsOopRangeFlop, vsIpRangeFlop,vsOopRangeTurn, ...]
 export const equityEval = ({
   board,
   hand,
   customStreet,
   fastTurns,
-  ranges,
   flopHash,
-  ranksFile
-}: EvalOptions): number[] => {
+  ranksFile,
+  vsRange
+}: EvalOptions & { vsRange: Range }) => {
   if (customStreet === undefined) {
     customStreet = -1
   }
 
-  const both = ranges.map((vsRange) => {
-    const result: number[] = []
+  const result: number[] = []
 
-    const addStreet = (i: number) => {
-      if (i === 3) {
-        const isoBoard = boardToUnique(board.slice(0, 3)).map(
-          (s) => DECK[s.toLowerCase()]
-        )
+  const addStreet = (i: number) => {
+    if (i === 3) {
+      const isoBoard = boardToUnique(board.slice(0, 3)).map(
+        (s) => DECK[s.toLowerCase()]
+      )
 
-        const isoHand = handToUnique(hand, isoBoard, board.slice(0, 3))
+      const isoHand = handToUnique(hand, isoBoard, board.slice(0, 3))
 
-        result.push(equityFromHash(flopHash, isoBoard, isoHand))
-      } else if (i === 4) {
-        let sum = 0
-        let incs = 0
+      result.push(equityFromHash(flopHash, isoBoard, isoHand))
+    } else if (i === 4) {
+      let sum = 0
+      let incs = 0
 
-        if (fastTurns) {
-          const deck = deckWithoutSpecifiedCards([...hand, ...board])
-          shuffleDeck(deck)
+      if (fastTurns) {
+        const deck = deckWithoutSpecifiedCards([...hand, ...board])
+        shuffleDeck(deck)
 
-          for (let j = 1; j < 13; j++) {
-            sum += equityCalc(
-              [...board.slice(0, 4), j],
-              hand,
-              vsRange,
-              ranksFile
-            )
-            incs++
-          }
-        } else {
-          for (let j = 1; j <= 52; j++) {
-            if (board.slice(0, 4).includes(j) || hand.includes(j)) {
-              continue
-            }
-            sum += equityCalc(
-              [...board.slice(0, 4), j],
-              hand,
-              vsRange,
-              ranksFile
-            )
-            incs++
-          }
+        for (let j = 1; j < 13; j++) {
+          sum += equityCalc([...board.slice(0, 4), j], hand, vsRange, ranksFile)
+          incs++
         }
-
-        result.push(Math.round((sum / incs) * 100) / 100)
       } else {
-        result.push(
-          Math.round(equityCalc(board, hand, vsRange, ranksFile) * 100) / 100
-        )
+        for (let j = 1; j <= 52; j++) {
+          if (board.slice(0, 4).includes(j) || hand.includes(j)) {
+            continue
+          }
+          sum += equityCalc([...board.slice(0, 4), j], hand, vsRange, ranksFile)
+          incs++
+        }
       }
-    }
 
-    if (customStreet !== -1) {
-      addStreet(customStreet + 3)
+      result.push(Math.round((sum / incs) * 100) / 100)
     } else {
-      for (let i = 3; i <= board.length; i++) {
-        addStreet(i)
-      }
+      result.push(
+        Math.round(equityCalc(board, hand, vsRange, ranksFile) * 100) / 100
+      )
     }
-    return result
+  }
+
+  if (customStreet !== -1) {
+    addStreet(customStreet + 3)
+  } else {
+    for (let i = 3; i <= board.length; i++) {
+      addStreet(i)
+    }
+  }
+  return result
+}
+
+// returns [vsOopRangeFlop, vsIpRangeFlop,vsOopRangeTurn, ...]
+export const rangesEquityEval = (
+  args: EvalOptions & { ranges: Range[] }
+): number[] => {
+  const both = args.ranges.map((vsRange) => {
+    return equityEval({ ...args, vsRange })
   })
 
   const result: number[] = []
