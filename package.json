@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "NLHE",
   "author": "Conrad Kay",
   "main": "build/main/index.js",
@@ -21,6 +21,7 @@
     "node": ">=10"
   },
   "dependencies": {
+    "@types/lodash": "^4.17.10",
     "lodash": "^4.17.21",
     "npm-run-all": "^4.1.5",
     "pdetail": "^0.4.1",

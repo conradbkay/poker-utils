@@ -21,7 +21,7 @@ type Range = Combo[]
 export type EvalOptions = {
   board: number[]
   hand: number[]
-  flopHash: EquityHash | RiverEquityHash
+  flopHash?: EquityHash | RiverEquityHash
   ranksFile: string
   chopIsWin?: boolean
 }
@@ -38,13 +38,30 @@ export const equityEval = ({
   const result: number[] = []
 
   if (board.length === 3) {
-    const isoBoard = boardToUnique(board.slice(0, 3)).map(
-      (s) => DECK[s.toLowerCase()]
-    )
+    if (flopHash) {
+      const isoBoard = boardToUnique(board.slice(0, 3)).map(
+        (s) => DECK[s.toLowerCase()]
+      )
 
-    const isoHand = handToUnique(hand, isoBoard, board.slice(0, 3))
+      const isoHand = handToUnique(hand, isoBoard, board.slice(0, 3))
 
-    return equityFromHash(flopHash, isoBoard, isoHand)
+      return equityFromHash(flopHash, isoBoard, isoHand)
+    } else {
+      for (let j = 1; j <= 52; j++) {
+        if (board.includes(j)) {
+          continue
+        }
+        result.push(
+          ...(equityEval({
+            hand,
+            ranksFile,
+            vsRange,
+            chopIsWin,
+            board: [...board, j]
+          }) as number[])
+        )
+      }
+    }
   } else if (board.length === 4) {
     const turnCards = new Set(board.slice(0, 4))
 
@@ -160,7 +177,6 @@ export const flopEquities = (
 
   for (const [j, i] of genAllCombos()) {
     let result = new Array(23).fill(0)
-
     // 2162 runouts per flop, maybe we could do like 400 without much loss
     for (let k = 0; k < deck.length - 1; k++) {
       for (let m = k + 1; m < deck.length; m++) {
