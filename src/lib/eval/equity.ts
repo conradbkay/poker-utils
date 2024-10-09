@@ -158,10 +158,68 @@ export const closestToIdx = (counts: number[], value: number) => {
   return resultIdx
 }
 
+// much faster implementation than checking combo by combo
+export const combosVsRangeEquity = (
+  board: number[],
+  range: number[][],
+  vsRange: number[][],
+  ranksFile: string,
+  chopIsWin?: boolean
+) => {
+  const getRangeRankings = (r: number[][]) => {
+    return r
+      .filter(([c1, c2]) => !board.includes(c1) && !board.includes(c2))
+      .map((combo) => {
+        return [combo, evaluate([...combo, ...board], ranksFile).value] as [
+          number[],
+          number
+        ]
+      })
+  }
+
+  const vsRangeRankings = getRangeRankings(vsRange)
+  const rangeRankings = getRangeRankings(range)
+
+  const hash: [[number, number], number][] = []
+
+  for (let i = 0; i < rangeRankings.length; i++) {
+    const [hand, handRanking] = rangeRankings[i]
+
+    let beats = 0
+    let matchups = 0
+
+    for (let j = 0; j < vsRangeRankings.length; j++) {
+      const [villainHand, value] = vsRangeRankings[j]
+      // impossible matchup, shouldn't count
+      if (hand.includes(villainHand[0]) || hand.includes(villainHand[1])) {
+        continue
+      }
+
+      if (handRanking > value) {
+        beats += 1
+      } else if (handRanking === value) {
+        beats += chopIsWin ? 1 : 0.5
+      }
+
+      matchups++
+    }
+
+    const idxOfLarger = hand.indexOf(Math.max(...hand))
+
+    const x = hand[idxOfLarger === 0 ? 1 : 0],
+      y = hand[idxOfLarger]
+    // [2,1] turns into 52+0
+    hash.push([[y, x], Math.round((beats / matchups) * 10000) / 100])
+  }
+
+  return hash
+}
+
 export const flopEquities = (
   flop: string,
   vsRange: Range,
-  ranksFile: string
+  ranksFile: string,
+  chopIsWin: boolean = true
 ) => {
   const boardCards: string[] = []
 
@@ -173,29 +231,32 @@ export const flopEquities = (
 
   const deck = deckWithoutSpecifiedCards(boardInts)
 
-  const hash: number[][][] = new Array(51).fill(0).map((_) => new Array(51))
+  const hash: number[][][] = new Array(51)
+    .fill(0)
+    .map((_) => new Array(51).fill(0).map((_) => new Array(23).fill(0))) // 59823 ints total
 
-  for (const [j, i] of genAllCombos()) {
-    let result = new Array(23).fill(0)
-    // 2162 runouts per flop, maybe we could do like 400 without much loss
-    for (let k = 0; k < deck.length - 1; k++) {
-      for (let m = k + 1; m < deck.length; m++) {
-        const fullBoard = [...boardInts, deck[k], deck[m]]
-        const used = new Set(fullBoard)
+  const range = genAllCombos()
 
-        if (used.has(j) || used.has(i)) {
-          continue
+  const eqIdxCache: Record<number, number> = {}
+
+  for (let k = 0; k < deck.length - 1; k++) {
+    for (let m = k + 1; m < deck.length; m++) {
+      const comboEqs = combosVsRangeEquity(
+        [...boardInts, k, m],
+        range,
+        vsRange,
+        ranksFile,
+        chopIsWin
+      )
+
+      for (const [combo, eq] of comboEqs) {
+        if (!(eq in eqIdxCache)) {
+          eqIdxCache[eq] = closestToIdx(equityBuckets, eq)
         }
 
-        const eq = equityCalc(fullBoard, [j, i], vsRange, ranksFile, true)
-
-        const eqSlot = closestToIdx(equityBuckets, eq)
-
-        result[eqSlot]++
+        hash[combo[1]][combo[1]][eqIdxCache[eq]]++
       }
     }
-
-    hash[j - 2][i - 1] = result
   }
 
   return hash
