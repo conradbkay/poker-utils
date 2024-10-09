@@ -6,6 +6,7 @@ export * from './lib/eval/strength'
 export * from './lib/eval/utils'
 
 export * from './lib/hashing/hash'
+export * from './lib/hashing/flops'
 
 export * from './lib/ranges'
 
