@@ -4,6 +4,7 @@ import {
   boardToUnique,
   equityFromHash,
   genAllCombos,
+  handIdxMap,
   handToUnique
 } from '../hashing/hash'
 
@@ -206,9 +207,9 @@ export const combosVsRangeEquity = (
 
     const idxOfLarger = hand.indexOf(Math.max(...hand))
 
-    const x = hand[idxOfLarger === 0 ? 1 : 0],
-      y = hand[idxOfLarger]
-    // [2,1] turns into 52+0
+    const x = hand[idxOfLarger],
+      y = hand[idxOfLarger === 0 ? 1 : 0]
+
     hash.push([[y, x], Math.round((beats / matchups) * 10000) / 100])
   }
 
@@ -231,15 +232,17 @@ export const flopEquities = (
 
   const deck = deckWithoutSpecifiedCards(boardInts)
 
+  // if high card is 2, then there's only 1 possible low card (1)
   const hash: number[][][] = new Array(51)
     .fill(0)
-    .map((_) => new Array(51).fill(0).map((_) => new Array(23).fill(0))) // 59823 ints total
+    .map((_, i) => new Array(i + 1).fill(0).map((_) => new Array(23).fill(0))) // around 30k ints total
 
   const range = genAllCombos()
 
   const eqIdxCache: Record<number, number> = {}
 
   for (let k = 0; k < deck.length - 1; k++) {
+    // 3s 2s runout is same as 2s 3s
     for (let m = k + 1; m < deck.length; m++) {
       const comboEqs = combosVsRangeEquity(
         [...boardInts, k, m],
@@ -250,11 +253,15 @@ export const flopEquities = (
       )
 
       for (const [combo, eq] of comboEqs) {
-        if (!(eq in eqIdxCache)) {
-          eqIdxCache[eq] = closestToIdx(equityBuckets, eq)
+        const rnd = Math.round(eq * 10) / 10
+
+        if (!(rnd in eqIdxCache)) {
+          eqIdxCache[rnd] = closestToIdx(equityBuckets, rnd)
         }
 
-        hash[combo[1]][combo[1]][eqIdxCache[eq]]++
+        const [i, j] = handIdxMap(combo)
+
+        hash[i][j][eqIdxCache[rnd]]++
       }
     }
   }

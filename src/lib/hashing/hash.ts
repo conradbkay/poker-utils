@@ -67,17 +67,22 @@ export type RiverEquityHash = {
   [board: string]: number[][][] // same as above but instead of an equity, it's the 23 length buckets arr
 }
 
+export const handIdxMap = (hand: number[]) => {
+  const largeIdx = hand.indexOf(Math.max(...hand))
+  const high = hand[largeIdx]
+  const low = hand[largeIdx ? 0 : 1]
+
+  return [high - 2, low - 1]
+}
+
 export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
   hash: T,
   board: number[],
   hand: number[]
-): T['board'][0] => {
-  const idxOfLarger = hand.indexOf(Math.max(...hand))
+): T['board'][0][0] => {
+  const [i, j] = handIdxMap(hand)
 
-  const x = hand[idxOfLarger === 0 ? 1 : 0],
-    y = hand[idxOfLarger]
-
-  return hash[boardToUnique(board).join('')][combosMap[x - 2][y - 1]]
+  return hash[boardToUnique(board).join('')][i][j]
 }
 
 // follows pio strategically unique grouping
