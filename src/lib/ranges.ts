@@ -2,7 +2,23 @@ import { detailRange } from 'pdetail'
 
 import prange from 'prange'
 
-import { convertCardsToNumbers } from './eval/strength'
+import { convertCardsToNumbers, formatCards } from './eval/strength'
+
+// 4s3c -> 43o
+export const toRangeNotation = (hand: string) => {
+  const ints = convertCardsToNumbers([hand.slice(0, 2), hand.slice(2)]).sort(
+    (a, b) => b - a
+  )
+
+  const formatted = formatCards(ints)
+
+  const suited = formatted[0][1] === formatted[1][1]
+  const pair = formatted[0][0] === formatted[1][0]
+  const base = formatted[0][0] + formatted[1][0]
+  const end = pair ? '' : suited ? 's' : 'o'
+
+  return base + end
+}
 
 export type Combo = [number, number]
 
