@@ -2,7 +2,13 @@ import { detailRange } from 'pdetail'
 
 import prange from 'prange'
 
-import { convertCardsToNumbers, formatCards } from './eval/strength'
+import {
+  convertCardsToNumbers,
+  DECK,
+  deckWithoutSpecifiedCards,
+  formatCards,
+  shuffleDeck
+} from './eval/strength'
 
 // 4s3c -> 43o
 export const toRangeNotation = (hand: string) => {
@@ -201,4 +207,14 @@ export const resolveRanges = (
   }
 
   return [ranges['generic'], ranges['generic']] // should never be reached
+}
+
+export const ploRand260: number[][] = []
+
+while (ploRand260.length < 260) {
+  const deck = shuffleDeck(Object.values(DECK))
+
+  while (deck.length) {
+    ploRand260.push(deck.splice(0, 4))
+  }
 }

@@ -7,11 +7,13 @@ import {
   handIdxMap,
   handToUnique
 } from '../hashing/hash'
+import { ploRand260 } from '../ranges'
 
 import {
   convertCardsToNumbers,
   DECK,
   deckWithoutSpecifiedCards,
+  evalOmaha,
   evaluate
 } from './strength'
 
@@ -72,58 +74,43 @@ export const equityEval = ({
       }
       result.push(
         equityCalc(
-          [...board.slice(0, 4), j],
-          hand,
-          vsRange,
-          ranksFile,
-          chopIsWin
+          {
+            board: [...board.slice(0, 4), j],
+            hand,
+            ranksFile,
+            chopIsWin
+          },
+          vsRange
         )
       )
     }
   } else {
-    result.push(equityCalc(board, hand, vsRange, ranksFile, chopIsWin))
+    result.push(equityCalc({ board, hand, ranksFile, chopIsWin }, vsRange))
   }
 
   return result.map((eq) => Math.round(eq * 100) / 100)
 }
 
-// returns [vsOopRangeFlop, vsIpRangeFlop,vsOopRangeTurn, ...]
-export const rangesEquityEval = (
-  args: EvalOptions & { ranges: Range[] }
-): number[] => {
-  const both = args.ranges.map((vsRange) => {
-    return equityEval({ ...args, vsRange })
-  }) as number[][]
-
-  const result: number[] = []
-
-  for (let i = 0; i < both[0].length; i++) {
-    result.push(both[0][i], both[1][i])
-  }
-
-  return result
-}
+const defaultEval = (board: number[], hand: number[], ranksPath: string) =>
+  evaluate([...board, ...hand], ranksPath)
 
 // doesn't account for runouts, just what % of hands you're ahead of currently
 export const equityCalc = (
-  board: number[],
-  hand: number[],
+  { board, hand, ranksFile, chopIsWin }: EvalOptions,
   vsRange: number[][],
-  ranksFile: string,
-  chopIsWin?: boolean
+  evalFunc = defaultEval
 ) => {
-  const evalCards = [...hand, ...board]
-  const blocked = new Set(evalCards)
+  const blocked = new Set([...hand, ...board])
 
   const afterBlockers = vsRange.filter((combo) => {
     return !blocked.has(combo[0]) && !blocked.has(combo[1])
   })
 
   const vsRangeRankings = afterBlockers.map((combo) => {
-    return evaluate([...combo, ...board], ranksFile).value
+    return evalFunc(board, combo, ranksFile).value
   })
 
-  const handRanking = evaluate(evalCards, ranksFile).value
+  const handRanking = evalFunc(board, hand, ranksFile).value
 
   let beats = 0
 
@@ -267,4 +254,12 @@ export const flopEquities = (
   }
 
   return hash
+}
+
+// takes ~0.4ms in sequential runs
+export const omahaAheadScore = (
+  evalOptions: EvalOptions,
+  vsRange = ploRand260
+) => {
+  return equityCalc(evalOptions, vsRange, evalOmaha)
 }

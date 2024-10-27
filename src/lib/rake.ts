@@ -36,10 +36,21 @@ const starsCutoffs: Cutoff[] = [
   [50, [75, 75, 75, 200, 200, 200, 200, 200]],
   [100, [100, 100, 100, 250, 250, 250, 250, 250]],
   [200, [125, 125, 125, 250, 275, 275, 275, 275]],
+  [500, [150, 150, 150, 300, 300, 300, 300, 300]],
   [1000, [150, 150, 150, 300, 300, 300, 300, 300]],
   [2000, [175, 175, 175, 300, 300, 300, 300, 300]],
   [5000, [225, 200, 200, 300, 300, 300, 300, 300]],
   [20000, [250, 300, 300, 500, 500, 500, 500, 500]]
+]
+
+const ggPloCutoffs: Cutoff[] = [
+  [5, [8, 8, 15, 15, 15, 15, 15, 15]],
+  [10, [15, 15, 30, 30, 30, 30, 30, 30]],
+  [25, [38, 38, 75, 75, 75, 75, 75, 75]],
+  [50, [50, 50, 100, 100, 100, 100, 100, 100]],
+  [100, [100, 100, 200, 200, 200, 200, 200, 200]],
+  [200, [200, 200, 400, 400, 400, 400, 400, 400]],
+  [500, [375, 375, 750, 750, 750, 750, 750, 750]]
 ]
 
 const cap = (cutoffs: Cutoff[]) => (BB: number, dealt: number) => {
@@ -60,6 +71,11 @@ const ggInfo = {
   raked3bets: true,
   percent: () => 0.05,
   cap: cap(ggCutoffs)
+}
+
+const ggPloInfo = {
+  ...ggInfo,
+  cap: cap(ggPloCutoffs)
 }
 
 const acrInfo = {
@@ -87,6 +103,9 @@ export const rake: Record<
   GG: ggInfo,
   GGPoker: ggInfo,
   Natural8: ggInfo,
+  GGPLO: ggPloInfo,
+  GGPokerPLO: ggPloInfo,
+  Natural8PLO: ggPloInfo,
   ACR: acrInfo,
   BCP: acrInfo,
   WPN: acrInfo,

@@ -147,7 +147,7 @@ export function evalOmaha(
   board: number[],
   holeCards: number[],
   ranksPath: string
-) {
+): EvaluatedHand {
   if (!RANKS_DATA) {
     RANKS_DATA = fs.readFileSync(ranksPath)
   }
@@ -155,54 +155,28 @@ export function evalOmaha(
   const holeIdxsArr = hash[holeCards.length][2]
   const boardIdxsArr = hash[board.length][3]
 
-  let max = -Infinity
-  let result: EvaluatedHand | null = null
+  let max = { value: -Infinity } as EvaluatedHand
 
   for (const holeIdxs of holeIdxsArr) {
     for (const boardIdxs of boardIdxsArr) {
-      const evaluated = evaluate([
-        holeCards[holeIdxs[0]],
-        holeCards[holeIdxs[1]],
-        board[boardIdxs[0]],
-        board[boardIdxs[1]],
-        board[boardIdxs[2]]
-      ])
+      const evaluated = evaluate(
+        [
+          holeCards[holeIdxs[0]],
+          holeCards[holeIdxs[1]],
+          board[boardIdxs[0]],
+          board[boardIdxs[1]],
+          board[boardIdxs[2]]
+        ],
+        ranksPath
+      )
 
-      if (evaluated.value > max) {
-        max = evaluated.value
-        result = evaluated
+      if (evaluated.value > max.value) {
+        max = evaluated
       }
     }
   }
 
-  return result!
-}
-
-export function evalHand(
-  cards: number[] | string[],
-  ranksPath: string
-): EvaluatedHand {
-  if (!RANKS_DATA) {
-    RANKS_DATA = fs.readFileSync(ranksPath)
-  }
-
-  if (cards.length < 5) {
-    throw new Error(
-      `Hand must be at least 5 cards, but ${cards.length} cards were provided`
-    )
-  }
-
-  if (cardsAreValidNumbers(cards)) {
-    return evaluate(cards as number[])
-  } else if (cardsAreValidStrings(cards)) {
-    const stringCards = cards as string[]
-
-    return evaluate(convertCardsToNumbers(stringCards))
-  } else {
-    throw new Error(`
-      Please supply input as a valid string[] | number[] of "cards".
-    `)
-  }
+  return max
 }
 
 export function evalCard(card: number): number {
@@ -211,19 +185,6 @@ export function evalCard(card: number): number {
 
 export function convertCardsToNumbers(cards: string[]): number[] {
   return cards.map((card) => DECK[card.trim().toLowerCase()])
-}
-
-function cardsAreValidStrings(cards: string[] | number[]): boolean {
-  return cards.every(
-    (card: string | number) =>
-      typeof card === 'string' && DECK_KEYS.has(card.toLowerCase())
-  )
-}
-
-function cardsAreValidNumbers(cards: string[] | number[]): boolean {
-  return cards.every(
-    (card: string | number) => typeof card === 'number' && DECK_VALUES.has(card)
-  )
 }
 
 export function evaluate(
@@ -266,4 +227,6 @@ export function shuffleDeck(deck: number[]) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[deck[i], deck[j]] = [deck[j], deck[i]]
   }
+
+  return deck
 }
