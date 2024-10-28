@@ -1,3 +1,5 @@
+import { DECK } from './constants'
+
 export const getSuit = (card: number) => {
   return (card - 1) % 4
 }
@@ -112,3 +114,11 @@ export const mostSuit = (board: number[]): number =>
 export const uniqueRanks = (board: number[]): number[] => {
   return Array.from(new Set(board.map((c) => getRank(c))))
 }
+
+export const formatCard = (card: number) => {
+  const key = Object.keys(DECK).find((k) => DECK[k] === card)
+
+  return key[0].toUpperCase() + key[1]
+}
+
+export const formatCards = (cards: number[]) => cards.map(formatCard)

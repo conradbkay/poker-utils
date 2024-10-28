@@ -4,8 +4,7 @@ import hash from './combinationsHash'
 import { evalOmaha } from './strength'
 import { resolve } from 'path'
 import { boardToInts } from './eval'
-import { equityEval, omahaAheadScore } from './equity'
-import { openRanges } from '../ranges'
+import { omahaAheadScore } from './equity'
 
 test('combinations hash', (t) => {
   t.deepEqual(hash[5][3][0], [0, 1, 2])

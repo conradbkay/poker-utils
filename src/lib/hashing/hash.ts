@@ -6,7 +6,7 @@ import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
 import { Range } from '../ranges'
 
 import { flops } from './flops'
-import { CARD_RANKS, DECK } from '../eval/strength'
+import { CARD_RANKS, DECK } from '../eval/constants'
 /**
  * Flops are the most computationally expensive to calculate equities for
  * But there's only 1755 unique flops so we can precompute every combo's equity on every flop vs a range

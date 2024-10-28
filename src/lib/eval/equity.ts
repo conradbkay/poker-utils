@@ -8,10 +8,10 @@ import {
   handToUnique
 } from '../hashing/hash'
 import { ploRange } from '../ranges'
+import { DECK } from './constants'
 
 import {
   convertCardsToNumbers,
-  DECK,
   deckWithoutSpecifiedCards,
   evalOmaha,
   evaluate
