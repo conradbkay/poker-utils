@@ -7,7 +7,7 @@ import {
   handIdxMap,
   handToUnique
 } from '../hashing/hash'
-import { ploRand260 } from '../ranges'
+import { ploRange } from '../ranges'
 
 import {
   convertCardsToNumbers,
@@ -259,7 +259,7 @@ export const flopEquities = (
 // takes ~0.4ms in sequential runs
 export const omahaAheadScore = (
   evalOptions: EvalOptions,
-  vsRange = ploRand260
+  vsRange = ploRange
 ) => {
   return equityCalc(evalOptions, vsRange, evalOmaha)
 }
