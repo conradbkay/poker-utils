@@ -1,6 +1,6 @@
 import fs from 'fs'
 import hash from './combinationsHash'
-import { DECK, EvaluatedHand, HAND_TYPES } from './constants'
+import { EvaluatedHand, HAND_TYPES } from './constants'
 
 /**
  * some of this code is copied from https://github.com/Sukhmai/poker-evaluator

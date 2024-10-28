@@ -10,7 +10,7 @@ import {
 import { ploRange } from '../ranges'
 import { DECK } from './constants'
 import { evalOmaha, evaluate } from './strength'
-import { convertCardsToNumbers, deckWithoutSpecifiedCards } from './utils'
+import { boardToInts, deckWithoutSpecifiedCards } from './utils'
 
 type Combo = [number, number]
 
@@ -204,13 +204,7 @@ export const flopEquities = (
   ranksFile: string,
   chopIsWin: boolean = true
 ) => {
-  const boardCards: string[] = []
-
-  for (let i = 0; i < flop.length; i += 2) {
-    boardCards.push(flop.slice(i, i + 2))
-  }
-
-  const boardInts = convertCardsToNumbers(boardCards)
+  const boardInts = boardToInts(flop)
 
   const deck = deckWithoutSpecifiedCards(boardInts)
 

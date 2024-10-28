@@ -1,6 +1,5 @@
 export * from './lib/theory'
 
-export * from './lib/eval/eval'
 export * from './lib/eval/equity'
 export * from './lib/eval/strength'
 export * from './lib/eval/utils'

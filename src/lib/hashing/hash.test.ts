@@ -2,7 +2,7 @@ import test from 'ava'
 import { random } from 'lodash'
 import { flops } from './flops'
 import { boardToUnique, handToUnique } from './hash'
-import { convertCardsToNumbers } from '../eval/utils'
+import { boardToInts } from '../eval/utils'
 
 const genAllFlops = () => {
   const result: number[][] = []
@@ -46,7 +46,7 @@ test('hand isomorphism', (t) => {
     }
 
     t.assert(
-      handToUnique(hand, convertCardsToNumbers(boardToUnique(board)), board)
+      handToUnique(hand, boardToInts(boardToUnique(board).join(' ')), board)
     )
   }
 })

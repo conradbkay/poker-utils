@@ -3,7 +3,7 @@ import test from 'ava'
 import hash from './combinationsHash'
 import { evalOmaha } from './strength'
 import { resolve } from 'path'
-import { boardToInts } from './eval'
+import { boardToInts } from './utils'
 import { omahaAheadScore } from './equity'
 
 test('combinations hash', (t) => {

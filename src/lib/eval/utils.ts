@@ -144,6 +144,18 @@ export function shuffleDeck(deck: number[]) {
   return deck
 }
 
-export function convertCardsToNumbers(cards: string[]): number[] {
-  return cards.map((card) => DECK[card.trim().toLowerCase()])
+export const boardToInts = (board: string | number[]) => {
+  if (typeof board !== 'string') {
+    return board
+  }
+
+  const boardInts: number[] = []
+
+  board = board.replaceAll(' ', '').toLowerCase()
+
+  for (let i = 0; i < board.length; i += 2) {
+    boardInts.push(DECK[board[i] + board[i + 1]])
+  }
+
+  return boardInts
 }

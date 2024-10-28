@@ -1,14 +1,11 @@
 import { detailRange } from 'pdetail'
 import prange from 'prange'
-import { convertCardsToNumbers } from './eval/utils'
-import { boardToInts } from './eval/eval'
+import { boardToInts } from './eval/utils'
 import { formatCards } from './eval/utils'
 
 // 4s3c -> 43o
 export const toRangeNotation = (hand: string) => {
-  const ints = convertCardsToNumbers([hand.slice(0, 2), hand.slice(2)]).sort(
-    (a, b) => b - a
-  )
+  const ints = boardToInts(hand).sort((a, b) => b - a)
 
   const formatted = formatCards(ints)
 
@@ -33,7 +30,7 @@ export const rangeStrToCombos = (str: string): Range => {
     .split(',')
 
   return combos.map((combo) =>
-    convertCardsToNumbers([combo.substring(0, 2), combo.substring(2)])
+    boardToInts([combo.substring(0, 2), combo.substring(2)])
   )
 }
 
