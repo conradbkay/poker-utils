@@ -1,5 +1,6 @@
 import { DECK } from './constants'
-import { convertCardsToNumbers, evaluate } from './strength'
+import { evaluate } from './strength'
+import { convertCardsToNumbers } from './utils'
 
 export const boardToInts = (board: string | number[]) => {
   if (typeof board !== 'string') {

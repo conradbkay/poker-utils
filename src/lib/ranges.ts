@@ -1,6 +1,6 @@
 import { detailRange } from 'pdetail'
 import prange from 'prange'
-import { convertCardsToNumbers } from './eval/strength'
+import { convertCardsToNumbers } from './eval/utils'
 import { boardToInts } from './eval/eval'
 import { formatCards } from './eval/utils'
 

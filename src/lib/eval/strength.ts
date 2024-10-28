@@ -50,10 +50,6 @@ export function evalCard(card: number): number {
   return RANKS_DATA.readUInt32LE(card * 4)
 }
 
-export function convertCardsToNumbers(cards: string[]): number[] {
-  return cards.map((card) => DECK[card.trim().toLowerCase()])
-}
-
 export function evaluate(
   cardValues: number[],
   ranksPath?: string
@@ -75,25 +71,4 @@ export function evaluate(
     value: p,
     handName: HAND_TYPES[p >> 12]
   }
-}
-
-/**
- * Given a list of cards already dealt out, return the remaining cards that would be in the deck.
- */
-export function deckWithoutSpecifiedCards(cards: number[]): number[] {
-  const providedSet = new Set(cards)
-  return Object.values(DECK).filter((name) => !providedSet.has(name))
-}
-
-/**
- * TS implementation of https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
- * Code based on: https://stackoverflow.com/a/12646864
- */
-export function shuffleDeck(deck: number[]) {
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[deck[i], deck[j]] = [deck[j], deck[i]]
-  }
-
-  return deck
 }

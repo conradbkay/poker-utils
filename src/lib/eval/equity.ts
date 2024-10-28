@@ -9,13 +9,8 @@ import {
 } from '../hashing/hash'
 import { ploRange } from '../ranges'
 import { DECK } from './constants'
-
-import {
-  convertCardsToNumbers,
-  deckWithoutSpecifiedCards,
-  evalOmaha,
-  evaluate
-} from './strength'
+import { evalOmaha, evaluate } from './strength'
+import { convertCardsToNumbers, deckWithoutSpecifiedCards } from './utils'
 
 type Combo = [number, number]
 

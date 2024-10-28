@@ -2,7 +2,7 @@ import test from 'ava'
 import { random } from 'lodash'
 import { flops } from './flops'
 import { boardToUnique, handToUnique } from './hash'
-import { convertCardsToNumbers } from '../eval/strength'
+import { convertCardsToNumbers } from '../eval/utils'
 
 const genAllFlops = () => {
   const result: number[][] = []
