@@ -12,9 +12,7 @@ import { DECK } from './constants'
 import { evalOmaha, evaluate } from './strength'
 import { boardToInts, deckWithoutSpecifiedCards } from './utils'
 
-type Combo = [number, number]
-
-type Range = Combo[]
+type Range = number[][]
 
 export type EvalOptions = {
   board: number[]
@@ -61,7 +59,7 @@ export const equityEval = ({
       }
     }
   } else if (board.length === 4) {
-    const turnCards = new Set(board.slice(0, 4))
+    const turnCards = new Set(board)
 
     for (let j = 1; j <= 52; j++) {
       if (turnCards.has(j) || hand.includes(j)) {
@@ -70,7 +68,7 @@ export const equityEval = ({
       result.push(
         equityCalc(
           {
-            board: [...board.slice(0, 4), j],
+            board: [...board, j],
             hand,
             ranksFile,
             chopIsWin

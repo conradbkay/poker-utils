@@ -1,3 +1,4 @@
+import { isArray } from 'lodash'
 import { DECK } from './constants'
 
 export const getSuit = (card: number) => {
@@ -144,9 +145,13 @@ export function shuffleDeck(deck: number[]) {
   return deck
 }
 
-export const boardToInts = (board: string | number[]) => {
-  if (typeof board !== 'string') {
+export const boardToInts = (board: string | number[] | number) => {
+  if (typeof board === 'number') {
     return board
+  }
+
+  if (isArray(board)) {
+    return board.map((card) => boardToInts(card))
   }
 
   const boardInts: number[] = []

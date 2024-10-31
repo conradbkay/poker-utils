@@ -1,7 +1,6 @@
 import { detailRange } from 'pdetail'
 import prange from 'prange'
-import { boardToInts } from './eval/utils'
-import { formatCards } from './eval/utils'
+import { boardToInts, formatCards } from './eval/utils'
 
 // 4s3c -> 43o
 export const toRangeNotation = (hand: string) => {
