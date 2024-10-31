@@ -145,13 +145,13 @@ export function shuffleDeck(deck: number[]) {
   return deck
 }
 
-export const boardToInts = (board: string | number[] | number) => {
+export const boardToInts = (board: string | string[] | number[] | number) => {
   if (typeof board === 'number') {
     return board
   }
 
   if (isArray(board)) {
-    return board.map((card) => boardToInts(card))
+    return board.map((card) => boardToInts(card)).flat()
   }
 
   const boardInts: number[] = []
