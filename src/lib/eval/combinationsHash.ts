@@ -10,7 +10,7 @@ export type CombinationsHash = {
   }
 }
 
-const hash = {}
+const hash: CombinationsHash = {}
 
 const indexes = [0, 1, 2, 3, 4, 5]
 

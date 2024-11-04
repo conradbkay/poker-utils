@@ -11,3 +11,4 @@ export * from './lib/hashing/flops'
 export * from './lib/ranges'
 
 export * from './lib/rake'
+export * from './lib/eval/combinationsHash'
