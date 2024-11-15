@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "8.2.5",
+  "version": "9.0.0",
   "description": "NLHE",
   "author": "Conrad Kay",
   "main": "build/main/index.js",
@@ -22,10 +22,12 @@
   },
   "dependencies": {
     "@types/lodash": "^4.17.10",
+    "benchmarkify": "^4.0.0",
     "lodash": "^4.17.21",
     "npm-run-all": "^4.1.5",
     "pdetail": "^0.4.1",
-    "prange": "^0.2.3"
+    "prange": "^0.2.3",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@ava/typescript": "^5.0.0",

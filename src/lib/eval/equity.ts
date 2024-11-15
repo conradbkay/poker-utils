@@ -3,14 +3,11 @@ import {
   RiverEquityHash,
   boardToUnique,
   equityFromHash,
-  genAllCombos,
-  handIdxMap,
   handToUnique
 } from '../hashing/hash'
-import { ploRange } from '../ranges'
+import { plo5Range, ploRange } from '../ranges'
 import { DECK } from './constants'
 import { evalOmaha, evaluate } from './strength'
-import { boardToInts, deckWithoutSpecifiedCards } from './utils'
 
 type Range = number[][]
 
@@ -61,24 +58,29 @@ export const equityEval = ({
   } else if (board.length === 4) {
     const turnCards = new Set(board)
 
+    const evalOptions = {
+      hand,
+      ranksFile,
+      chopIsWin
+    }
+
     for (let j = 1; j <= 52; j++) {
       if (turnCards.has(j) || hand.includes(j)) {
         continue
       }
-      result.push(
-        equityCalc(
-          {
-            board: [...board, j],
-            hand,
-            ranksFile,
-            chopIsWin
-          },
-          vsRange
-        )
-      )
+
+      if (hand.length >= 4) {
+        result.push(omahaAheadScore({ ...evalOptions, board: [...board, j] }))
+      } else {
+        result.push(aheadPct({ ...evalOptions, board: [...board, j] }, vsRange))
+      }
     }
   } else {
-    result.push(equityCalc({ board, hand, ranksFile, chopIsWin }, vsRange))
+    result.push(
+      hand.length >= 4
+        ? omahaAheadScore({ hand, ranksFile, chopIsWin, board })
+        : aheadPct({ hand, ranksFile, chopIsWin, board }, vsRange)
+    )
   }
 
   return result.map((eq) => Math.round(eq * 100) / 100)
@@ -88,20 +90,18 @@ const defaultEval = (board: number[], hand: number[], ranksPath: string) =>
   evaluate([...board, ...hand], ranksPath)
 
 // doesn't account for runouts, just what % of hands you're ahead of currently
-export const equityCalc = (
+export const aheadPct = (
   { board, hand, ranksFile, chopIsWin }: EvalOptions,
   vsRange: number[][],
   evalFunc = defaultEval
 ) => {
   const blocked = new Set([...hand, ...board])
 
-  const afterBlockers = vsRange.filter((combo) => {
-    return !blocked.has(combo[0]) && !blocked.has(combo[1])
-  })
-
-  const vsRangeRankings = afterBlockers.map((combo) => {
-    return evalFunc(board, combo, ranksFile).value
-  })
+  const vsRangeRankings = vsRange
+    .filter((combo) => !blocked.has(combo[0]) && !blocked.has(combo[1]))
+    .map((combo) => {
+      return evalFunc(board, combo, ranksFile).value
+    })
 
   const handRanking = evalFunc(board, hand, ranksFile).value
 
@@ -123,22 +123,6 @@ export const equityBuckets = [
   92.5, 95, 97.5, 100
 ]
 
-export const closestToIdx = (counts: number[], value: number) => {
-  let result = Infinity
-  let resultIdx = 0
-
-  for (let i = 0; i < counts.length; i++) {
-    const diff = Math.abs(counts[i] - value)
-
-    if (diff < result) {
-      result = diff
-      resultIdx = i
-    }
-  }
-
-  return resultIdx
-}
-
 // much faster implementation than checking combo by combo
 export const combosVsRangeEquity = (
   board: number[],
@@ -151,10 +135,12 @@ export const combosVsRangeEquity = (
     return r
       .filter(([c1, c2]) => !board.includes(c1) && !board.includes(c2))
       .map((combo) => {
-        return [combo, evaluate([...combo, ...board], ranksFile).value] as [
-          number[],
-          number
-        ]
+        const evaled =
+          combo.length >= 4
+            ? evalOmaha(board, combo, ranksFile)
+            : evaluate([...combo, ...board], ranksFile)
+
+        return [combo, evaled.value] as [number[], number]
       })
   }
 
@@ -171,7 +157,7 @@ export const combosVsRangeEquity = (
 
     for (let j = 0; j < vsRangeRankings.length; j++) {
       const [villainHand, value] = vsRangeRankings[j]
-      // impossible matchup, shouldn't count
+      // impossible matchup
       if (hand.includes(villainHand[0]) || hand.includes(villainHand[1])) {
         continue
       }
@@ -196,57 +182,14 @@ export const combosVsRangeEquity = (
   return hash
 }
 
-export const flopEquities = (
-  flop: string,
-  vsRange: Range,
-  ranksFile: string,
-  chopIsWin: boolean = true
-) => {
-  const boardInts = boardToInts(flop)
-
-  const deck = deckWithoutSpecifiedCards(boardInts)
-
-  // if high card is 2, then there's only 1 possible low card (1)
-  const hash: number[][][] = new Array(51)
-    .fill(0)
-    .map((_, i) => new Array(i + 1).fill(0).map((_) => new Array(23).fill(0))) // around 30k ints total
-
-  const range = genAllCombos()
-
-  const eqIdxCache: Record<number, number> = {}
-
-  for (let k = 0; k < deck.length - 1; k++) {
-    // 3s 2s runout is same as 2s 3s
-    for (let m = k + 1; m < deck.length; m++) {
-      const comboEqs = combosVsRangeEquity(
-        [...boardInts, k, m],
-        range,
-        vsRange,
-        ranksFile,
-        chopIsWin
-      )
-
-      for (const [combo, eq] of comboEqs) {
-        const rnd = Math.round(eq * 10) / 10
-
-        if (!(rnd in eqIdxCache)) {
-          eqIdxCache[rnd] = closestToIdx(equityBuckets, rnd)
-        }
-
-        const [i, j] = handIdxMap(combo)
-
-        hash[i][j][eqIdxCache[rnd]]++
-      }
-    }
-  }
-
-  return hash
-}
-
 // takes ~0.4ms in sequential runs
 export const omahaAheadScore = (
   evalOptions: EvalOptions,
-  vsRange = ploRange
+  vsRange?: number[][]
 ) => {
-  return equityCalc(evalOptions, vsRange, evalOmaha)
+  return aheadPct(
+    evalOptions,
+    vsRange || (evalOptions.hand.length > 4 ? plo5Range : ploRange),
+    evalOmaha
+  )
 }

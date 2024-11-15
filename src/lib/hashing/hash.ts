@@ -1,7 +1,14 @@
 import { writeFile } from 'fs/promises'
 
-import { flopEquities } from '../eval/equity'
-import { getRank, getRankStr, getSuit, mostSuit } from '../eval/utils'
+import { combosVsRangeEquity, equityBuckets } from '../eval/equity'
+import {
+  boardToInts,
+  deckWithoutSpecifiedCards,
+  getRank,
+  getRankStr,
+  getSuit,
+  mostSuit
+} from '../eval/utils'
 
 import { Range } from '../ranges'
 
@@ -32,6 +39,70 @@ export const combosMap: { [key: string]: number } = {}
 
 for (let i = 0; i < allCombosStrs.length; i++) {
   combosMap[allCombosStrs[i]] = i
+}
+
+const closestToIdx = (counts: number[], value: number) => {
+  let result = Infinity
+  let resultIdx = 0
+
+  for (let i = 0; i < counts.length; i++) {
+    const diff = Math.abs(counts[i] - value)
+
+    if (diff < result) {
+      result = diff
+      resultIdx = i
+    }
+  }
+
+  return resultIdx
+}
+
+// creates a hash for each combo on every flop
+export const flopEquities = (
+  flop: string,
+  vsRange: Range,
+  ranksFile: string,
+  chopIsWin: boolean = true
+) => {
+  const boardInts = boardToInts(flop)
+
+  const deck = deckWithoutSpecifiedCards(boardInts)
+
+  // if high card is 2, then there's only 1 possible low card (1)
+  const hash: number[][][] = new Array(51)
+    .fill(0)
+    .map((_, i) => new Array(i + 1).fill(0).map((_) => new Array(23).fill(0))) // around 30k ints total
+
+  const range = genAllCombos()
+
+  const eqIdxCache: Record<number, number> = {}
+
+  for (let k = 0; k < deck.length - 1; k++) {
+    // 3s 2s runout is same as 2s 3s
+    for (let m = k + 1; m < deck.length; m++) {
+      const comboEqs = combosVsRangeEquity(
+        [...boardInts, k, m],
+        range,
+        vsRange,
+        ranksFile,
+        chopIsWin
+      )
+
+      for (const [combo, eq] of comboEqs) {
+        const rnd = Math.round(eq * 10) / 10
+
+        if (!(rnd in eqIdxCache)) {
+          eqIdxCache[rnd] = closestToIdx(equityBuckets, rnd)
+        }
+
+        const [i, j] = handIdxMap(combo)
+
+        hash[i][j][eqIdxCache[rnd]]++
+      }
+    }
+  }
+
+  return hash
 }
 
 const genEquityHash = (

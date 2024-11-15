@@ -577,4 +577,5 @@ export const plo5Strs: string[][] = [
   'KhKdJcTc8s'
 ].map((s) => s.match(/.{1,2}/g))
 
+export const plo5Range = plo5Strs.map((s) => boardToInts(s))
 export const ploRange = ploStrs.map((s) => boardToInts(s.join(' ')))
