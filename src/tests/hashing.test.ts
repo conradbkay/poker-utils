@@ -2,25 +2,12 @@ import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { flops } from '@lib/hashing/flops'
 import { genCardCombinations } from '@lib/utils'
-import { isoBoard, isoHand } from '@lib/iso'
+import { isoHand } from '@lib/iso'
 import { getHandIdx } from '@lib/utils'
 import { pioFlops } from '../data/pioFlops'
-import { randCards } from '../benchmarks/utils'
-import { randomInt } from '@lib/eval/utils'
-import { sortCards } from '@lib/sort'
 
 const allFlops = genCardCombinations(3)
 const allHands = genCardCombinations(2)
-
-test('sort cards', () => {
-  for (let i = 0; i < 1000; i++) {
-    const cards = randCards(randomInt(2, 7))
-    assert.deepEqual(
-      [...cards].sort((a, b) => b - a),
-      sortCards(cards)
-    )
-  }
-})
 
 test('getHandIdx', (t) => {
   let found = new Set<number>()

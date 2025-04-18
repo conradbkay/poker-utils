@@ -161,12 +161,6 @@ export function shuffleDeck(deck: number[]) {
   return deck
 }
 
-export function randomInt(min: number, max: number) {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
 export const boardToInts = (board: string | string[] | number[] | number) => {
   if (typeof board === 'number') {
     return board
