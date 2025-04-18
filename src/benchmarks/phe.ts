@@ -1,21 +1,22 @@
-import { evaluateCardCodes } from 'phe'
 import Benchmarkify from 'benchmarkify'
 import { randCards, time, sequentialCards } from './utils'
+import { evaluate } from '../lib/phe/evaluate'
 
 const benchmark = new Benchmarkify('Equity', {
-  chartImage: false
-}).printHeader()
+  chartImage: false,
+  drawChart: false
+})
 
 benchmark
-  .createSuite('phe', { time })
+  .createSuite('phe.ts', { time })
   .add('Sequential', () => {
-    evaluateCardCodes(sequentialCards)
+    evaluate(sequentialCards)
   })
   .add('Random 7 cards', () => {
-    evaluateCardCodes(randCards(7))
+    evaluate(randCards(7))
   })
   .add('Random 5 cards', () => {
-    evaluateCardCodes(randCards(5))
+    evaluate(randCards(5))
   })
 
-benchmark.run()
+export default benchmark

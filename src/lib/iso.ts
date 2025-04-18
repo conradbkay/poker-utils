@@ -1,10 +1,5 @@
 import { getRank, getSuit, suitCount } from './eval/utils'
-
-// matches PioSOLVER. As Ah Ad Ac Ks etc
-export const sortCards = (cards: number[]) => {
-  cards.sort((a, b) => b - a)
-  return cards
-}
+import { sortCards } from './sort'
 
 // only sorts flop. 2.5x slower than sortCards
 export const sortBoard = (cards: number[]) => {
@@ -16,7 +11,8 @@ export const makeCard = (rank: number, suit: number): number => {
   return (rank - 2) * 4 + suit + 1
 }
 
-// fast (~5m flops/s) since loops only rarely execute. Hashing results wouldn't even speed up
+// very fast (~7m flops/s) since loops only rarely execute. Hashing results would be slower
+
 /**
  * sorts cards in place if len <= 3
  * */

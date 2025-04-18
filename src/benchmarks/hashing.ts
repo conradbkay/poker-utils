@@ -1,10 +1,11 @@
 import Benchmarkify from 'benchmarkify'
 import { randCards, time } from './utils'
-import { canonize, sortBoard, sortCards } from '@lib/iso'
+import { canonize } from '@lib/iso'
 
 const benchmark = new Benchmarkify('Hashing', {
-  chartImage: false
-}).printHeader()
+  chartImage: false,
+  drawChart: false
+})
 
 benchmark
   .createSuite('hashing', { time })
@@ -18,4 +19,4 @@ benchmark
     canonize(randCards(5))
   })
 
-benchmark.run()
+export default benchmark

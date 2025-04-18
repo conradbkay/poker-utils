@@ -21,8 +21,9 @@ const ranksFile = resolve('./HandRanks.dat')
 initFromPathSync(ranksFile)
 
 const benchmark = new Benchmarkify('Equity', {
-  chartImage: false
-}).printHeader()
+  chartImage: false,
+  drawChart: false
+}).printHeader() // ! have this be the only one to print
 
 const riverEval = genBoardEval(randCards(5))
 const flopEval = genBoardEval(randCards(3))
@@ -80,15 +81,13 @@ const ploBench = benchmark
       chopIsWin: true
     })
   })
-  .add('turn equity vs range', () => {
+/* very slow .add('turn equity vs range', () => {
     equityEval({
       board: randCards(4),
       hand: randCards(4),
       chopIsWin: true,
       vsRange: ploRange
     })
-  })
+  })*/
 
-nlheBench.run()
-//ploBench.run()
-//benchmark.run()
+export default benchmark
