@@ -20,7 +20,9 @@ export const CARD_RANKS = [
   'a'
 ]
 
-export const HAND_TYPES: HandName[] = [
+export const SUITS = ['c', 'd', 'h', 's']
+
+export const HAND_TYPES = [
   'invalid hand',
   'high card',
   'one pair',
@@ -31,7 +33,7 @@ export const HAND_TYPES: HandName[] = [
   'full house',
   'four of a kind',
   'straight flush'
-]
+] as const
 
 export const DECK: Deck = {
   '2c': 1,
@@ -88,20 +90,16 @@ export const DECK: Deck = {
   as: 52
 }
 
-export const DECK_KEYS = new Set(Object.keys(DECK))
-export const DECK_VALUES = new Set(Object.values(DECK))
+export const c2str = Object.fromEntries(
+  Object.entries(DECK).map(([k, v]) => [v, k])
+)
 
-export type HandName =
-  | 'invalid hand'
-  | 'high card'
-  | 'one pair'
-  | 'two pairs'
-  | 'three of a kind'
-  | 'straight'
-  | 'flush'
-  | 'full house'
-  | 'four of a kind'
-  | 'straight flush'
+// first char uppercase
+export const c2fstr = Object.fromEntries(
+  Object.entries(DECK).map(([k, v]) => [v, k[0].toUpperCase() + k[1]])
+)
+
+export type HandName = (typeof HAND_TYPES)[number]
 
 export interface EvaluatedHand {
   handType: number // Index of HANDTYPES array

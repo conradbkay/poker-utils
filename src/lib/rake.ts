@@ -1,4 +1,8 @@
-// first int in tuple is BB cents (inclusive)
+/*
+last updated 11/10/24
+int in tuple is BB cents (inclusive), array is rake cap in cents, starting at 2 players
+*/
+
 type Cutoff = [number, number[]]
 
 const iggyCutoffs: Cutoff[] = [
@@ -74,7 +78,7 @@ const cap = (cutoffs: Cutoff[]) => (BB: number, dealt: number) => {
   return cutoffs[useIdx][1][Math.min(4, dealt - 2)]
 }
 
-// this changed some time around, ideally they should pass in an epoch (or just provide a separate "Stars Old" rake obj)
+// this changed some time around, ideally they should pass in an epoch (or just provide a separate "Stars Old" rake object)
 const starsInfo = {
   atEnd: false,
   percent: (BBCents: number) => (BBCents >= 1000 ? 0.045 : 0.05),
@@ -120,6 +124,7 @@ export const rake: Record<
     cap: ReturnType<typeof cap>
   }
 > = {
+  PS: starsInfo,
   Stars: starsInfo,
   PokerStars: starsInfo,
   GG: ggInfo,

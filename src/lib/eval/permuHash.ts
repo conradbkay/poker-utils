@@ -1,3 +1,27 @@
+// fast lookup to get all unique `subset` length index permutations of `cards` length array for PLO idxs
+export type CombinationsHash = {
+  [cards: number]: {
+    [subset: number]: number[][] // indexes
+  }
+}
+
+export const hash: CombinationsHash = {}
+
+const indexes = [0, 1, 2, 3, 4, 5]
+
+for (let i = 3; i <= 6; i++) {
+  const useArr = indexes.slice(0, i)
+
+  hash[i] = {}
+
+  for (let j = 2; j <= 3; j++) {
+    hash[i][j] = []
+    for (const combination of combinations(useArr, j)) {
+      hash[i][j].push(combination)
+    }
+  }
+}
+
 // from thunderkid on Github https://gist.github.com/axelpale/3118596?permalink_comment_id=3945828#gistcomment-3945828
 
 export function* combinations<T>(
