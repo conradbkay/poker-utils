@@ -1,6 +1,6 @@
-# rfphe
+# poker-utils
 
-really fast poker hand evaluation. 100% TypeScript
+Really fast poker hand evaluation in pure TypeScript
 
 - NLHE and 4-6 card Omaha strength evaluation
 - fast isomorphism and weighted isomorphic runouts

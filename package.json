@@ -1,6 +1,6 @@
 {
-  "name": "rfphe",
-  "version": "1.0.0",
+  "name": "poker-utils",
+  "version": "10.0.1",
   "description": "NLHE",
   "author": "Conrad Kay",
   "main": "build/main/index.js",
