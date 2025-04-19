@@ -11,7 +11,7 @@ import {
   HIGH_CARD
 } from './hand-rank'
 import { cardCodes, stringifyCardCode } from './hand-code'
-import { phe } from './evaluate'
+import { getPHEValue } from './evaluate'
 
 /**
  * Evaluates the 5 - 7 cards to arrive at a number representing the hand
@@ -24,7 +24,7 @@ import { phe } from './evaluate'
  */
 export function evaluateCards(cards) {
   const codes = cardCodes(cards)
-  return phe(codes)
+  return getPHEValue(codes)
 }
 
 /**
@@ -65,7 +65,7 @@ export function rankCards(cards) {
  * `FOUR_OF_A_KIND` (enumerated in ranks)
  */
 export function rankCardCodes(cardCodes) {
-  return handRank(phe(cardCodes))
+  return handRank(getPHEValue(cardCodes))
 }
 
 /**

@@ -1,4 +1,4 @@
-export interface Deck {
+export type Deck = {
   [key: string]: number
 }
 
