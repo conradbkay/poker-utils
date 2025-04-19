@@ -1,7 +1,5 @@
-const { dp, choose } = require('./dptables')
-
-// assumes 13 ranks always
-const quinary_hash_hash: Record<string, null> = {}
+import { isUndefined } from 'lodash'
+import { dp, choose } from './dptables'
 
 /**
  * Calculates the quinary hash using the dp table.
@@ -9,11 +7,11 @@ const quinary_hash_hash: Record<string, null> = {}
  * @name hash_quinary
  * @function
  * @private
- * @param {Array} q array with an element for each rank, usually total of 13
- * @param {Number} k number of cards that make up the hand, 5, 6 or 7
- * @return {Number} hash sum
+ * @param q array with an element for each rank, usually total of 13
+ * @param k number of cards that make up the hand, 5, 6 or 7
+ * @return hash sum
  */
-export function hash_quinary(q, k) {
+export function hash_quinary(q: number[], k: number) {
   var sum = 0
 
   for (var i = 0; i < 13; i++) {
@@ -33,11 +31,11 @@ export function hash_quinary(q, k) {
  * @name hash_binary
  * @function
  * @private
- * @param {Array} q array with an element for each rank, usually total of 13
- * @param {Number} k number of cards that make up the hand, 5, 6 or 7
- * @return {Number} hash sum
+ * @param q array with an element for each rank, usually total of 13
+ * @param k number of cards that make up the hand, 5, 6 or 7
+ * @return hash sum
  */
-export function hash_binary(q, k) {
+export function hash_binary(q: number[], k: number) {
   var sum = 0
 
   for (var i = 0; i < 13; i++) {

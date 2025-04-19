@@ -15,6 +15,7 @@ import { ploRange, ranges } from '../lib/ranges'
 import { randCards, time, sequentialCards } from './utils'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
+import { boardToInts } from '@lib/cards/utils'
 
 // ensure data is loaded BEFORE running benchmarks
 const ranksFile = resolve('./HandRanks.dat')
@@ -49,7 +50,11 @@ const nlheBench = benchmark
     flopEval(randCards(2))
   })
   .add('river range equity vs range (1326 combos each)', () => {
-    combosVsRangeAhead(randCards(5), ranges['a2c'], ranges['a2c'])
+    combosVsRangeAhead({
+      board: randCards(5),
+      range: ranges['a2c'],
+      vsRange: ranges['a2c']
+    })
   })
 
 const ploBench = benchmark

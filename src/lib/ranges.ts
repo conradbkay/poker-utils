@@ -1,8 +1,14 @@
 import { detailRange } from 'pdetail'
 import prange from 'prange'
-import { boardToInts, formatCards } from './eval/utils'
+import { boardToInts, formatCards } from './cards/utils'
 
-// 4s3c -> 43o
+/**
+ * migrate this code to use our isomorphism functions
+ * for 2 cards easy s/o/empty if pair
+ * omaha very complex
+ */
+
+/** 4s3c -> 43o */
 export const toRangeNotation = (hand: string) => {
   const ints = boardToInts(hand).sort((a, b) => b - a)
 
@@ -76,7 +82,7 @@ const rangesStrs = {
 }
 
 const random = rangeStrToCombos(
-  '22+,A2s+,K2s+,Q2s+,J2s+,T2s+,92s+,82s+,72s+,62s+,52s+,42s+,32s,A2o+,K2o+,Q2o+,J2o+,T2o+,92o+,82o+,72o+,62o+,52o'
+  '22+,A2s+,K2s+,Q2s+,J2s+,T2s+,92s+,82s+,72s+,62s+,52s+,42s+,32s+,A2o+,K2o+,Q2o+,J2o+,T2o+,92o+,82o+,72o+,62o+,52o+,42o+,32o+'
 )
 
 export const ranges: {

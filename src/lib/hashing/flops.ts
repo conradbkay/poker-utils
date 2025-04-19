@@ -2,9 +2,9 @@ import { genCardCombinations } from '@lib/utils'
 import { isoBoard, isoWeight } from '../iso'
 import { c2fstr, c2str } from '@lib/twoplustwo/constants'
 
-const allFlops = genCardCombinations(3)
 const seen = new Set<string>()
 // exported for testing
+export const allFlops = genCardCombinations(3)
 export const flopIsoBoards = allFlops.reduce((a, c) => {
   const iso = isoBoard(c)
   if (!seen.has(iso.toString())) {

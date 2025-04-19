@@ -13,10 +13,12 @@ benchmark
     evaluateCardCodes(sequentialCards)
   })
   .add('Random 7 cards', () => {
-    evaluateCardCodes(randCards(7))
+    evaluateCardCodes(randCards(7).map((c) => c - 1))
   })
   .add('Random 5 cards', () => {
-    evaluateCardCodes(randCards(5))
+    evaluateCardCodes(randCards(5).map((c) => c - 1))
   })
 
 export default benchmark
+
+benchmark.run()

@@ -12,7 +12,7 @@ export const lazyInitFromPath = (path: string) => {
 export const initFromPath = async (path?: string) => {
   path = path || defaultPath
 
-  if (path !== usedPath) {
+  if (path && path !== usedPath) {
     RANKS_DATA = await readFile(path)
     usedPath = path
   }

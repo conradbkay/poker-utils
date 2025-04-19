@@ -1,92 +1,68 @@
-import { boardToInts, deckWithoutSpecifiedCards } from '../eval/utils'
-import { Range } from '../ranges'
+import { deckWithoutSpecifiedCards } from '../cards/utils'
+import { Range, ranges } from '../ranges'
 import { flops } from './flops'
 import { combosVsRangeAhead } from '../twoplustwo/equity'
 import { equityBuckets } from '../constants'
-import { isoBoard } from '../iso'
-import { genCardCombinations, getHandIdx } from '@lib/utils'
+import { flopIsoRunouts, isoBoard } from '../iso'
+import { closestIdx, genCardCombinations, getHandIdx } from '@lib/utils'
+
 /**
  * Flops are the most computationally expensive to calculate equities for
  * there's only 1755 unique flops after applying isomorphism, so we can precompute every combo's equity on every flop vs a specific range
  */
 
 const allCombos = genCardCombinations(2)
-
-const allCombosStrs = allCombos.map((c) => c.join(' '))
-
-export const combosMap: { [key: string]: number } = {}
-
-for (let i = 0; i < allCombosStrs.length; i++) {
-  combosMap[allCombosStrs[i]] = i
-}
-
-const closestToIdx = (counts: number[], value: number) => {
-  let result = Infinity
-  let resultIdx = 0
-
-  for (let i = 0; i < counts.length; i++) {
-    const diff = Math.abs(counts[i] - value)
-
-    if (diff < result) {
-      result = diff
-      resultIdx = i
-    }
-  }
-
-  return resultIdx
-}
-
 // todo optional vsRange as 169 length isomorphic
 export const flopEquities = (
-  flop: string,
+  flop: number[],
   vsRange: Range,
-  ranksFile: string,
+  ranksFile?: string,
   chopIsWin: boolean = true
 ) => {
-  const boardInts = boardToInts(flop)
-
-  const deck = deckWithoutSpecifiedCards(boardInts)
-
   const hash: number[][] = new Array(1326)
     .fill(0)
     .map((_) => new Array(23).fill(0))
 
-  const eqIdxCache: Record<number, number> = {}
-
-  // todo can definitely speed this up by a lot
-  // we could depend on isomorphic weights here because vsRange is based on preflop and should be identical across suits
-  for (let k = 0; k < deck.length - 1; k++) {
-    // 3s 2s runout is same as 2s 3s
-    for (let m = k + 1; m < deck.length; m++) {
-      const comboEqs = combosVsRangeAhead(
-        [...boardInts, k, m],
-        allCombos,
+  const runouts = flopIsoRunouts(flop)
+  // maybe it's possible to reduce each range by the intersection somehow?
+  // ! we need to convert allCombos and vsRange to the isomorphic hand with weight for each turn/river
+  for (const turnStr in runouts) {
+    const rivers = runouts[turnStr]
+    const turn = parseInt(turnStr)
+    for (const riverStr in rivers) {
+      const weight = rivers[riverStr]
+      const river = parseInt(riverStr)
+      const comboEqs = combosVsRangeAhead({
+        board: [...flop, turn, river],
+        range: allCombos,
         vsRange,
         ranksFile,
         chopIsWin
-      )
+      })
 
       for (const [combo, eq] of comboEqs) {
-        const rnd = Math.round(eq * 10) / 10
-
-        if (!(rnd in eqIdxCache)) {
-          eqIdxCache[rnd] = closestToIdx(equityBuckets, rnd)
-        }
-
-        hash[getHandIdx(combo)][eqIdxCache[rnd]]++
+        const bucket = closestIdx(equityBuckets, eq)
+        hash[getHandIdx(combo)][bucket] += weight
       }
     }
   }
 
+  /*
+  for (let k = 1; k < deck.length - 1; k++) {
+    // 3s 2s runout is same as 2s 3s
+    for (let m = k + 1; m < deck.length; m++) {
+    }
+  }
+  */
   return hash
 }
 
 export const generateEquityHash = (vsRange: Range, ranksFile: string) => {
   const hash: RiverEquityHash = {}
 
-  for (const [flop] of flops) {
+  for (const [s, flop] of flops) {
     const equities = flopEquities(flop, vsRange, ranksFile)
-    hash[flop] = equities
+    hash[s] = equities
   }
 
   return hash
@@ -95,7 +71,6 @@ export const generateEquityHash = (vsRange: Range, ranksFile: string) => {
 export type EquityHash = {
   [board: string]: number[]
 }
-
 export type RiverEquityHash = {
   [board: string]: number[][] // same as above but instead of a general flop equity, every river is added to hash via some bucketing scheme
 }

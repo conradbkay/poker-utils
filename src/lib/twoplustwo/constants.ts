@@ -90,13 +90,14 @@ export const DECK: Deck = {
   as: 52
 }
 
-export const c2str = Object.fromEntries(
-  Object.entries(DECK).map(([k, v]) => [v, k])
-)
+export const ALL_CARDS = Object.values(DECK)
+export const DECK_ENTS = Object.entries(DECK)
+
+export const c2str = Object.fromEntries(DECK_ENTS.map(([k, v]) => [v, k]))
 
 // first char uppercase
 export const c2fstr = Object.fromEntries(
-  Object.entries(DECK).map(([k, v]) => [v, k[0].toUpperCase() + k[1]])
+  DECK_ENTS.map(([k, v]) => [v, k[0].toUpperCase() + k[1]])
 )
 
 export type HandName = (typeof HAND_TYPES)[number]

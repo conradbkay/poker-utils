@@ -1,8 +1,8 @@
 import { iso } from '@lib/iso'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
-import { initFromPathSync } from '../init'
+import { initFromPathSync, lazyInitFromPath } from '../init'
 import { plo5Range, ploRange } from '../ranges'
-import { evalOmaha, evaluate, fastEval, genBoardEval } from './strength'
+import { evalOmaha, evaluate, fastEval, genBoardEval, nextP } from './strength'
 
 type Range = number[][]
 
@@ -110,64 +110,52 @@ export const aheadPct = (
   return (beats / vsRangeRankings.length) * 100
 }
 
+// range vs range
+export type RvRArgs = {
+  board: number[]
+  range: number[][]
+  vsRange: number[][]
+  ranksFile?: string
+  chopIsWin?: boolean
+}
+
 /**
  * sorts both ranges by strength
- * todo add `useBlockers` and measure perf diff
+ *
  * todo create wrapper function rangeVsRangeAhead that just averages
+ *
+ * 4k/s on full ranges
  */
-export const combosVsRangeAhead = (
-  board: number[],
-  range: number[][],
-  vsRange: number[][],
-  ranksFile?: string,
-  chopIsWin?: boolean
-) => {
+export const combosVsRangeAhead = ({
+  board,
+  range,
+  vsRange,
+  ranksFile,
+  chopIsWin
+}: RvRArgs) => {
   initFromPathSync(ranksFile)
 
   const isOmaha = range[0].length >= 4
 
-  const evalHand = isOmaha ? null : genBoardEval(board, fastEval)
+  const evalHand = isOmaha ? null : genBoardEval(board)
 
   const getRangeRankings = (r: number[][]) => {
-    // the board blocks part of both ranges
-    const valid = r.filter(
-      ([c1, c2]) => !board.includes(c1) && !board.includes(c2)
-    )
+    let result: [number[], number][] = []
 
-    return isOmaha
-      ? valid.map(
-          (combo) =>
-            [combo, evalOmaha(board, combo).value] as [number[], number]
-        )
-      : valid.map((combo) => [combo, evalHand(combo)] as [number[], number])
+    for (const combo of r) {
+      if (combo.some((c) => board.includes(c))) continue
+      const strength = isOmaha ? evalOmaha(board, combo).value : evalHand(combo)
+      result.push([combo, strength])
+    }
+
+    return result
   }
 
-  // console.time('gen') // ~0.6ms
   const rangeRankings = getRangeRankings(range)
   const vsRangeRankings = getRangeRankings(vsRange)
-  // console.timeEnd('gen')
-  // console.time('sorts') ~ .08ms
   rangeRankings.sort((a, b) => a[1] - b[1])
   vsRangeRankings.sort((a, b) => a[1] - b[1])
-  // console.timeEnd('sorts')
 
-  let blockerHash: Record<string, Record<string, number[]>> = {} // blocked hand strengths for any combo
-  for (let i = 0; i < vsRangeRankings.length; i++) {
-    const [combo, val] = vsRangeRankings[i]
-    for (const [c1, c2] of [
-      [combo[0], combo[1]],
-      [combo[1], combo[0]]
-    ]) {
-      blockerHash[c1] ??= {}
-      blockerHash[c1][c2] ??= []
-      blockerHash[c1][c2].push(val)
-    }
-
-    for (const card of combo) {
-    }
-  }
-
-  // console.time('results') ~10ms with blockers .03ms without
   const result: [[number, number], number][] = []
   let vsPointer = 0
   let beats = 0
@@ -180,13 +168,12 @@ export const combosVsRangeAhead = (
       handRanking >= rangeRankings[vsPointer][1]
     ) {
       const [vsHand, vsRanking] = vsRangeRankings[vsPointer]
-      // impossible matchup
-      /*if (hand.includes(vsHand[0]) || hand.includes(vsHand[1])) {
-        continue
-      }*/
-      beats += chopIsWin || handRanking > vsRanking ? 1 : 0.5
       vsPointer++
-      beats
+      // blockers
+      if (vsHand.some((c) => hand.includes(c))) {
+        continue
+      }
+      beats += chopIsWin || handRanking > vsRanking ? 1 : 0.5
     }
 
     const idxOfLarger = hand.indexOf(Math.max(...hand))
@@ -199,8 +186,14 @@ export const combosVsRangeAhead = (
       Math.round((beats / vsRangeRankings.length) * 10000) / 100
     ])
   }
-  // console.timeEnd('results')
+
   return result
+}
+
+// returns average ahead of range
+export const rangeVsRangeAhead = (args: RvRArgs) => {
+  const res = combosVsRangeAhead(args)
+  return res.reduce((a, c) => a + c[1], 0) / res.length
 }
 
 export const omahaAheadScore = (

@@ -53,9 +53,9 @@ export const alphaToRaise = (alpha: number, faced: number) => {
 }
 
 /**
- * @param value any percentage number
+ * @param value 0-1
  * @param precision how many decimal places should be in the result
- * @returns number
+ * @returns 0-100
  */
 export const toPct = (value: number, precision = 1) => {
   const mult = Math.pow(10, precision + 2)

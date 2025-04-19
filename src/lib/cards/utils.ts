@@ -1,4 +1,4 @@
-import { DECK } from '../twoplustwo/constants'
+import { c2fstr, DECK } from '../twoplustwo/constants'
 
 /**
  * these utils assume a deck from 1-52
@@ -133,12 +133,10 @@ export const mostSuit = (board: number[]): number =>
   Math.max(...suitCounts(board))
 
 /**
- * returns 'Ks', '9h' style formatted
+ * returns 'Ks', '9h' style formatted. empty string for unknown card
  */
 export const formatCard = (card: number) => {
-  const key = Object.keys(DECK).find((k) => DECK[k] === card)
-
-  return key[0].toUpperCase() + key[1]
+  return c2fstr[card] || ''
 }
 
 export const formatCards = (cards: number[]) => cards.map(formatCard)
@@ -152,13 +150,13 @@ export function deckWithoutSpecifiedCards(cards: number[]) {
  * TS implementation of https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
  * Code from https://stackoverflow.com/a/12646864
  */
-export function shuffleDeck(deck: number[]) {
-  for (let i = deck.length - 1; i > 0; i--) {
+export function shuffle(arr: number[]) {
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[deck[i], deck[j]] = [deck[j], deck[i]]
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
   }
 
-  return deck
+  return arr
 }
 
 export const boardToInts = (board: string | string[] | number[] | number) => {

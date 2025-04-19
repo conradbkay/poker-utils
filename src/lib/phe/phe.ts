@@ -10,7 +10,7 @@ import {
   ONE_PAIR,
   HIGH_CARD
 } from './hand-rank'
-import { cardCode, cardCodes, stringifyCardCode } from './hand-code'
+import { cardCodes, stringifyCardCode } from './hand-code'
 import { evaluate } from './evaluate'
 
 /**
@@ -99,7 +99,6 @@ export function setStringifyCardCodes(set) {
 
 /**
  * Enumeration of possible hand ranks, each rank is a number from 0-8.
- * TODO make higher stronger
  * @name ranks
  * @function
  */

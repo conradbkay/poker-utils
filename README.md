@@ -1,17 +1,20 @@
 # rfphe
 
-A fast but pure JS library for evaluating poker hands
+really fast poker hand evaluation. 100% TypeScript
 
-- hand strength evaluation
-- fast isomorphism
-- calculate equity of each combo in a range vs a specified range via `combosVsRangeAhead`
-- generate a hash of every flop combo's equity vs a specified range
+- NLHE and 4-6 card Omaha strength evaluation
+- fast isomorphism and weighted isomorphic runouts
+- fast board/cards sort via sorting networks
+- advanced poker theory math like `alpha`, `bluffEv`, and `catchEV`
+- range operations (`combosVsRangeEquity`)
+- easily generate and access from a hash of every combo on every unique flop
 - site-specific rake information
-- 4-6 card Omaha evaluation
 
 Returned percentages are always between 0 and 1
 
-deck is 1-indexed ascending from 2 to 'a' (Ace) alphabetic suit tie-break (cdhs)
+deck is 1-indexed ascending from 2 to 'a' (Ace) alphabetic suit tie-break (c,d,h,s)
+
+"ahead" methods don't look at each runout like the corresponding "equity" methods do
 
 ## Benchmarks
 
@@ -28,7 +31,7 @@ for card in cards
 return p
 ```
 
-Since that requires a 124MB HandRanks.dat file to be loaded into memory, PHE is actually faster for random access since the lookup tables are so small and therefore cached better
+Since that requires a 124MB HandRanks.dat file to be loaded into memory, Poker-Hand-Evaluator is actually faster for random access since the lookup tables are so small and optimized better by the CPU
 
 But for lots of random calculations on the same board, which is the case for the costliest operations (anything involving equity/multiple ranges), you can just store `p`, and now each hand only requires 2/3 lookups. Additionally, you're using much less of the lookup array resulting in better caching
 
@@ -47,14 +50,11 @@ If you are calculating many hand strengths on a specific board, `genBoardEval` c
 
 `p` represents a uint32 from the 2p2 algorithm
 
-## Features
-
-- very fast `combosVsRangeEquity` method
-
 ## Roadmap
 
-- Weighted ranges
-- Monte carlo necessary for many preflop and 3+ players spots, maybe PLO flops
+- Weighted ranges. Probably just implement some isomorphic prange. lookup using arr of 169 preflop hands and memorized combos per. Range itself would be an object like {"K9s": .4, "66": 1} which wouldn't need to have any zero values
+- Monte carlo necessary for many preflop and 3+ players spots, and maybe for PLO flops
+- webassembly OMPEval <https://github.com/emscripten-core/emscripten> <https://emscripten.org/docs/porting/simd.html>
 
 ## Breaking Changes
 

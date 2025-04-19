@@ -13,7 +13,6 @@
     "build": "run-p build:*",
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
-    "watch:build": "tsc -p tsconfig.json -w",
     "bench": "tsx src/benchmarks/runall.ts",
     "test": "tsx --test ./src/tests/*.ts",
     "test:watch": "tsx watch --test ./src/tests/*.ts"
@@ -27,7 +26,6 @@
     "prange": "^0.2.3"
   },
   "devDependencies": {
-    "@ava/typescript": "^5.0.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/lodash": "^4.17.10",
     "@types/node": "^20.14.9",
@@ -35,7 +33,6 @@
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^6.11.0",
     "npm-run-all": "^4.1.5",
-    "nyc": "^17.1.0",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
@@ -49,19 +46,5 @@
     "CHANGELOG.md",
     "LICENSE",
     "README.md"
-  ],
-  "ava": {
-    "typescript": {
-      "rewritePaths": {
-        "src/": "build/main/"
-      },
-      "compile": "tsc"
-    }
-  },
-  "nyc": {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "exclude": [
-      "**/*.spec.js"
-    ]
-  }
+  ]
 }

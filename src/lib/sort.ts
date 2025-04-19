@@ -1,23 +1,12 @@
 /**
- * sorting was the bottleneck for a lot of operations using native sorting
- * LLMs to the rescue
- */
-
-/**
- * Sorts an array of unique integers (length 3 to 7) in place using optimal sorting networks.
- * Assumes array length is between 3 and 7, and elements are unique integers.
+ * Sorting was the bottleneck for a lot of operations using native .sort
+ *
+ * Sorts an array of unique integers descending in place using optimal sorting networks for length up to 11 (PLO6+board)
  *
  * @param {number[]} arr The array to sort (will be modified in place).
  */
-export const sortCards = (arr: number[]) => {
-  const n = arr.length
+export const sortCards = (arr: number[], n = arr.length) => {
   let tmp // Reusable temporary variable for swaps
-
-  // Inline Compare-and-Swap (Descending): Swaps if arr[i] < arr[j]
-  // const CAS_DESC = (i, j) => {
-  //     if (arr[i] < arr[j]) { tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp; }
-  // };
-  // We will write this inline for maximum speed.
 
   switch (n) {
     case 1:

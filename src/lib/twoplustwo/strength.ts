@@ -1,4 +1,4 @@
-import { hash } from '../eval/permuHash'
+import { hash } from '../cards/permuHash'
 import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants'
 import { RANKS_DATA } from '../init'
 
@@ -76,7 +76,6 @@ export const evaluate = (cardValues: number[]): EvaluatedHand => {
 
 export const genBoardEval = (board: number[], evalFunc = fastEval) => {
   let boardP = fastEval(board)
-
   return board.length === 5
     ? (hand: number[]) => evalFunc(hand, boardP)
     : (hand: number[]) => nextP(evalFunc(hand, boardP))

@@ -29,8 +29,6 @@
  * - A = 12
  *
  * 6 bits each.
- * @name rankCodes
- * @return {Object} the ranks indexed as described above
  */
 export const rankCodes = {
   2: 0b000000,
@@ -71,9 +69,6 @@ export const rankCodeStrings = {
  * - h = 1
  * - d = 2
  * - c = 3
- *
- * @name suitCodes
- * @return {Object} the suits indexed as described above
  */
 export const suitCodes = {
   s: 0b00000,
@@ -125,15 +120,15 @@ export function stringifySuit(suit) {
  *
  * @name cardCode
  * @function
- * @param {String} rank the rank of the hand, i.e. `A`
- * @param {String} suit the suit of the hand, i.e. `h`
- * @return {Number} the card code that can be used to further evaluate the hand
+ * @param rank the rank of the hand, i.e. `A`
+ * @param suit the suit of the hand, i.e. `h`
+ * @return the card code that can be used to further evaluate the hand
  */
-export function cardCode(rank, suit) {
+export function cardCode(rank: string, suit: string) {
   return rankCodes[rank] | suitCodes[suit]
 }
 
-export function toCardCode(x) {
+export function toCardCode(x: string): number {
   return rankCodes[x[0]] | suitCodes[x[1]]
 }
 
@@ -142,10 +137,10 @@ export function toCardCode(x) {
  *
  * @name cardCodes
  * @function
- * @param {Array.<String>} cards the cards to convert into card codes, i.e. `[ 'Ah', 'Kd' ]`
- * @return {Array.<Number>} the card codes that can be used to further evaluate the hands
+ * @param cards the cards to convert into card codes, i.e. `[ 'Ah', 'Kd' ]`
+ * @return the card codes that can be used to further evaluate the hands
  */
-export function cardCodes(cards) {
+export function cardCodes(cards: string[]) {
   return cards.map(toCardCode)
 }
 
@@ -154,10 +149,10 @@ export function cardCodes(cards) {
  *
  * @name boardCodes
  * @function
- * @param {String} board the board to convert into card codes, i.e. `'Ah Kd Qh'`
- * @return {Array.<Number>} the card codes that can be used to further evaluate the hands
+ * @param board the board to convert into card codes, i.e. `'Ah Kd Qh'`
+ * @return the card codes that can be used to further evaluate the hands
  */
-export function boardCodes(board) {
+export function boardCodes(board: string) {
   const cards = board.trim().split(/ /)
   return cardCodes(cards)
 }

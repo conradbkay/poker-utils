@@ -1,8 +1,8 @@
-import { suits } from './dptables'
-import { hash_quinary } from './hash'
-import { flush, noflush } from './hash-table'
+// change to import results in 2.5x slowdown
+const { suits } = require('./dptables')
+const { hash_quinary } = require('./hash')
+const { flush, noflush } = require('./hash-table')
 
-// ! importing these from a local file (even if .js) somehow caused a 2x slowdown on random evals, but not if importing the same exact variables from phe
 const binaries_by_id = [
   // 52
   0x1, 0x1, 0x1, 0x1, 0x2, 0x2, 0x2, 0x2, 0x4, 0x4, 0x4, 0x4, 0x8, 0x8, 0x8,
@@ -20,7 +20,7 @@ const suitbit_by_id = [
 ] as const
 
 // seems like no perf loss compared to original
-export const evaluate = (codes: number[]) => {
+export const evaluate = (codes: number[]): number => {
   let suit_hash = 0
   const suit_binary = [0, 0, 0, 0]
   const quinary = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
