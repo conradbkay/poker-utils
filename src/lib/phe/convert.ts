@@ -1,7 +1,7 @@
-import { c2fstr, DECK } from '@lib/twoplustwo/constants'
+import { c2fstr, DECK } from '../twoplustwo/constants'
 import { stringifyCardCode, toCardCode } from './hand-code'
 import { getPHEValue } from './evaluate'
-import { pInfo } from '@lib/twoplustwo/strength'
+import { pInfo } from '../twoplustwo/strength'
 
 const _toPHE = (card: number) => toCardCode(c2fstr[card])
 const _fromPHE = (code: number) => DECK[stringifyCardCode(code).toLowerCase()]

@@ -1,9 +1,9 @@
 import Benchmarkify from 'benchmarkify'
 import { randCards, time } from './utils'
-import { canonize, flopIsoRunouts, isoRunouts, sortBoard } from '@lib/iso'
-import { flopEquities, rangeToIso } from '@lib/hashing/hash'
-import { any2 } from '@lib/ranges/ranges'
-import { sortCards } from '@lib/sort'
+import { canonize, flopIsoRunouts, isoRunouts, sortBoard } from '../iso'
+import { flopEquities, rangeToIso } from '../hashing/hash'
+import { any2 } from '../ranges/ranges'
+import { sortCards } from '../sort'
 
 const benchmark = new Benchmarkify('Hashing', {
   chartImage: false,

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { sortCards } from '@lib/sort'
+import { sortCards } from '../lib/sort'
 import { randomInt } from 'node:crypto'
 import { randCards } from '../benchmarks/utils'
 

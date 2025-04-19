@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { genCardCombinations, getHandIdx } from '@lib/utils'
+import { genCardCombinations, getHandIdx } from '../lib/utils'
 
 const allFlops = genCardCombinations(3)
 const allHands = genCardCombinations(2)

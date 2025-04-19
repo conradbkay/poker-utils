@@ -1,9 +1,9 @@
-import { genCardCombinations } from '@lib/utils'
+import { genCardCombinations } from '../lib/utils'
 import { resolve } from 'path'
-import { initFromPathSync } from '@lib/init'
-import { evaluate as eval2p2 } from '@lib/twoplustwo/evaluate'
-import { cardsToPHE } from '@lib/phe/convert'
-import { getPHEValue } from '@lib/phe/evaluate'
+import { initFromPathSync } from '../lib/init'
+import { evaluate as eval2p2 } from '../lib/twoplustwo/evaluate'
+import { cardsToPHE } from '../lib/phe/convert'
+import { getPHEValue } from '../lib/phe/evaluate'
 
 /*
  generates the `gapIdxs` values in lib/phe/convert.ts

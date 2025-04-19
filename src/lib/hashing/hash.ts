@@ -3,9 +3,9 @@ import { flops } from './flops'
 import { combosVsRangeAhead } from '../twoplustwo/equity'
 import { equityBuckets } from '../constants'
 import { flopIsoRunouts, isoBoard, makeCard, Runout } from '../iso'
-import { closestIdx, genCardCombinations, getHandIdx } from '@lib/utils'
-import { getRank, getSuit } from '@lib/cards/utils'
-import { c2fstr } from '@lib/twoplustwo/constants'
+import { closestIdx, genCardCombinations, getHandIdx } from '../utils'
+import { getRank, getSuit } from '../cards/utils'
+import { c2fstr } from '../twoplustwo/constants'
 
 /**
  * Flops are the most computationally expensive to calculate equities for

@@ -4,6 +4,7 @@
     "target": "es2020",
     "outDir": "build/main",
     "rootDir": "src",
+    "baseUrl": "src",
     "moduleResolution": "node",
     "module": "commonjs",
     "declaration": true,
@@ -36,12 +37,7 @@
     "typeRoots": [
       "node_modules/@types",
       "src/types"
-    ],
-    "paths": {
-      "@lib/*": [
-        "./src/lib/*"
-      ],
-    }
+    ]
   },
   "include": [
     "src/**/*.ts",

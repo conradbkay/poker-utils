@@ -1,4 +1,4 @@
-import { iso } from '@lib/iso'
+import { iso } from '../iso'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
 import { initFromPathSync, RANKS_DATA } from '../init'
 import { evalOmaha, genBoardEval } from './strength'

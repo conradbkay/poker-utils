@@ -14,7 +14,7 @@ import { any2 } from '../lib/ranges/ranges'
 import { randCards, time, sequentialCards } from './utils'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
-import { evaluate } from '@lib/twoplustwo/evaluate'
+import { evaluate } from '../lib/twoplustwo/evaluate'
 
 // ensure data is loaded BEFORE running benchmarks
 const ranksFile = resolve('./HandRanks.dat')
