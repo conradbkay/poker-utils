@@ -43,9 +43,9 @@ describe('runouts', () => {
     const weightSum = totalIsoWeight(isoRunouts(randCards(3)))
     assert.equal(weightSum, 49)
   })
-  it('generates total weight of 49*48 for turn+river runouts', () => {
+  it('generates total weight of 49*49 for turn+river runouts', () => {
     const weightSum = totalIsoWeight(flopIsoRunouts(randCards(3)))
-    assert.equal(weightSum, 49 * 48)
+    assert.equal(weightSum, 49 * 49)
   })
   it('generates 23 turns for monotone flop', () => {
     const turns = isoRunouts(mono)

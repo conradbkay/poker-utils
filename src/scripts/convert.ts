@@ -2,7 +2,7 @@ import { genCardCombinations } from '@lib/utils'
 import { resolve } from 'path'
 import { initFromPathSync } from '@lib/init'
 import { evaluate as eval2p2 } from '@lib/twoplustwo/strength'
-import { evaluate } from '@lib/phe/evaluate'
+import { phe } from '@lib/phe/evaluate'
 import { cardsToPHE } from '@lib/phe/convert'
 
 /*
@@ -16,7 +16,7 @@ let hash: Record<number, number> = {}
 
 for (const hand of allHands) {
   const tpt = eval2p2(hand).value
-  const phe = evaluate(cardsToPHE(hand))
+  const phe = phe(cardsToPHE(hand))
   if (phe in hash && hash[phe] !== tpt) {
     throw new Error('no direct comparison')
   } else {

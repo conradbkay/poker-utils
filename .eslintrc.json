@@ -1,19 +1,31 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "parserOptions": { "project": "./tsconfig.json" },
-  "env": { "es6": true },
-  "ignorePatterns": ["node_modules", "build", "coverage"],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "es6": true
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "build",
+    "coverage"
+  ],
   "extends": [
     "eslint:recommended",
     "prettier"
   ],
-  "globals": { "BigInt": true, "console": true, "WebAssembly": true },
+  "globals": {
+    "console": true
+  },
   "rules": {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "eslint-comments/disable-enable-pair": [
       "error",
-      { "allowWholeFile": true }
+      {
+        "allowWholeFile": true
+      }
     ],
     "eslint-comments/no-unused-disable": "error",
     "@typescript-eslint/no-non-null-assertion": "off"

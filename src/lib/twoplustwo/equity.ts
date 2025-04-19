@@ -1,8 +1,8 @@
 import { iso } from '@lib/iso'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
 import { initFromPathSync, lazyInitFromPath } from '../init'
-import { plo5Range, ploRange } from '../ranges'
 import { evalOmaha, evaluate, fastEval, genBoardEval, nextP } from './strength'
+import { plo5Range, ploRange } from '@lib/ranges/PLO'
 
 type Range = number[][]
 

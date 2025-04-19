@@ -1,8 +1,8 @@
 import Benchmarkify from 'benchmarkify'
 import { randCards, time } from './utils'
 import { canonize, flopIsoRunouts, isoRunouts, sortBoard } from '@lib/iso'
-import { flopEquities } from '@lib/hashing/hash'
-import { ranges } from '@lib/ranges'
+import { flopEquities, rangeToIso } from '@lib/hashing/hash'
+import { ranges } from '@lib/ranges/ranges'
 import { sortCards } from '@lib/sort'
 
 const benchmark = new Benchmarkify('Hashing', {
@@ -12,6 +12,12 @@ const benchmark = new Benchmarkify('Hashing', {
 
 benchmark
   .createSuite('hashing', { time })
+  .add('rangeToIso', () => {
+    rangeToIso(ranges['a2c'], [-1, -1, -1, -1])
+  })
+  /*.add('flop equities', () => {
+    flopEquities(randCards(3), ranges['a2c'])
+  })*/
   .add('6 card sort', () => {
     sortCards(randCards(6))
   })
@@ -30,8 +36,8 @@ benchmark
   .add('river isomorphism', () => {
     canonize(randCards(5))
   })
-/*.add('flop equities', () => {
-    flopEquities(randCards(3), ranges['a2c'])
-  })*/
 
 export default benchmark
+
+import './twoplustwo'
+benchmark.run()

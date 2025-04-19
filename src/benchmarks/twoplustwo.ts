@@ -11,11 +11,10 @@ import {
   fastEvalPartial,
   genBoardEval
 } from '../lib/twoplustwo/strength'
-import { ploRange, ranges } from '../lib/ranges'
+import { ranges } from '../lib/ranges/ranges'
 import { randCards, time, sequentialCards } from './utils'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
-import { boardToInts } from '@lib/cards/utils'
 
 // ensure data is loaded BEFORE running benchmarks
 const ranksFile = resolve('./HandRanks.dat')

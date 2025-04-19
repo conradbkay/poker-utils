@@ -1,6 +1,6 @@
 import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { ranges, resolveRanges } from '../lib/ranges'
+import { ranges, resolveRanges } from '../lib/ranges/ranges'
 import { boardToInts } from '../lib/cards/utils'
 
 test('resolveRanges', (t) => {

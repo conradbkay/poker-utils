@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { evaluate as eval2p2 } from '@lib/twoplustwo/strength'
-import { evaluate } from '@lib/phe/evaluate'
+import { phe } from '@lib/phe/evaluate'
 import { randCards } from '../benchmarks/utils'
 import { cardsToPHE, valueFromPHE } from '@lib/phe/convert'
 import { initFromPathSync } from '@lib/init'
@@ -14,7 +14,7 @@ describe('PHE <--> 2p2 conversions', () => {
     for (let i = 0; i < 10000; i++) {
       const hand = randCards(5, false)
       const tpt = eval2p2(hand).value
-      const phe = evaluate(cardsToPHE(hand))
+      const phe = phe(cardsToPHE(hand))
       assert.equal(tpt, valueFromPHE(phe))
     }
   })

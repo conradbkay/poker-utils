@@ -20,7 +20,7 @@ const suitbit_by_id = [
 ] as const
 
 // seems like no perf loss compared to original
-export const evaluate = (codes: number[]): number => {
+export const phe = (codes: number[]): number => {
   let suit_hash = 0
   const suit_binary = [0, 0, 0, 0]
   const quinary = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]

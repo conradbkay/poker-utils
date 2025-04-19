@@ -10,6 +10,9 @@ export const makeCard = (rank: number, suit: number): number => {
   return (rank - 2) * 4 + suit + 1
 }
 
+export const remapCards = (cards: number[], suitMap: number[]) =>
+  cards.map((c) => makeCard(getRank(c), suitMap[getSuit(c)]))
+
 /**
  * very fast (~7m flops/s) since loops only rarely execute. Hashing results would actually be slower
  *
@@ -131,16 +134,15 @@ const forEachIso = (board: number[], f: (iso: number) => void) => {
   }
 }
 
-export type Runouts = Record<
-  number,
-  number //{ weight: number; map: number[]; children?: Runouts }
->
+export type Runout = { weight: number; map: number[]; children?: Runouts }
+export type Runouts = Record<number, Runout>
 
-export const isoRunouts = (board: number[], weight = 1, depth = 1) => {
+// depth -1 will run until river reached
+export const isoRunouts = (board: number[], weight = 1, depth = -1) => {
   const runouts: Runouts = {} // obj is faster than Map for integer keys (40% speedup)
   forEachIso(board, (c) => {
-    runouts[c] ??= 0 // { weight: 0, map: [0, 0, 0, 0] }
-    runouts[c] += weight //.weight += weight
+    runouts[c] ??= { weight: 0, map: [0, 0, 0, 0] }
+    runouts[c].weight += weight
   })
   return runouts
 }
@@ -148,28 +150,28 @@ export const isoRunouts = (board: number[], weight = 1, depth = 1) => {
 // nested turn -> river
 export const flopIsoRunouts = (flop: number[]) => {
   const isoFlop = canonize(flop).cards
-  const turns = isoRunouts(isoFlop)
+  const runouts = isoRunouts(isoFlop)
 
-  const runouts: Record<number, Runouts> = {}
-
-  for (const turn in turns) {
+  for (const turn in runouts) {
+    const weight = runouts[turn].weight
     const tc = parseInt(turn)
-    const weight = turns[tc] //.weight
-    runouts[turn] = isoRunouts([...isoFlop, tc], weight)
+    runouts[turn].children = isoRunouts([...isoFlop, tc], weight)
   }
 
   return runouts
 }
 
-// mostly for testing
-export const totalIsoWeight = (
-  runouts: Record<number, Runouts> | Record<number, number>
-) => {
+// mostly for testing, counts number of nodes if wasn't isomorphic
+export const totalIsoWeight = (runouts: Runouts) => {
   const vals = Object.values(runouts)
+  let result = 0
 
-  if (typeof vals[0] === 'number') {
-    return vals.reduce((a, c) => a + (c as any), 0)
+  for (const cStr in vals) {
+    result += vals[cStr].weight
+    if (vals[cStr].children) {
+      result += totalIsoWeight(vals[cStr].children)
+    }
   }
 
-  return vals.reduce((a, c) => a + totalIsoWeight(c as Runouts), 0)
+  return result
 }
