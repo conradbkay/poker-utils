@@ -57,6 +57,8 @@ const nlheBench = benchmark
     })
   })
 
+const randomOmahaRange = new Array(1000).fill([]).map((_, i) => randCards(4))
+
 const ploBench = benchmark
   .createSuite('poker-utils Omaha', { time })
   .add('hand strength', () => {
@@ -66,33 +68,34 @@ const ploBench = benchmark
     evalOmaha(randCards(3), randCards(5))
   })
   .add('turn ahead vs range', () => {
-    omahaAheadScore({
-      board: randCards(4),
-      hand: randCards(4),
-      chopIsWin: true
-    })
+    omahaAheadScore(
+      {
+        board: randCards(4),
+        hand: randCards(4),
+        chopIsWin: true
+      },
+      randomOmahaRange
+    )
   })
   .add('flop ahead vs range', () => {
-    omahaAheadScore({
-      board: randCards(3),
-      hand: randCards(4),
-      chopIsWin: true
-    })
+    omahaAheadScore(
+      {
+        board: randCards(3),
+        hand: randCards(4),
+        chopIsWin: true
+      },
+      randomOmahaRange
+    )
   })
   .add('river equity vs range', () => {
-    omahaAheadScore({
-      board: randCards(5),
-      hand: randCards(4),
-      chopIsWin: true
-    })
+    omahaAheadScore(
+      {
+        board: randCards(5),
+        hand: randCards(4),
+        chopIsWin: true
+      },
+      randomOmahaRange
+    )
   })
-/* very slow .add('turn equity vs range', () => {
-    equityEval({
-      board: randCards(4),
-      hand: randCards(4),
-      chopIsWin: true,
-      vsRange: ploRange
-    })
-  })*/
 
 export default benchmark

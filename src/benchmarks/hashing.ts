@@ -38,6 +38,3 @@ benchmark
   })
 
 export default benchmark
-
-import './twoplustwo'
-benchmark.run()

@@ -1,5 +1,7 @@
 import { c2fstr, DECK } from '@lib/twoplustwo/constants'
 import { stringifyCardCode, toCardCode } from './hand-code'
+import { getPHEValue } from './evaluate'
+import { pInfo } from '@lib/twoplustwo/strength'
 
 const _toPHE = (card: number) => toCardCode(c2fstr[card])
 const _fromPHE = (code: number) => DECK[stringifyCardCode(code).toLowerCase()]
@@ -28,7 +30,7 @@ const gapIdxs = [
  *
  * 2p2 goes from 4097 (weakest) to 36874 (strognest)
  *
- * this returns 4097 to 36874 from the PHE val. The correlation is 1:1, 2p2 eval just skips certain ranges since they're used as locations in the lookup table
+ * this returns 4097 to 36874 from the PHE val
  */
 export const valueFromPHE = (evalN: number) => {
   for (let i = 0; i < gapIdxs.length; i++) {
@@ -40,4 +42,27 @@ export const valueFromPHE = (evalN: number) => {
   throw new Error('invalid PHE value')
 }
 
-// expot const valueToPHE = (evalN: number) => {}
+// starting from x, how much we need to subtract
+const subtractCutoffs = [
+  [0, 4096],
+  [5374, 6915],
+  [11053, 8151],
+  [13147, 11389],
+  [17243, 14627],
+  [20491, 18713],
+  [25854, 21532],
+  [28829, 25472],
+  [32925, 29412]
+]
+/**
+ * 2p2 eval skips certain ranges since they're used as locations in the lookup table
+ */
+export const removeGaps = (evalN: number) => {
+  for (let i = subtractCutoffs.length - 1; i >= 0; i--) {
+    if (evalN >= subtractCutoffs[i][0]) {
+      return evalN - subtractCutoffs[i][1]
+    }
+  }
+
+  throw new Error('invalid 2p2 value ' + evalN)
+}

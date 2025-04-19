@@ -52,6 +52,7 @@ If you are calculating many hand strengths on a specific board, `genBoardEval` c
 
 ## Roadmap
 
+- exported RFPHE class
 - Weighted ranges. Probably just implement some isomorphic prange. lookup using arr of 169 preflop hands and memorized combos per. Range itself would be an object like {"K9s": .4, "66": 1} which wouldn't need to have any zero values
 - Monte carlo necessary for many preflop and 3+ players spots, and maybe for PLO flops
 - webassembly OMPEval <https://github.com/emscripten-core/emscripten> <https://emscripten.org/docs/porting/simd.html>

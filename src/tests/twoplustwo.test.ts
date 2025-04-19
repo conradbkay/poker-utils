@@ -7,6 +7,7 @@ import { boardToInts } from '../lib/cards/utils'
 import { omahaAheadScore } from '../lib/twoplustwo/equity'
 import { evalOmaha } from '../lib/twoplustwo/strength'
 import { initFromPathSync } from '../lib/init'
+import { randCards } from '../benchmarks/utils'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 
@@ -17,13 +18,14 @@ test('combinations hash', (t) => {
 test('PLO Strength', (t) => {
   const board = boardToInts('2s 5c 9h')
   const hand = boardToInts('6s 7s 4c Ac')
-  const ranksFile = resolve('./HandRanks.dat')
 
   evalOmaha(board, hand)
 
-  omahaAheadScore({
-    board,
-    hand,
-    ranksFile
-  })
+  omahaAheadScore(
+    {
+      board,
+      hand
+    },
+    new Array(100).fill(0).map(() => randCards(4, false))
+  )
 })

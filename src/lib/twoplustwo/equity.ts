@@ -1,8 +1,7 @@
 import { iso } from '@lib/iso'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
-import { initFromPathSync, lazyInitFromPath } from '../init'
-import { evalOmaha, evaluate, fastEval, genBoardEval, nextP } from './strength'
-import { plo5Range, ploRange } from '@lib/ranges/PLO'
+import { initFromPathSync } from '../init'
+import { evalOmaha, evaluate, genBoardEval } from './strength'
 
 type Range = number[][]
 
@@ -45,32 +44,28 @@ export const equityEval = ({
         )
       }
     }
-  } else if (board.length === 4) {
-    const turnCards = new Set(board)
-
+  } else {
     const evalOptions = {
       hand,
       ranksFile,
       chopIsWin
     }
 
-    for (let j = 1; j <= 52; j++) {
-      if (turnCards.has(j) || hand.includes(j)) {
-        continue
-      }
+    const evalFunc = hand.length >= 4 ? omahaAheadScore : aheadPct
 
-      if (hand.length >= 4) {
-        result.push(omahaAheadScore({ ...evalOptions, board: [...board, j] }))
-      } else {
-        result.push(aheadPct({ ...evalOptions, board: [...board, j] }, vsRange))
+    if (board.length === 4) {
+      const boardCards = new Set(board)
+
+      for (let j = 1; j <= 52; j++) {
+        if (boardCards.has(j) || hand.includes(j)) {
+          continue
+        }
+
+        result.push(evalFunc({ ...evalOptions, board: [...board, j] }, vsRange))
       }
+    } else {
+      result.push(evalFunc({ ...evalOptions, board }, vsRange))
     }
-  } else {
-    result.push(
-      hand.length >= 4
-        ? omahaAheadScore({ hand, ranksFile, chopIsWin, board })
-        : aheadPct({ hand, ranksFile, chopIsWin, board }, vsRange)
-    )
   }
 
   return result.map((eq) => Math.round(eq * 100) / 100)
@@ -198,11 +193,7 @@ export const rangeVsRangeAhead = (args: RvRArgs) => {
 
 export const omahaAheadScore = (
   evalOptions: EvalOptions,
-  vsRange?: number[][]
+  vsRange: number[][]
 ) => {
-  return aheadPct(
-    evalOptions,
-    vsRange || (evalOptions.hand.length > 4 ? plo5Range : ploRange),
-    evalOmaha
-  )
+  return aheadPct(evalOptions, vsRange, evalOmaha)
 }
