@@ -9,7 +9,6 @@ export * from './lib/phe/evaluate'
 export * from './lib/phe/phe'
 
 export * from './lib/ranges/ranges'
-export * from './lib/ranges/PLO'
 
 export * from './lib/twoplustwo/constants'
 export * from './lib/twoplustwo/equity'

@@ -2,7 +2,7 @@ import Benchmarkify from 'benchmarkify'
 import { randCards, time } from './utils'
 import { canonize, flopIsoRunouts, isoRunouts, sortBoard } from '@lib/iso'
 import { flopEquities, rangeToIso } from '@lib/hashing/hash'
-import { ranges } from '@lib/ranges/ranges'
+import { any2 } from '@lib/ranges/ranges'
 import { sortCards } from '@lib/sort'
 
 const benchmark = new Benchmarkify('Hashing', {
@@ -13,10 +13,10 @@ const benchmark = new Benchmarkify('Hashing', {
 benchmark
   .createSuite('hashing', { time })
   .add('rangeToIso', () => {
-    rangeToIso(ranges['a2c'], [-1, -1, -1, -1])
+    rangeToIso(any2, [-1, -1, -1, -1])
   })
   /*.add('flop equities', () => {
-    flopEquities(randCards(3), ranges['a2c'])
+    flopEquities(randCards(3), any2)
   })*/
   .add('6 card sort', () => {
     sortCards(randCards(6))

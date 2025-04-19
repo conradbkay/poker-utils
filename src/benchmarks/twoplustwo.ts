@@ -11,10 +11,11 @@ import {
   fastEvalPartial,
   genBoardEval
 } from '../lib/twoplustwo/strength'
-import { ranges } from '../lib/ranges/ranges'
+import { any2 } from '../lib/ranges/ranges'
 import { randCards, time, sequentialCards } from './utils'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
+import { boardToInts } from '@lib/cards/utils'
 
 // ensure data is loaded BEFORE running benchmarks
 const ranksFile = resolve('./HandRanks.dat')
@@ -51,8 +52,8 @@ const nlheBench = benchmark
   .add('river range equity vs range (1326 combos each)', () => {
     combosVsRangeAhead({
       board: randCards(5),
-      range: ranges['a2c'],
-      vsRange: ranges['a2c']
+      range: any2,
+      vsRange: any2
     })
   })
 
