@@ -1,9 +1,9 @@
 {
   "name": "poker-utils",
-  "version": "10.0.1",
+  "version": "10.0.2",
   "description": "NLHE",
   "author": "Conrad Kay",
-  "main": "build/main/index.js",
+  "main": "build/module/index.js",
   "types": "build/module/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/conradbkay/poker-utils",
@@ -11,7 +11,6 @@
   "keywords": [],
   "scripts": {
     "build": "run-p build:*",
-    "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "bench": "tsx src/benchmarks/runall.ts",
     "test": "tsx --test ./src/tests/*.ts",
