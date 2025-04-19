@@ -6,7 +6,6 @@ import {
 } from '../lib/twoplustwo/equity'
 import {
   evalOmaha,
-  evaluate,
   fastEval,
   fastEvalPartial,
   genBoardEval
@@ -15,7 +14,7 @@ import { any2 } from '../lib/ranges/ranges'
 import { randCards, time, sequentialCards } from './utils'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
-import { boardToInts } from '@lib/cards/utils'
+import { evaluate } from '@lib/twoplustwo/evaluate'
 
 // ensure data is loaded BEFORE running benchmarks
 const ranksFile = resolve('./HandRanks.dat')

@@ -1,6 +1,6 @@
 import { genCardCombinations } from '@lib/utils'
 import { isoBoard, isoWeight } from '../iso'
-import { c2fstr, c2str } from '@lib/twoplustwo/constants'
+import { c2fstr } from '@lib/twoplustwo/constants'
 
 const seen = new Set<string>()
 // exported for testing

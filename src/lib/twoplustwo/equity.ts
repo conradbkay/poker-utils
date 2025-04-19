@@ -1,7 +1,8 @@
 import { iso } from '@lib/iso'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
-import { initFromPathSync } from '../init'
-import { evalOmaha, evaluate, genBoardEval } from './strength'
+import { initFromPathSync, RANKS_DATA } from '../init'
+import { evalOmaha, genBoardEval } from './strength'
+import { evaluate } from '../../evaluate'
 
 type Range = number[][]
 
