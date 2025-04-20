@@ -1,11 +1,11 @@
-import { Range } from '../ranges/ranges'
-import { flops } from './flops'
-import { combosVsRangeAhead } from '../twoplustwo/equity'
-import { equityBuckets } from '../constants'
-import { flopIsoRunouts, isoBoard, makeCard, Runout } from '../iso'
-import { closestIdx, genCardCombinations, getHandIdx } from '../utils'
-import { getRank, getSuit } from '../cards/utils'
-import { c2fstr } from '../twoplustwo/constants'
+import { Range } from '../ranges/ranges.js'
+import { flops } from './flops.js'
+import { combosVsRangeAhead } from '../twoplustwo/equity.js'
+import { equityBuckets } from '../constants.js'
+import { flopIsoRunouts, isoBoard, makeCard, Runout } from '../iso.js'
+import { closestIdx, genCardCombinations, getHandIdx } from '../utils.js'
+import { getRank, getSuit } from '../cards/utils.js'
+import { c2fstr } from '../twoplustwo/constants.js'
 
 /**
  * Flops are the most computationally expensive to calculate equities for
@@ -56,7 +56,6 @@ export const flopEquities = (
   chopIsWin: boolean = true
 ) => {
   const fstr = flop.map((c) => c2fstr[c]).join('')
-  console.time(fstr)
   const hash: number[][] = new Array(1326)
     .fill(0)
     .map((_) => new Array(23).fill(0))
@@ -77,7 +76,6 @@ export const flopEquities = (
     }
   })
 
-  console.timeEnd(fstr)
   return hash
 }
 

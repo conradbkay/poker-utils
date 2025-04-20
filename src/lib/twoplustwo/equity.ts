@@ -1,8 +1,8 @@
-import { iso } from '../iso'
-import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
-import { initFromPathSync, RANKS_DATA } from '../init'
-import { evalOmaha, genBoardEval } from './strength'
-import { evaluate } from '../../evaluate'
+import { iso } from '../iso.js'
+import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash.js'
+import { initFromPathSync, RANKS_DATA } from '../init.js'
+import { evalOmaha, genBoardEval } from './strength.js'
+import { evaluate } from '../../evaluate.js'
 
 type Range = number[][]
 

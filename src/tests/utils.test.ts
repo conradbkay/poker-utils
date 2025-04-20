@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { sortCards } from '../lib/sort'
-import { randomInt } from 'node:crypto'
-import { randCards } from '../benchmarks/utils'
+import { sortCards } from '../lib/sort.js'
+import { randomInt } from 'node:crypto.js'
+import { randCards } from '../benchmarks/utils.js'
 
 test('sort cards', () => {
   for (let i = 0; i < 5000; i++) {

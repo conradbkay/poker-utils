@@ -3,18 +3,18 @@ import {
   equityEval,
   omahaAheadScore,
   combosVsRangeAhead
-} from '../lib/twoplustwo/equity'
+} from '../lib/twoplustwo/equity.js'
 import {
   evalOmaha,
   fastEval,
   fastEvalPartial,
   genBoardEval
-} from '../lib/twoplustwo/strength'
-import { any2 } from '../lib/ranges/ranges'
-import { randCards, time, sequentialCards } from './utils'
+} from '../lib/twoplustwo/strength.js'
+import { any2 } from '../lib/ranges/ranges.js'
+import { randCards, time, sequentialCards } from './utils.js'
 import { resolve } from 'path'
-import { initFromPathSync } from '../lib/init'
-import { evaluate } from '../lib/twoplustwo/evaluate'
+import { initFromPathSync } from '../lib/init.js'
+import { evaluate } from '../lib/twoplustwo/evaluate.js'
 
 // ensure data is loaded BEFORE running benchmarks
 const ranksFile = resolve('./HandRanks.dat')

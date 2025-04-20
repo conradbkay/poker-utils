@@ -1,5 +1,5 @@
 import { isUndefined } from 'lodash'
-import { dp, choose } from './dptables'
+import { dp, choose } from './dptables.js'
 
 /**
  * Calculates the quinary hash using the dp table.

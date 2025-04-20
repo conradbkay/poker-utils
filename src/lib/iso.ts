@@ -1,5 +1,5 @@
-import { getRank, getSuit, suitCount } from './cards/utils'
-import { sortCards } from './sort'
+import { getRank, getSuit, suitCount } from './cards/utils.js'
+import { sortCards } from './sort.js'
 
 export const sortBoard = (cards: number[]) => {
   return sortCards(cards, 3) // sort 1st 3 cards only

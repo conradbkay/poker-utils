@@ -9,9 +9,9 @@ import {
   TWO_PAIR,
   ONE_PAIR,
   HIGH_CARD
-} from './hand-rank'
-import { cardCodes, stringifyCardCode } from './hand-code'
-import { getPHEValue } from './evaluate'
+} from './hand-rank.js'
+import { cardCodes, stringifyCardCode } from './hand-code.js'
+import { getPHEValue } from './evaluate.js'
 
 /**
  * Evaluates the 5 - 7 cards to arrive at a number representing the hand

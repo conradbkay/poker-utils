@@ -1,11 +1,16 @@
 import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops'
-import { flopIsoRunouts, isoHand, isoRunouts, totalIsoWeight } from '../lib/iso'
-import { pioFlops } from '../data/pioFlops'
-import { genCardCombinations } from '../lib/utils'
-import { randCards } from '../benchmarks/utils'
-import { boardToInts } from '../lib/cards/utils'
+import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops.js'
+import {
+  flopIsoRunouts,
+  isoHand,
+  isoRunouts,
+  totalIsoWeight
+} from '../lib/iso.js'
+import { pioFlops } from '../data/pioFlops.js'
+import { genCardCombinations } from '../lib/utils.js'
+import { randCards } from '../benchmarks/utils.js'
+import { boardToInts } from '../lib/cards/utils.js'
 
 const allHands = genCardCombinations(2)
 

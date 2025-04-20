@@ -1,10 +1,10 @@
 import { detailRange } from 'pdetail'
 import prange from 'prange'
-import { boardToInts, getRank, getSuit } from '../cards/utils'
-import { sortCards } from '../sort'
-import { fromHandIdx, getHandIdx } from '../utils'
-import { c2fstr, DECK } from '../twoplustwo/constants'
-import { makeCard } from '../iso'
+import { boardToInts, getRank, getSuit } from '../cards/utils.js'
+import { sortCards } from '../sort.js'
+import { fromHandIdx, getHandIdx } from '../utils.js'
+import { c2fstr, DECK } from '../twoplustwo/constants.js'
+import { makeCard } from '../iso.js'
 
 /**
  * migrate this code to use our isomorphism functions

@@ -1,8 +1,8 @@
 import Benchmarkify from 'benchmarkify'
-import { randCards, time, sequentialCards } from './utils'
-import { getPHEValue } from '../lib/phe/evaluate'
-import { cardsToPHE, toPHE } from '../lib/phe/convert'
-import { valueFromPHE } from '../lib/phe/convert'
+import { randCards, time, sequentialCards } from './utils.js'
+import { getPHEValue } from '../lib/phe/evaluate.js'
+import { cardsToPHE, toPHE } from '../lib/phe/convert.js'
+import { valueFromPHE } from '../lib/phe/convert.js'
 const benchmark = new Benchmarkify('Equity', {
   chartImage: false,
   drawChart: false

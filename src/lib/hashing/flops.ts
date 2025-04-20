@@ -1,6 +1,6 @@
-import { genCardCombinations } from '../utils'
-import { isoBoard, isoWeight } from '../iso'
-import { c2fstr } from '../twoplustwo/constants'
+import { genCardCombinations } from '../utils.js'
+import { isoBoard, isoWeight } from '../iso.js'
+import { c2fstr } from '../twoplustwo/constants.js'
 
 const seen = new Set<string>()
 // exported for testing

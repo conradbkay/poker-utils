@@ -1,6 +1,6 @@
-import { evaluateCardCodes } from 'phe'
+import { evaluateCardCodes } from 'phe.js'
 import Benchmarkify from 'benchmarkify'
-import { randCards, time, sequentialCards } from './utils'
+import { randCards, time, sequentialCards } from './utils.js'
 
 const benchmark = new Benchmarkify('Equity', {
   chartImage: false,

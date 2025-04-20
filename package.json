@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "10.1.2",
+  "version": "10.1.3",
   "description": "NLHE",
   "author": "Conrad Kay",
   "main": "build/module/index.js",
@@ -9,6 +9,7 @@
   "repository": "https://github.com/conradbkay/poker-utils",
   "license": "MIT",
   "keywords": [],
+  "type": "module",
   "scripts": {
     "build": "run-p build:*",
     "build:module": "tsc -p tsconfig.module.json",

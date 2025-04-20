@@ -1,7 +1,7 @@
-import { hash } from '../cards/permuHash'
-import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants'
-import { RANKS_DATA } from '../init'
-import { evaluate } from '../../evaluate'
+import { hash } from '../cards/permuHash.js'
+import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants.js'
+import { RANKS_DATA } from '../init.js'
+import { evaluate } from '../../evaluate.js'
 
 /**
  * todo the fastest solution is probably to store each board's p

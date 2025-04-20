@@ -1,7 +1,7 @@
 import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { boardToInts } from '../lib/cards/utils'
-import { any2 } from '../lib/ranges/ranges'
+import { boardToInts } from '../lib/cards/utils.js'
+import { any2 } from '../lib/ranges/ranges.js'
 
 test('any2 is 1326 combos', (t) => {
   assert.equal(any2.length, 1326)

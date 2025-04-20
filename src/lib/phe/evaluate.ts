@@ -1,7 +1,10 @@
 // change to import results in 2.5x slowdown
-const { suits } = require('./dptables')
+/*const { suits } = require('./dptables')
 const { hash_quinary } = require('./hash')
-const { flush, noflush } = require('./hash-table')
+const { flush, noflush } = require('./hash-table')*/
+import { suits } from './dptables.js'
+import { hash_quinary } from './hash.js'
+import { flush, noflush } from './hash-table.js'
 
 const binaries_by_id = [
   // 52

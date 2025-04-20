@@ -1,11 +1,11 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { evaluate as eval2p2 } from '../lib/twoplustwo/evaluate'
-import { randCards } from '../benchmarks/utils'
-import { cardsToPHE, removeGaps, valueFromPHE } from '../lib/phe/convert'
-import { initFromPathSync } from '../lib/init'
+import { evaluate as eval2p2 } from '../lib/twoplustwo/evaluate.js'
+import { randCards } from '../benchmarks/utils.js'
+import { cardsToPHE, removeGaps, valueFromPHE } from '../lib/phe/convert.js'
+import { initFromPathSync } from '../lib/init.js'
 import { resolve } from 'path'
-import { getPHEValue } from '../lib/phe/evaluate'
+import { getPHEValue } from '../lib/phe/evaluate.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 

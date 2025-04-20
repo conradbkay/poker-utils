@@ -1,4 +1,4 @@
-import { c2fstr, DECK } from '../twoplustwo/constants'
+import { c2fstr, DECK } from '../twoplustwo/constants.js'
 
 /**
  * these utils assume a deck from 1-52
