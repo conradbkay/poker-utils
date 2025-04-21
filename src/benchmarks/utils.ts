@@ -1,5 +1,5 @@
 import { shuffle } from '../lib/cards/utils.js'
-import { ALL_CARDS, DECK } from '../lib/twoplustwo/constants.js'
+import { CARDS } from 'lib/constants.js'
 
 // for benchmarks we don't want it wasting time generating random cards, but setting to specific card values might (test this though) make it cheat by storing everything in cache
 const randHash: Record<string, number[][]> = {}
@@ -8,13 +8,13 @@ let created = false
 let deck: number[] = []
 const accessCards = (count: number) => {
   if (count > deck.length) {
-    deck = shuffle([...ALL_CARDS])
+    deck = shuffle([...CARDS])
   }
   return deck.splice(0, count)
 }
 
 const [min, max] = [2, 7] as const
-const genRandHash = () => {
+export const genRandHash = () => {
   for (let i = min; i <= max; i++) {
     randHash[i] ??= []
     // 1m is better to limit caching but takes ~1s

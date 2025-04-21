@@ -1,41 +1,32 @@
-import { c2fstr, DECK } from '../twoplustwo/constants.js'
+import { c2str } from 'lib/constants.js'
+import { DECK } from 'lib/constants.js'
 
 /**
  * these utils assume a deck from 1-52
  */
 
-export const getSuit = (card: number) => {
-  return (card - 1) % 4
-}
+/** returns 0-3 */
+export const getSuit = (card: number) => (card - 1) % 4
 
-// returns 2 for 2, 14 for ace
-export const getRank = (card: number) => {
-  return ((card - 1) >> 2) + 2
-}
+/** returns 2 for 2, 14 for ace */
+export const getRank = (card: number) => ((card - 1) >> 2) + 2
 
-export const uniqueRanks = (board: number[]): number[] => {
-  return Array.from(new Set(board.map((c) => getRank(c))))
-}
+export const uniqueRanks = (board: number[]) =>
+  Array.from(new Set(board.map((c) => getRank(c))))
 
-export const getRankStr = (card: number) => {
-  return [
-    null,
-    null,
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'T',
-    'J',
-    'Q',
-    'K',
-    'A'
-  ][getRank(card)]
-}
+export const makeCard = (rank: number, suit: number) =>
+  (rank - 2) * 4 + suit + 1
+
+/** for non user-facing purposes where dealing with str is easier than arr */
+export const cardsStr = (cards: number[]) => cards.join(',')
+export const fromCardsStr = (str: string) =>
+  str.split(',').map((s) => parseInt(s)) // .map(parseInt) would pass index as second param which is radix (base)
+
+/**
+ * returns 'Ks', '9h' style formatted. empty string for unknown card
+ */
+export const formatCard = (card: number) => c2str[card] || ''
+export const formatCards = (cards: number[]) => cards.map(formatCard)
 
 /**
  * for textural analysis where you don't just want the strongest possible hand (a board could have a straight and a flush which returns true here)
@@ -68,7 +59,7 @@ export const containsStraight = (board: number[]) => {
 }
 
 // returns 0, 4, 8, or # of remaining cards if board already has a straight
-export const calcStraightOuts = (board: number[]): number => {
+export const calcStraightOuts = (board: number[]) => {
   if (containsStraight(board)) {
     return 52 - board.length
   }
@@ -88,7 +79,7 @@ export const calcStraightOuts = (board: number[]): number => {
 }
 
 // returns whether you can add 2 cards to the board to make a straight
-export const straightPossible = (board: number[]): boolean => {
+export const straightPossible = (board: number[]) => {
   const ranks = uniqueRanks(board).sort((a, b) => a - b)
 
   if (ranks.length < 3) return false
@@ -111,15 +102,9 @@ export const straightPossible = (board: number[]): boolean => {
   return false
 }
 
-export const highCard = (board: number[]): number => {
-  return Math.max(...board.map((card) => getRank(card)))
-}
+export const highCard = (board: number[]) => Math.max(...board.map(getRank))
 
-export const suitCount = (board: number[]): number => {
-  return new Set(board.map((card) => getSuit(card))).size
-}
-
-export const suitCounts = (board: number[]): number[] => {
+export const suitCounts = (board: number[]) => {
   return board.reduce(
     (accum, cur) => {
       accum[getSuit(cur)]++
@@ -129,28 +114,18 @@ export const suitCounts = (board: number[]): number[] => {
   )
 }
 
-export const mostSuit = (board: number[]): number =>
-  Math.max(...suitCounts(board))
+export const mostSuit = (board: number[]) => Math.max(...suitCounts(board))
 
-/**
- * returns 'Ks', '9h' style formatted. empty string for unknown card
- */
-export const formatCard = (card: number) => {
-  return c2fstr[card] || ''
-}
-
-export const formatCards = (cards: number[]) => cards.map(formatCard)
-
-export function deckWithoutSpecifiedCards(cards: number[]) {
-  const providedSet = new Set(cards)
-  return Object.values(DECK).filter((name) => !providedSet.has(name))
+export const deckWithoutSpecifiedCards = (cards: number[]) => {
+  const used = new Set(cards)
+  return Object.values(DECK).filter((name) => !used.has(name))
 }
 
 /**
  * TS implementation of https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
  * Code from https://stackoverflow.com/a/12646864
  */
-export function shuffle(arr: number[]) {
+export const shuffle = (arr: number[]) => {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[arr[i], arr[j]] = [arr[j], arr[i]]
@@ -166,10 +141,10 @@ export const boardToInts = (board: string | string[] | number[]) => {
 
   const boardInts: number[] = []
 
-  board = board.replaceAll(' ', '').toLowerCase()
+  board = board.replaceAll(' ', '')
 
   for (let i = 0; i < board.length; i += 2) {
-    boardInts.push(DECK[board[i] + board[i + 1]])
+    boardInts.push(DECK[board[i].toUpperCase() + board[i + 1].toLowerCase()])
   }
 
   return boardInts

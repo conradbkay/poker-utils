@@ -1,92 +1,115 @@
-import { detailRange } from 'pdetail'
-import prange from 'prange'
-import { boardToInts, getRank, getSuit } from '../cards/utils.js'
+import { getRank, getSuit } from '../cards/utils.js'
 import { sortCards } from '../sort.js'
-import { fromHandIdx, getHandIdx } from '../utils.js'
-import { c2fstr, DECK } from '../twoplustwo/constants.js'
-import { makeCard } from '../iso.js'
+import { fromHandIdx, genCardCombinations, getHandIdx } from '../utils.js'
+import { DECK, RANKS } from 'lib/constants.js'
+import { makeCard } from 'lib/cards/utils.js'
 
 /**
- * migrate this code to use our isomorphism functions
- * for 2 cards easy s/o/empty if pair
- * omaha too many combos so just monte carlo
+ * there are two types of ranges
+ * Preflop isomorphic: 43s/66/KTo encoded as 169 weights
+ * Weighted cardStr dict: {"43,20": 0.63}
  */
 
-/** -> 43o */
-export const toRangeNotation = (hand: number[]) => {
-  const ranks = hand.map(getRank)
-  const suits = hand.map(getSuit)
+/**
+ * todo option to return as isomorphic (would need to have methods to set board then?)
+ */
+export class Range {
+  private range: Map<string, number>
+  private handLen: number
 
-  const suited = new Set(suits).size < hand.length
-  const pair = new Set(ranks).size < hand.length
-  const base = hand.map((c) => c2fstr[c][0]).join('')
-  const end = pair ? '' : suited ? 's' : 'o'
+  constructor(handLen = 2) {
+    this.handLen = handLen
+    this.reset()
+  }
 
-  return base + end
-}
+  public getSize() {
+    return this.range.size
+  }
 
-// also removes duplicates
-export const sortRange = (range: Range) => {
-  const sortedCombos = range.map(sortCards)
-  const idxs = sortedCombos.map(getHandIdx).sort((a, b) => a - b)
-  const deduped = sortedCombos.filter((cs, i) => !i || idxs[i] !== idxs[i - 1])
-  return deduped.sort((a, b) => getHandIdx(b) - getHandIdx(a))
-}
+  public getHandLen() {
+    return this.handLen
+  }
 
-// 43o -> 12 combos
-export const fromRangeNotation = (hand: string) => {
-  const type = hand[hand.length - 1]
-  const baseRanks = sortCards(
-    hand
-      .slice(0, 2)
-      .split('')
-      .map((r) => DECK[r.toLowerCase() + 's'])
-  ).map((c) => getRank(c))
+  public reset() {
+    this.range = new Map<string, number>()
+  }
 
-  let inner = type === 's' ? 0 : 3
+  public getWeight(hand: number[]) {
+    const str = this.toCardsStr(hand)
+    return this.range.get(str) || 0
+  }
 
-  let result = []
-  for (let i = 0; i <= 3; i++) {
-    let c1 = makeCard(baseRanks[0], i)
-    let extra = 0
-    while (extra <= inner) {
-      const c2Suit = (i + extra) % 4
-      extra++
-
-      if (c2Suit === i && type !== 's') {
-        continue
-      }
-
-      if (baseRanks[0] === baseRanks[1] && c2Suit > i) {
-        continue // would be a duplicate
-      }
-
-      result.push([c1, makeCard(baseRanks[1], c2Suit)])
+  public set(hand: number[], weight = 1) {
+    if (hand.length !== this.handLen) {
+      throw new Error(
+        `attempting to set ${hand.length} len hand in ${this.handLen} len range`
+      )
+    }
+    const str = this.toCardsStr(hand)
+    if (!weight) {
+      this.range.delete(str)
+    } else {
+      this.range.set(str, weight)
     }
   }
 
-  return sortRange(result)
-}
+  private toCardsStr(cards: number[]) {
+    return cards.join(',')
+  }
 
-export type Combo = number[]
+  private fromCardsStr(str: string) {
+    return str.split(',').map((s) => parseInt(s))
+  }
 
-export type Range = Combo[]
+  public forEach(f: (combo: number[], weight: number) => void) {
+    this.range.forEach((v, k) => {
+      f(this.fromCardsStr(k), v)
+    })
+  }
 
-export const rangeStrToCombos = (str: string): Range => {
-  const pranged = prange(str)
+  public map<T>(f: (combo: number[], weight: number) => T) {
+    let result = new Array<T>(this.range.size)
+    let i = 0
+    this.forEach((hand, weight) => {
+      result[i] = f(hand, weight)
+      i++
+    })
+    return result
+  }
 
-  const combos = pranged
-    .map((s) => Array.from(detailRange(s)))
-    .join(',')
-    .split(',')
+  public createFromPreflop(preflop: PreflopRange) {
+    if (this.handLen !== 2) {
+      throw new Error(
+        `attempted to convert preflop iso to ${this.handLen} cards per combo range`
+      )
+    }
 
-  return combos.map((combo) =>
-    sortCards(boardToInts([combo.substring(0, 2), combo.substring(2)]))
-  )
+    this.reset()
+
+    const weights = preflop.getWeights()
+    for (let i = 0; i < weights.length; i++) {
+      const weight = weights[i]
+      const combos = preflop.allVariants(i)
+      for (const combo of combos) {
+        this.set(combo, weight)
+      }
+    }
+
+    return this
+  }
+
+  /** returns all combos in this range but not in `compare` */
+  public asymmetry(compare: Range) {
+    const rIdxs = this.map((hand) => getHandIdx(hand))
+    const cIdxs = compare.map((hand) => getHandIdx(hand))
+    const rSet = new Set(rIdxs)
+    const cSet = new Set(cIdxs)
+    const idxs = Array.from(new Set([...rIdxs, ...cIdxs]))
+    return idxs.filter((c) => !rSet.has(c) || !cSet.has(c)).map(fromHandIdx)
+  }
 }
 
 // based on GTO preflop preference
-// todo generate exponentially diminished weights
 const orderDesc = [
   'AA',
   'KK',
@@ -259,46 +282,139 @@ const orderDesc = [
   '72o'
 ]
 const order = [...orderDesc].reverse()
+const preIsoCount = 169
 
-export const any2 = rangeStrToCombos(order.join(','))
+/**
+ * stores as 13x13 (flattened) "K9s" type hands
+ */
+export class PreflopRange {
+  private weights: number[]
 
-const preIsoCount = order.length
-/** generate combos in percentile range */
-export const genRange = (min: number, max: number) => {
-  if (min > max) return []
-  if (min > 1) min /= 100
-  if (max > 1) max /= 100
+  constructor() {
+    this.reset()
+  }
 
-  return order
-    .slice(Math.floor(preIsoCount * min), Math.floor(preIsoCount * max))
-    .map(fromRangeNotation)
-    .flat()
+  public getWeights() {
+    return this.weights
+  }
+
+  private set(idx: number, weight = 1) {
+    this.weights[idx] = weight
+  }
+
+  private reset() {
+    this.weights = new Array(169).fill(0)
+  }
+
+  private idxToString(idx: number) {
+    return isoPre[idx]
+  }
+
+  private idxFromString(str: string) {
+    return isoPre2idx[str]
+  }
+
+  /** generate combos in percentile range */
+  public createFromPercentiles(min: number, max: number) {
+    this.reset()
+
+    if (min > max) return this // will be a empty range
+    if (min < 0 || max < 0 || min > 1 || max > 1) {
+      throw new Error('min/max must be 0-1')
+    }
+
+    const combos = order.slice(
+      Math.floor(preIsoCount * min),
+      Math.floor(preIsoCount * max)
+    )
+
+    for (const combo of combos) {
+      this.set(isoPre2idx[combo], 1)
+    }
+
+    return this
+  }
+
+  allVariants(idx: number) {
+    return isoPre2Combos[this.idxToString(idx)]
+  }
+
+  /** returns [0-1, 0-1] generating the closest match using min/max index of `order` */
+  public ToMinMax() {
+    // we treat this as basically "best time to buy and sell stock"
+    const avgComboWeight =
+      this.weights.reduce((a, c) => a + c, 0) /
+      this.weights.filter((w) => w).length
+
+    let mask = this.weights.map((w) =>
+      w ? avgComboWeight + Number.EPSILON : -avgComboWeight
+    ) // in event of tie, include combo
+
+    let prices = mask.reduce((a, c, i) => {
+      a[i] = i ? c + a[i - 1] : c
+      return a
+    }, new Array(mask.length))
+
+    return maxSumSubarrayIdxs(prices).map(
+      (idx) => idx / (this.weights.length - 1)
+    )
+  }
+
+  toString() {
+    let result = []
+    for (let i = 0; i < this.weights.length; i++) {
+      if (this.weights[i]) {
+        result.push(this.idxToString(i))
+      }
+    }
+    return result.join(',')
+  }
 }
 
-/** returns all combos in `range` but not in `compare` */
-export const rangeAsymmetry = (range: Range, compare: Range) => {
-  const rIdxs = range.map(getHandIdx)
-  const cIdxs = compare.map(getHandIdx)
-  const rSet = new Set(rIdxs)
-  const cSet = new Set(cIdxs)
-  const idxs = Array.from(new Set([...rIdxs, ...cIdxs]))
-  return idxs.filter((c) => !rSet.has(c) || !cSet.has(c)).map(fromHandIdx)
+export const isoPre: string[] = []
+for (let i = 14; i >= 2; i--) {
+  for (let j = 14; j >= 2; j--) {
+    const type = i === j ? '' : i > j ? 's' : 'o'
+    isoPre.push(RANKS[Math.max(i, j)] + RANKS[Math.min(i, j)] + type)
+  }
 }
 
+export const isoPre2idx = Object.fromEntries(
+  Object.keys(isoPre).map((i) => [isoPre[i], parseInt(i)])
+)
+
+const handToIsoPre = (hand: number[]) => {
+  const sorted = sortCards([...hand])
+  const ranks = sorted.map((c) => getRank(c))
+  const suits = sorted.map((c) => getSuit(c))
+  const type = ranks[0] === ranks[1] ? '' : suits[0] === suits[1] ? 's' : 'o'
+  return ranks.map((r) => RANKS[r]).join('') + type
+}
+
+export const isoPre2Combos: Record<string, number[][]> = {}
+for (const hand of genCardCombinations(2)) {
+  const iso = handToIsoPre(hand)
+  isoPre2Combos[iso] ??= []
+  isoPre2Combos[iso].push(hand)
+}
+
+export const any2pre = new PreflopRange().createFromPercentiles(0, 1)
+export const any2 = new Range().createFromPreflop(any2pre)
 /** returns all combos in only one of provided ranges */
 export const rangesAsymmetry = (r1: Range, r2: Range) => [
-  ...rangeAsymmetry(r1, r2),
-  ...rangeAsymmetry(r2, r1)
+  ...r1.asymmetry(r2),
+  ...r2.asymmetry(r1)
 ]
 
 /** what percent of total combos are shared */
 export const rangeOverlap = (range: Range, compare: Range) => {
   const asymm = rangesAsymmetry(range, compare)
-  const dissim = asymm.length / (range.length + compare.length)
+  const dissim = asymm.length / (range.getSize() + compare.getSize())
   return 1 - dissim
 }
 
-const buySellStock = (prices: number[]) => {
+/** O(N) - Kadane's algorithm for https://en.wikipedia.org/wiki/Maximum_subarray_problem */
+const maxSumSubarrayIdxs = (prices: number[]) => {
   let buy = 0
   let bestProfit = 0
   let bestIdxs = [0, prices.length - 1]
@@ -316,17 +432,4 @@ const buySellStock = (prices: number[]) => {
   }
 
   return bestIdxs
-}
-
-/** generates the closest match using min/max index of `order`. Max is inclusive */
-export const rangeToMinMax = (range: Range) => {
-  let iso = new Set(Array.from(new Set(range.map(toRangeNotation))))
-
-  let mask = order.map((s) => (iso.has(s) ? 1.01 : -1)) // go a bit wider to capture more of range
-  let prices = mask.reduce((a, c, i) => {
-    a[i] = i ? c + a[i - 1] : c
-    return a
-  }, new Array(mask.length))
-
-  return buySellStock(prices).map((idx) => idx / (order.length - 1))
 }

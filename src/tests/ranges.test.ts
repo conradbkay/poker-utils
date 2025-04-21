@@ -4,7 +4,7 @@ import { boardToInts } from '../lib/cards/utils.js'
 import { any2 } from '../lib/ranges/ranges.js'
 
 test('any2 is 1326 combos', (t) => {
-  assert.equal(any2.length, 1326)
+  assert.equal(any2.getSize(), 1326)
 })
 
 test('boardToInts', (t) => {

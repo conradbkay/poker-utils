@@ -1,6 +1,7 @@
 /**
  *
  * @param depth how many cards to generate
+ * all returned combos are sorted desc
  */
 export const genCardCombinations = (depth = 3, minCard = 1) => {
   if (depth > 5) {
@@ -44,7 +45,7 @@ export const closestIdx = (counts: number[], value: number) => {
   return resultIdx
 }
 
-// maps a 2 card 1-indexed hand to 0-1325. For more cards just stringify
+// maps a 2 card 1-indexed hand to 0-1325
 export const getHandIdx = (hand: number[]) => {
   // a is larger than b
   const a = hand[0] > hand[1] ? hand[0] - 1 : hand[1] - 1

@@ -1,26 +1,21 @@
 import { genCardCombinations } from '../utils.js'
-import { isoBoard, isoWeight } from '../iso.js'
-import { c2fstr } from '../twoplustwo/constants.js'
-
-const seen = new Set<string>()
+import { getIsoBoard, isoWeight } from '../iso.js'
+import { cardsStr, formatCards, fromCardsStr } from 'lib/cards/utils.js'
+import { sortCards } from 'lib/sort.js'
 // exported for testing
 export const allFlops = genCardCombinations(3)
-export const flopIsoBoards = allFlops.reduce((a, c) => {
-  const iso = isoBoard(c)
-  if (!seen.has(iso.toString())) {
-    seen.add(iso.toString())
-    a.push(iso)
-  }
-
-  return a
-}, [] as number[][])
+export const flopIsoBoards = Array.from(
+  new Set(allFlops.map((flop) => cardsStr(getIsoBoard(flop))))
+)
+  .map(fromCardsStr)
+  .map((flop) => sortCards(flop))
 
 // [formatted, cards[], weight]
 export const flops = flopIsoBoards
   .reverse()
   .map(
     (flop) =>
-      [flop.map((card) => c2fstr[card]).join(''), flop, isoWeight(flop)] as [
+      [formatCards(flop).join(''), flop, isoWeight(flop)] as [
         string,
         number[],
         number

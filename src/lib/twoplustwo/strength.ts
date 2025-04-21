@@ -2,6 +2,7 @@ import { hash } from '../cards/permuHash.js'
 import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants.js'
 import { RANKS_DATA } from '../init.js'
 import { evaluate } from '../../evaluate.js'
+import { removeGaps } from 'lib/phe/convert.js'
 
 /**
  * todo the fastest solution is probably to store each board's p
@@ -67,7 +68,8 @@ export const fastEvalPartial = (cards: number[], p = 53) => {
 export const pInfo = (p: number) => ({
   handType: p >> 12,
   handRank: p & 0x00000fff,
-  value: p,
+  p,
+  value: removeGaps(p),
   handName: HAND_TYPES[p >> 12]
 })
 

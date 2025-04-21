@@ -1,24 +1,21 @@
-import { evaluateCardCodes } from 'phe.js'
-import Benchmarkify from 'benchmarkify'
-import { randCards, time, sequentialCards } from './utils.js'
+import { evaluateCardCodes } from 'phe'
+import { run, bench, boxplot, summary, do_not_optimize } from 'mitata'
+import { randCards, sequentialCards } from './utils.js'
 
-const benchmark = new Benchmarkify('Equity', {
-  chartImage: false,
-  drawChart: false
+/**
+ * here to make sure the port doesn't become slower
+ */
+
+randCards(5) // init hash
+
+bench('phe sequential', () => {
+  evaluateCardCodes(sequentialCards)
+})
+bench('phe rand 7 cards', () => {
+  evaluateCardCodes(randCards(7).map((c) => c - 1))
+})
+bench('rand 5 cards', () => {
+  evaluateCardCodes(randCards(5).map((c) => c - 1))
 })
 
-benchmark
-  .createSuite('phe', { time })
-  .add('Sequential', () => {
-    evaluateCardCodes(sequentialCards)
-  })
-  .add('Random 7 cards', () => {
-    evaluateCardCodes(randCards(7).map((c) => c - 1))
-  })
-  .add('Random 5 cards', () => {
-    evaluateCardCodes(randCards(5).map((c) => c - 1))
-  })
-
-export default benchmark
-
-benchmark.run()
+run()

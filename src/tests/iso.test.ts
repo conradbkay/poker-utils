@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops.js'
 import {
   flopIsoRunouts,
-  isoHand,
+  getIsoHand,
   isoRunouts,
   totalIsoWeight
 } from '../lib/iso.js'
@@ -32,7 +32,7 @@ describe('flop isomorphism', (t) => {
 
   it('generates 169 unique preflop combos from 1326', () => {
     assert.equal(allHands.length, 1326)
-    const unique = new Set(allHands.map((h) => isoHand(h).join(' ')))
+    const unique = new Set(allHands.map((h) => getIsoHand(h).join(' ')))
     assert.equal(unique.size, 169)
   })
 })

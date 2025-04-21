@@ -1,16 +1,14 @@
 import { iso } from '../iso.js'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash.js'
-import { initFromPathSync, RANKS_DATA } from '../init.js'
 import { evalOmaha, genBoardEval } from './strength.js'
 import { evaluate } from '../../evaluate.js'
-
-type Range = number[][]
+import { Range } from 'lib/ranges/ranges.js'
+import { sortCards } from 'lib/sort.js'
 
 export type EvalOptions = {
   board: number[]
   hand: number[]
   flopHash?: EquityHash | RiverEquityHash
-  ranksFile?: string
   chopIsWin?: boolean
 }
 
@@ -19,7 +17,6 @@ export const equityEval = ({
   board,
   hand,
   flopHash,
-  ranksFile,
   vsRange,
   chopIsWin
 }: EvalOptions & { vsRange: Range }) => {
@@ -37,7 +34,6 @@ export const equityEval = ({
         result.push(
           ...(equityEval({
             hand,
-            ranksFile,
             vsRange,
             chopIsWin,
             board: [...board, j]
@@ -48,7 +44,6 @@ export const equityEval = ({
   } else {
     const evalOptions = {
       hand,
-      ranksFile,
       chopIsWin
     }
 
@@ -77,25 +72,23 @@ const defaultEval = (board: number[], hand: number[]) =>
 
 // doesn't account for runouts, just what % of hands you're ahead of currently
 export const aheadPct = (
-  { board, hand, ranksFile, chopIsWin }: EvalOptions,
-  vsRange: number[][],
+  { board, hand, chopIsWin }: EvalOptions,
+  vsRange: Range,
   evalFunc = defaultEval
 ) => {
-  initFromPathSync(ranksFile)
-
   const blocked = new Set([...hand, ...board])
 
-  const vsRangeRankings = vsRange
-    .filter((combo) => !blocked.has(combo[0]) && !blocked.has(combo[1]))
-    .map((combo) => {
-      return evalFunc(board, combo).value
-    })
+  const vsRangeRankings = getRangeRankings(
+    vsRange,
+    (h) => evalFunc(board, h).value,
+    blocked
+  )
 
   const handRanking = evalFunc(board, hand).value
 
   let beats = 0
 
-  for (const value of vsRangeRankings) {
+  for (const [_, value] of vsRangeRankings) {
     if (handRanking > value) {
       beats += 1
     } else if (handRanking === value) {
@@ -106,12 +99,28 @@ export const aheadPct = (
   return (beats / vsRangeRankings.length) * 100
 }
 
+/** returns [hand, n, weight][] */
+const getRangeRankings = (
+  r: Range,
+  evalHand: (h: number[]) => number,
+  blocked?: Set<number>
+) => {
+  let result: [number[], number, number][] = []
+
+  r.forEach((combo, weight) => {
+    if (combo.some((c) => blocked.has(c))) return
+    const strength = evalHand(combo)
+    result.push([combo, strength, weight])
+  })
+
+  return result
+}
+
 // range vs range
 export type RvRArgs = {
   board: number[]
-  range: number[][]
-  vsRange: number[][]
-  ranksFile?: string
+  range: Range
+  vsRange: Range
   chopIsWin?: boolean
 }
 
@@ -126,61 +135,48 @@ export const combosVsRangeAhead = ({
   board,
   range,
   vsRange,
-  ranksFile,
   chopIsWin
 }: RvRArgs) => {
-  initFromPathSync(ranksFile)
+  const blocked = new Set(board) // todo test what 2p2 returns for duplicate cards, if it's "invalid hand" just run it and use that
+  const isOmaha = range.getHandLen() >= 4
 
-  const isOmaha = range[0].length >= 4
+  const evalHand = isOmaha
+    ? (hand: number[]) => evalOmaha(board, hand).value
+    : genBoardEval(board)
 
-  const evalHand = isOmaha ? null : genBoardEval(board)
-
-  const getRangeRankings = (r: number[][]) => {
-    let result: [number[], number][] = []
-
-    for (const combo of r) {
-      if (combo.some((c) => board.includes(c))) continue
-      const strength = isOmaha ? evalOmaha(board, combo).value : evalHand(combo)
-      result.push([combo, strength])
-    }
-
-    return result
-  }
-
-  const rangeRankings = getRangeRankings(range)
-  const vsRangeRankings = getRangeRankings(vsRange)
+  const rangeRankings = getRangeRankings(range, evalHand, blocked)
+  const vsRangeRankings = getRangeRankings(vsRange, evalHand, blocked)
   rangeRankings.sort((a, b) => a[1] - b[1])
   vsRangeRankings.sort((a, b) => a[1] - b[1])
 
-  const result: [[number, number], number][] = []
+  const result: [number[], number][] = []
   let vsPointer = 0
   let beats = 0
+  let weightSum = 0
 
   for (let i = 0; i < rangeRankings.length; i++) {
-    const [hand, handRanking] = rangeRankings[i]
+    const [hand, handRanking, weight] = rangeRankings[i]
 
-    while (
-      vsPointer < vsRangeRankings.length &&
-      handRanking >= rangeRankings[vsPointer][1]
-    ) {
-      const [vsHand, vsRanking] = vsRangeRankings[vsPointer]
+    while (vsPointer < vsRangeRankings.length) {
+      const [vsHand, vsRanking, vsWeight] = vsRangeRankings[vsPointer]
       vsPointer++
       // blockers
       if (vsHand.some((c) => hand.includes(c))) {
         continue
       }
-      beats += chopIsWin || handRanking > vsRanking ? 1 : 0.5
+
+      const winNum =
+        handRanking < vsRanking
+          ? 0
+          : chopIsWin || handRanking > vsRanking
+            ? 1
+            : 0.5
+      const matchupWeight = weight * vsWeight
+      beats += winNum * matchupWeight
+      weightSum += matchupWeight
     }
 
-    const idxOfLarger = hand.indexOf(Math.max(...hand))
-
-    const x = hand[idxOfLarger],
-      y = hand[idxOfLarger === 0 ? 1 : 0]
-
-    result.push([
-      [y, x],
-      Math.round((beats / vsRangeRankings.length) * 10000) / 100
-    ])
+    result.push([sortCards(hand), beats / weightSum])
   }
 
   return result
@@ -192,9 +188,6 @@ export const rangeVsRangeAhead = (args: RvRArgs) => {
   return res.reduce((a, c) => a + c[1], 0) / res.length
 }
 
-export const omahaAheadScore = (
-  evalOptions: EvalOptions,
-  vsRange: number[][]
-) => {
+export const omahaAheadScore = (evalOptions: EvalOptions, vsRange: Range) => {
   return aheadPct(evalOptions, vsRange, evalOmaha)
 }

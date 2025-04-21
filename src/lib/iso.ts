@@ -1,37 +1,30 @@
-import { getRank, getSuit, suitCount } from './cards/utils.js'
+import { getRank, getSuit, makeCard } from './cards/utils.js'
+import { Range } from './ranges/ranges.js'
 import { sortCards } from './sort.js'
+import { getHandIdx } from './utils.js'
 
 export const sortBoard = (cards: number[]) => {
   return sortCards(cards, 3) // sort 1st 3 cards only
 }
 
-// rank+suit to 1-52 card
-export const makeCard = (rank: number, suit: number): number => {
-  return (rank - 2) * 4 + suit + 1
-}
-
-export const remapCards = (cards: number[], suitMap: number[]) =>
-  cards.map((c) => makeCard(getRank(c), suitMap[getSuit(c)]))
+const numSuits = (board: number[]) =>
+  new Set(board.map((card) => getSuit(card))).size
 
 /**
- * very fast (~7m flops/s) since loops only rarely execute. Hashing results would actually be slower
+ * very fast (~12.5m flops/s) since loops only rarely execute. Hashing results would actually be slower
  *
- * sorts cards in place if len <= 3
- *
- * todo need a way to undo this operation and get corresponding cards on original board. Likely just return a map
+ * expects sorted input
+ * todo check if output always sorted
  */
-export const canonize = (cards: number[]) => {
-  cards = sortBoard(cards)
-
+export const canonize = (cards: number[], initSuitMap = [-1, -1, -1, -1]) => {
   const suits = cards.map(getSuit)
   const ranks = cards.map(getRank)
 
-  const suitMap = [-1, -1, -1, -1] // orig to canon(0-3)
-  let nextSuit = 3 // 0-indexed, s -> h -> d -> c
+  const suitMap = [...initSuitMap]
+  let nextSuit = 3 // s -> h -> d -> c
 
   /* for AhAcKc we need to convert to AsAhKs and not AsAhKh. So we have to check for duplicate ranks and swap all siblings to the highest suit */
   for (let i = 0; i < cards.length; i++) {
-    const suit = suits[i]
     let siblings = 0 // how many of the same rank is later in hand
     // +2 because siblings at end of cards wouldn't affect anything else as there's no lower ranks left
     while (i + siblings + 2 < cards.length) {
@@ -42,6 +35,7 @@ export const canonize = (cards: number[]) => {
       }
     }
 
+    const suit = suits[i]
     for (let j = 1; j <= siblings; j++) {
       let swapped = false // we can't just direct one's children to the others
       const sibSuit = suits[i + j]
@@ -70,13 +64,16 @@ export const canonize = (cards: number[]) => {
   return {
     suitMap,
     nextSuit,
-    cards: isoCards // don't sort here since we don't know if its PLO
+    cards: isoCards
   }
 }
 
-// wrappers that return sorted isomorphic cards
-export const isoHand = (hand: number[]) => sortCards(canonize(hand).cards)
-export const isoBoard = (board: number[]) => sortBoard(canonize(board).cards)
+export const canonizeBoard = (board: number[], map?: number[]) =>
+  canonize(sortBoard([...board]), map)
+export const getIsoBoard = (board: number[], map?: number[]) =>
+  sortBoard(canonizeBoard(board, map).cards)
+export const getIsoHand = (hand: number[], map?: number[]) =>
+  sortCards(canonize(sortCards([...hand]), map).cards)
 
 /**
  * PioSOLVER format
@@ -87,11 +84,11 @@ export const iso = ({ board, hand }: { board?: number[]; hand?: number[] }) => {
   }
 
   if (!board) {
-    return { hand: isoHand(hand) }
+    return { hand: getIsoHand(hand) }
   }
 
   if (!hand) {
-    return { board: isoBoard(board) }
+    return { board: getIsoBoard(board) }
   }
 
   return {
@@ -106,7 +103,7 @@ export const iso = ({ board, hand }: { board?: number[]; hand?: number[] }) => {
  * can pass board pre or post-isomorphism and get same results
  */
 export const isoWeight = (board: number[]) => {
-  let sc = suitCount(board)
+  let sc = numSuits(board)
   return [4, 12, 24, 24][sc - 1]
   /* hash logic based on:
   let result = 1
@@ -120,7 +117,7 @@ export const isoWeight = (board: number[]) => {
 
 const forEachIso = (board: number[], f: (iso: number) => void) => {
   const boardSet = new Set(board)
-  const { suitMap, nextSuit } = canonize(board)
+  const { suitMap, nextSuit } = canonizeBoard(board)
   for (let c = 1; c <= 52; c++) {
     if (boardSet.has(c)) continue
     let mappedSuit = suitMap[getSuit(c)]
@@ -149,7 +146,7 @@ export const isoRunouts = (board: number[], weight = 1, depth = -1) => {
 
 // nested turn -> river
 export const flopIsoRunouts = (flop: number[]) => {
-  const isoFlop = canonize(flop).cards
+  const isoFlop = getIsoBoard(flop)
   const runouts = isoRunouts(isoFlop)
 
   for (const turn in runouts) {
@@ -172,6 +169,18 @@ export const totalIsoWeight = (runouts: Runouts) => {
       result += totalIsoWeight(vals[cStr].children)
     }
   }
+
+  return result
+}
+
+/** returns a new Range without modifying original */
+export const isoRange = (range: Range, map = [-1, -1, -1, -1]): Range => {
+  let result = new Range()
+
+  range.forEach((hand, w) => {
+    const iso = getIsoHand(hand, map)
+    result.set(iso, result.getWeight(iso) + w)
+  })
 
   return result
 }
