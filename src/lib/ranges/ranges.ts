@@ -382,7 +382,7 @@ export const isoPre2idx = Object.fromEntries(
   Object.keys(isoPre).map((i) => [isoPre[i], parseInt(i)])
 )
 
-const handToIsoPre = (hand: number[]) => {
+export const handToIsoPre = (hand: number[]) => {
   const sorted = sortCards([...hand])
   const ranks = sorted.map((c) => getRank(c))
   const suits = sorted.map((c) => getSuit(c))
