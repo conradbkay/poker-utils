@@ -71,11 +71,7 @@ Since that requires a 124MB HandRanks.dat file to be loaded into memory, Poker-H
 
 But for lots of random calculations on the same board, which is the case for the costliest operations (anything involving equity/multiple ranges), you can just store `p`, and now each hand only requires 2/3 lookups. Additionally, you're using much less of the lookup array resulting in better caching. The `genBoardEval` function implements this and leads to a 15-20x speedup
 
-There are a few ways to load the HandRanks.dat file, which you can download here <https://github.com/chenosaurus/poker-evaluator/blob/master/data/HandRanks.dat>
-
-1. call `initFromPath` or `initFromPathSync` to load the file immediately
-2. `lazyInitFromPath` loads the file when it is first needed
-3. call `init` if you already have the file loaded
+To load the HandRanks.dat file, which you can download here <https://github.com/chenosaurus/poker-evaluator/blob/master/data/HandRanks.dat> call `initFromPath`/`initFromPathSync`, or `init` if you already have the file loaded
 
 ## Explanation
 

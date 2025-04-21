@@ -2,15 +2,15 @@
 
 export const HAND_TYPES = [
   'invalid hand',
-  'high card',
-  'one pair',
-  'two pairs',
-  'three of a kind',
-  'straight',
-  'flush',
-  'full house',
-  'four of a kind',
-  'straight flush'
+  'High Card',
+  'One Pair',
+  'Two Pair',
+  'Three of a Kind',
+  'Straight',
+  'Flush',
+  'Full House',
+  'Four of a Kind',
+  'Straight Flush'
 ] as const
 
 export type HandName = (typeof HAND_TYPES)[number]

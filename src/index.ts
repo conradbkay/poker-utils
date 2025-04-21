@@ -15,10 +15,13 @@ export * from './lib/twoplustwo/equity.js'
 export * from './lib/twoplustwo/strength.js'
 
 export * from './lib/constants.js'
+
 export * from './lib/init.js'
+
 export * from './lib/iso.js'
 export * from './lib/rake.js'
 export * from './lib/sort.js'
 export * from './lib/theory.js'
 export * from './lib/utils.js'
+
 export * from './lib/evaluate.js'
