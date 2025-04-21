@@ -15,12 +15,16 @@ export const initFromPath = async (path: string) => {
 }
 
 export const initFromPathSync = (path: string) => {
-  require('fs').then(({ readFileSync }) => {
-    if (path && path !== usedPath) {
-      RANKS_DATA = readFileSync(path)
-      usedPath = path
-    }
-  })
+  try {
+    require('fs').then(({ readFileSync }) => {
+      if (path && path !== usedPath) {
+        RANKS_DATA = readFileSync(path)
+        usedPath = path
+      }
+    })
+  } catch (err) {
+    console.error('could not initialize HandRanks')
+  }
 }
 
 export const init = (data: Buffer) => {
