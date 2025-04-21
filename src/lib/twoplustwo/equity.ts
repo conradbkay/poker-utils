@@ -68,7 +68,7 @@ export const equityEval = ({
 }
 
 const defaultEval = (board: number[], hand: number[]) =>
-  evaluate([...board, ...hand])
+  evaluate([...board, ...hand]).value
 
 // doesn't account for runouts, just what % of hands you're ahead of currently
 export const aheadPct = (
@@ -80,11 +80,11 @@ export const aheadPct = (
 
   const vsRangeRankings = getRangeRankings(
     vsRange,
-    (h) => evalFunc(board, h).value,
+    (h) => evalFunc(board, h),
     blocked
   )
 
-  const handRanking = evalFunc(board, hand).value
+  const handRanking = evalFunc(board, hand)
 
   let beats = 0
 
@@ -189,5 +189,5 @@ export const rangeVsRangeAhead = (args: RvRArgs) => {
 }
 
 export const omahaAheadScore = (evalOptions: EvalOptions, vsRange: Range) => {
-  return aheadPct(evalOptions, vsRange, evalOmaha)
+  return aheadPct(evalOptions, vsRange, (b, h) => evalOmaha(b, h).value)
 }

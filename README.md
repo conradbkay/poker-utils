@@ -23,7 +23,7 @@ The highest-level usage is with the `evaluate` function
 
 ## Benchmarks
 
-V8 is pretty fast, but the fastest algorithms (OMPEval) use SIMD or bit behavior only feasible in JS with `BigInt` (slow)
+V8 is pretty fast, but the fastest algorithms (OMPEval) use SIMD and bit behavior only feasible in JS with `BigInt` (slow)
 
 Ran using `mitata` for `poker-utils v11.0.0`
 

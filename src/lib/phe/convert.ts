@@ -46,3 +46,16 @@ export const removeGaps = (evalN: number) => {
 
   throw new Error('invalid 2p2 value ' + evalN)
 }
+
+export const addGaps = (pheVal: number) => {
+  for (let i = subtractCutoffs.length - 1; i > 0; i--) {
+    const [cutoff, subtract] = subtractCutoffs[i]
+    const pheStart = cutoff - subtractCutoffs[i - 1][1]
+    // Calculate what the original number (evalN) would have been
+    if (pheVal >= pheStart) {
+      return pheVal + subtract
+    }
+  }
+
+  return pheVal + 4096
+}

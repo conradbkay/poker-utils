@@ -20,3 +20,5 @@ export * from './lib/sort.js'
 export * from './lib/rake.js'
 export * from './lib/theory.js'
 export * from './lib/utils.js'
+
+export * from './evaluate.js'

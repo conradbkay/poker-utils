@@ -18,6 +18,7 @@ export type HandName = (typeof HAND_TYPES)[number]
 export interface EvaluatedHand {
   handType: number // Index of HANDTYPES array
   handRank: number
+  p: number
   value: number
   handName: HandName
 }
