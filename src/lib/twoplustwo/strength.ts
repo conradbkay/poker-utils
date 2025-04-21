@@ -2,7 +2,7 @@ import { hash } from '../cards/permuHash.js'
 import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants.js'
 import { RANKS_DATA } from '../init.js'
 import { evaluate } from '../../evaluate.js'
-import { removeGaps } from 'lib/phe/convert.js'
+import { removeGaps } from '../phe/convert.js'
 
 /**
  * todo the fastest solution is probably to store each board's p

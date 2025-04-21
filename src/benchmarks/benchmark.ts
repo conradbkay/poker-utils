@@ -1,21 +1,24 @@
 import { run, bench, boxplot, summary, do_not_optimize } from 'mitata'
 import { genRandHash, randCards, sequentialCards, time } from './utils.js'
-import { getPHEValue } from 'lib/phe/evaluate.js'
-import { cardsToPHE } from 'lib/phe/convert.js'
-import { valueFromPHE } from 'lib/phe/convert.js'
-import { canonize, flopIsoRunouts, isoRange, isoRunouts } from 'lib/iso.js'
-import { any2, Range } from 'lib/ranges/ranges.js'
-import { sortCards } from 'lib/sort.js'
+import { getPHEValue } from '../lib/phe/evaluate.js'
+import { cardsToPHE } from '../lib/phe/convert.js'
+import { valueFromPHE } from '../lib/phe/convert.js'
+import { canonize, flopIsoRunouts, isoRange, isoRunouts } from '../lib/iso.js'
+import { any2, Range } from '../lib/ranges/ranges.js'
+import { sortCards } from '../lib/sort.js'
 import { evaluate } from 'evaluate.js'
-import { combosVsRangeAhead, omahaAheadScore } from 'lib/twoplustwo/equity.js'
+import {
+  combosVsRangeAhead,
+  omahaAheadScore
+} from '../lib/twoplustwo/equity.js'
 import {
   genBoardEval,
   fastEval,
   fastEvalPartial,
   evalOmaha
-} from 'lib/twoplustwo/strength.js'
+} from '../lib/twoplustwo/strength.js'
 import { resolve } from 'path'
-import { initFromPathSync } from 'lib/init.js'
+import { initFromPathSync } from '../lib/init.js'
 
 /**
  * todo total memory usage

@@ -1,7 +1,7 @@
 import test, { describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { fromHandIdx, genCardCombinations, getHandIdx } from '../lib/utils.js'
-import { sortCards } from 'lib/sort.js'
+import { sortCards } from '../lib/sort.js'
 
 const allFlops = genCardCombinations(3)
 const allHands = genCardCombinations(2)

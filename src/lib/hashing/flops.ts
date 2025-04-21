@@ -1,7 +1,7 @@
 import { genCardCombinations } from '../utils.js'
 import { getIsoBoard, isoWeight } from '../iso.js'
-import { cardsStr, formatCards, fromCardsStr } from 'lib/cards/utils.js'
-import { sortCards } from 'lib/sort.js'
+import { cardsStr, formatCards, fromCardsStr } from '../cards/utils.js'
+import { sortCards } from '../sort.js'
 // exported for testing
 export const allFlops = genCardCombinations(3)
 export const flopIsoBoards = Array.from(

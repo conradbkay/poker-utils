@@ -1,8 +1,6 @@
-import { c2str } from 'lib/constants.js'
-import { DECK } from 'lib/constants.js'
+import { c2str } from '../constants.js'
+import { DECK } from '../constants.js'
 import { stringifyCardCode, toCardCode } from './hand-code.js'
-import { getPHEValue } from './evaluate.js'
-import { pInfo } from '../twoplustwo/strength.js'
 
 const _toPHE = (card: number) => toCardCode(c2str[card])
 const _fromPHE = (code: number) => DECK[stringifyCardCode(code)]

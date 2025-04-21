@@ -1,8 +1,7 @@
 import { getRank, getSuit } from '../cards/utils.js'
 import { sortCards } from '../sort.js'
 import { fromHandIdx, genCardCombinations, getHandIdx } from '../utils.js'
-import { DECK, RANKS } from 'lib/constants.js'
-import { makeCard } from 'lib/cards/utils.js'
+import { RANKS } from '../constants.js'
 
 /**
  * there are two types of ranges

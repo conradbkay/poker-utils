@@ -2,8 +2,8 @@ import { iso } from '../iso.js'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash.js'
 import { evalOmaha, genBoardEval } from './strength.js'
 import { evaluate } from '../../evaluate.js'
-import { Range } from 'lib/ranges/ranges.js'
-import { sortCards } from 'lib/sort.js'
+import { Range } from '../ranges/ranges.js'
+import { sortCards } from '../sort.js'
 
 export type EvalOptions = {
   board: number[]
