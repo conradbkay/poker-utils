@@ -6,7 +6,7 @@ import { valueFromPHE } from '../lib/phe/convert.js'
 import { canonize, flopIsoRunouts, isoRange, isoRunouts } from '../lib/iso.js'
 import { any2, Range } from '../lib/ranges/ranges.js'
 import { sortCards } from '../lib/sort.js'
-import { evaluate } from 'evaluate.js'
+import { evaluate } from '../lib/evaluate.js'
 import {
   combosVsRangeAhead,
   omahaAheadScore

@@ -1,7 +1,7 @@
 import { iso } from '../iso.js'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash.js'
 import { evalOmaha, genBoardEval } from './strength.js'
-import { evaluate } from '../../evaluate.js'
+import { evaluate } from '../evaluate.js'
 import { Range } from '../ranges/ranges.js'
 import { sortCards } from '../sort.js'
 
