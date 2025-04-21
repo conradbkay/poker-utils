@@ -96,7 +96,7 @@ export const aheadPct = (
     }
   }
 
-  return (beats / vsRangeRankings.length) * 100
+  return beats / vsRangeRankings.length
 }
 
 /** returns [hand, n, weight][] */
