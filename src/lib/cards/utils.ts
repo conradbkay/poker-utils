@@ -28,6 +28,9 @@ export const fromCardsStr = (str: string) =>
 export const formatCard = (card: number) => c2str[card] || ''
 export const formatCards = (cards: number[]) => cards.map(formatCard)
 
+export const suitCount = (cards: number[]) =>
+  new Set(cards.map((c) => getSuit(c))).size
+
 /**
  * for textural analysis where you don't just want the strongest possible hand (a board could have a straight and a flush which returns true here)
  */
