@@ -2,14 +2,13 @@ import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { any2 } from '../lib/ranges/ranges.js'
 import { rangeVsRangeAhead } from '../lib/twoplustwo/equity.js'
-import { randCards } from '../benchmarks/utils.js'
-import { boardToInts } from '../lib/cards/utils.js'
+import { boardToInts, randUniqueCards } from '../lib/cards/utils.js'
 
 describe('equity calculations', () => {
   const range = any2
   const flop = boardToInts('Js9h4h') // if we did totally random we might get weird always chop boards
   const options = {
-    board: [...flop, ...randCards(2, false)],
+    board: [...flop, ...randUniqueCards(2)],
     range,
     vsRange: range
   }

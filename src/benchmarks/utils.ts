@@ -1,4 +1,4 @@
-import { shuffle } from '../lib/cards/utils.js'
+import { randUniqueCards, shuffle } from '../lib/cards/utils.js'
 import { CARDS } from '../lib/constants.js'
 
 // for benchmarks we don't want it wasting time generating random cards, but setting to specific card values might (test this though) make it cheat by storing everything in cache
@@ -28,10 +28,7 @@ export const genRandHash = () => {
   created = true
 }
 
-export const randCards = (count: number, hash = true) => {
-  if (!hash || count < min || count > max) {
-    return accessCards(count)
-  }
+export const randCardsHashed = (count: number) => {
   if (!created) {
     genRandHash()
   }
@@ -43,4 +40,4 @@ export const randCards = (count: number, hash = true) => {
 
 export const time = 1000 // ms benchmarks per
 
-export const sequentialCards = randCards(7, false) // running on same data every time will increase caching and remove overhead of accessing from randHash
+export const sequentialCards = randUniqueCards(7) // running on same data every time will increase caching and remove overhead of accessing from randHash

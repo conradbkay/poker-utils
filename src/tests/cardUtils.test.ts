@@ -5,13 +5,15 @@ import {
   getRank,
   getSuit,
   makeCard,
+  randUniqueCards,
   suitCount,
   uniqueRanks
 } from '../lib/cards/utils.js'
-import { DECK, RANKS } from '../lib/constants.js'
-import { randCards } from '../benchmarks/utils.js'
+import { CARDS, DECK, RANKS } from '../lib/constants.js'
+import { randCardsHashed } from '../benchmarks/utils.js'
 import { evaluate } from '../lib/evaluate.js'
 import { HAND_TYPES } from '../lib/twoplustwo/constants.js'
+import { randomInt } from 'node:crypto'
 
 describe('cards/utils', (t) => {
   test('getSuit', () => {
@@ -36,7 +38,7 @@ describe('cards/utils', (t) => {
   })
   test('containsStraight', () => {
     for (let i = 0; i < 1000; i++) {
-      const hand = randCards(7)
+      const hand = randCardsHashed(7)
       const { handName, handType } = evaluate(hand)
       const containsStrt = containsStraight(hand)
 
@@ -45,6 +47,14 @@ describe('cards/utils', (t) => {
       } else if (handType < HAND_TYPES.indexOf('Straight')) {
         assert.equal(containsStrt, false)
       }
+    }
+  })
+  test('randUniqueCards', () => {
+    for (let i = 0; i < 5000; i++) {
+      const cards = randUniqueCards(randomInt(1, 15))
+      assert.equal(new Set(cards).size, cards.length)
+      assert.ok(Math.max(...cards) <= Math.max(...CARDS))
+      assert.ok(Math.min(...cards) >= Math.min(...CARDS))
     }
   })
 })

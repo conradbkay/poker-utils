@@ -3,11 +3,10 @@ import assert from 'node:assert/strict'
 
 import { hash } from '../lib/cards/permuHash.js'
 import { resolve } from 'path'
-import { boardToInts } from '../lib/cards/utils.js'
+import { boardToInts, randUniqueCards } from '../lib/cards/utils.js'
 import { omahaAheadScore } from '../lib/twoplustwo/equity.js'
 import { evalOmaha } from '../lib/twoplustwo/strength.js'
 import { initFromPathSync } from '../lib/init.js'
-import { randCards } from '../benchmarks/utils.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 
@@ -26,6 +25,6 @@ test('PLO Strength', (t) => {
       board,
       hand
     },
-    new Array(100).fill(0).map(() => randCards(4, false))
+    new Array(100).fill(0).map(() => randUniqueCards(4))
   )
 })

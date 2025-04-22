@@ -126,7 +126,7 @@ export type RvRArgs = {
 
 /**
  * returns [combo, ahead, weight]
- * ! weight is blocker independent so maybe range vs range equity is bugged because of that
+ * ! weight is blocker independent here, so range vs range equity is slightly off because of that
  */
 export const combosVsRangeAhead = ({
   board,
@@ -152,7 +152,7 @@ export const combosVsRangeAhead = ({
 
   const result: [number[], number, number][] = []
 
-  // TODO need to store all blocker indexes
+  // TODO need to store all blocker indexes to make two pointer approach work
 
   for (let i = 0; i < rangeRankings.length; i++) {
     const [hand, handRanking, weight] = rangeRankings[i]

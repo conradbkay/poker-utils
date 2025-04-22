@@ -1,4 +1,4 @@
-import { c2str } from '../constants.js'
+import { c2str, CARDS } from '../constants.js'
 import { DECK } from '../constants.js'
 
 /**
@@ -152,4 +152,21 @@ export const boardToInts = (board: string | string[] | number[]) => {
   }
 
   return boardInts
+}
+
+export const randUniqueCards = (count: number) => {
+  if (count > 10) {
+    return shuffle([...CARDS]).slice(0, count)
+  }
+
+  let result: number[] = []
+
+  while (result.length < count) {
+    let next = Math.floor(Math.random() * 52) + 1
+    if (!result.includes(next)) {
+      result.push(next)
+    }
+  }
+
+  return result
 }

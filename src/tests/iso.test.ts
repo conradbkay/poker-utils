@@ -9,7 +9,7 @@ import {
 } from '../lib/iso.js'
 import { pioFlops } from '../data/pioFlops.js'
 import { genCardCombinations } from '../lib/utils.js'
-import { randCards } from '../benchmarks/utils.js'
+import { randCardsHashed } from '../benchmarks/utils.js'
 import { boardToInts } from '../lib/cards/utils.js'
 
 const allHands = genCardCombinations(2)
@@ -45,11 +45,11 @@ const [rainbow, tt, mono] = [
 
 describe('runouts', () => {
   it('generates total weight of 49 for turn runouts', () => {
-    const weightSum = totalIsoWeight(isoRunouts(randCards(3)))
+    const weightSum = totalIsoWeight(isoRunouts(randCardsHashed(3)))
     assert.equal(weightSum, 49)
   })
   it('generates total weight of 49*49 for turn+river runouts', () => {
-    const weightSum = totalIsoWeight(flopIsoRunouts(randCards(3)))
+    const weightSum = totalIsoWeight(flopIsoRunouts(randCardsHashed(3)))
     assert.equal(weightSum, 49 * 49)
   })
   it('generates 23 turns for monotone flop', () => {

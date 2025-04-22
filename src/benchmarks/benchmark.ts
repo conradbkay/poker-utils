@@ -1,5 +1,5 @@
 import { run, bench, boxplot, summary, do_not_optimize } from 'mitata'
-import { genRandHash, randCards, sequentialCards, time } from './utils.js'
+import { genRandHash, randCardsHashed, sequentialCards, time } from './utils.js'
 import { getPHEValue } from '../lib/phe/evaluate.js'
 import { cardsToPHE } from '../lib/phe/convert.js'
 import { valueFromPHE } from '../lib/phe/convert.js'
@@ -32,10 +32,10 @@ genRandHash() // for randCards
 
 // sort
 bench('Node.js 6 card .sort', () => {
-  randCards(6).sort((a, b) => b - a)
+  randCardsHashed(6).sort((a, b) => b - a)
 })
 bench('...`(sortCards)`', () => {
-  sortCards(randCards(6))
+  sortCards(randCardsHashed(6))
 })
 
 // iso
@@ -44,16 +44,16 @@ bench('range to isomorphic', () => {
   isoRange(any2)
 })
 bench('generate river runouts', () => {
-  isoRunouts(randCards(4))
+  isoRunouts(randCardsHashed(4))
 })
 bench('generate turn+river runouts', () => {
-  flopIsoRunouts(randCards(3))
+  flopIsoRunouts(randCardsHashed(3))
 })
 bench('flop isomorphism', () => {
-  canonize(randCards(3))
+  canonize(randCardsHashed(3))
 })
 bench('river isomorphism', () => {
-  canonize(randCards(5))
+  canonize(randCardsHashed(5))
 })
 
 if (!markdown) {
@@ -72,8 +72,8 @@ if (!markdown) {
 const ranksFile = resolve('./HandRanks.dat')
 initFromPathSync(ranksFile)
 
-const riverEval = genBoardEval(randCards(5))
-const flopEval = genBoardEval(randCards(3))
+const riverEval = genBoardEval(randCardsHashed(5))
+const flopEval = genBoardEval(randCardsHashed(3))
 
 bench('phe sequential+convert', () => {
   phe(sequentialCards)
@@ -82,28 +82,28 @@ bench('2p2 sequential', () => {
   fastEval(sequentialCards)
 })
 bench('phe rand 7 cards', () => {
-  getPHEValue(cardsToPHE(randCards(7)))
+  getPHEValue(cardsToPHE(randCardsHashed(7)))
 })
 bench('2p2 rand 7 cards', () => {
-  fastEval(randCards(7))
+  fastEval(randCardsHashed(7))
 })
 if (!markdown) {
   bench('...with 5-6 card conditional handling', () => {
-    fastEvalPartial(randCards(7))
+    fastEvalPartial(randCardsHashed(7))
   })
   bench('...with pInfo overhead', () => {
-    evaluate(randCards(7))
+    evaluate(randCardsHashed(7))
   })
 }
 bench('2p2 random 2 cards on fixed river', () => {
-  riverEval(randCards(2))
+  riverEval(randCardsHashed(2))
 })
 bench('2p2 random 2 cards on fixed flop', () => {
-  flopEval(randCards(2))
+  flopEval(randCardsHashed(2))
 })
 bench('2p2 river full range vs range equity', () => {
   combosVsRangeAhead({
-    board: randCards(5),
+    board: randCardsHashed(5),
     range: any2,
     vsRange: any2
   })
@@ -113,27 +113,27 @@ bench('2p2 river full range vs range equity', () => {
 const randomOmahaRange = new Range(4)
 
 while (randomOmahaRange.getSize() < 1000) {
-  const add = sortCards(randCards(4))
+  const add = sortCards(randCardsHashed(4))
   randomOmahaRange.set(add, 1)
 }
 
 bench('4 card omaha flop hand strength', () => {
-  evalOmaha(randCards(3), randCards(4))
+  evalOmaha(randCardsHashed(3), randCardsHashed(4))
 })
 bench('4 card omaha river hand strength', () => {
-  evalOmaha(randCards(5), randCards(4))
+  evalOmaha(randCardsHashed(5), randCardsHashed(4))
 })
 bench('...5 cards', () => {
-  evalOmaha(randCards(5), randCards(5))
+  evalOmaha(randCardsHashed(5), randCardsHashed(5))
 })
 bench('...6 cards', () => {
-  evalOmaha(randCards(5), randCards(6))
+  evalOmaha(randCardsHashed(5), randCardsHashed(6))
 })
 bench('omaha river equity vs 1000 random hands', () => {
   omahaAheadScore(
     {
-      board: randCards(5),
-      hand: randCards(4)
+      board: randCardsHashed(5),
+      hand: randCardsHashed(4)
     },
     randomOmahaRange
   )
@@ -141,8 +141,8 @@ bench('omaha river equity vs 1000 random hands', () => {
 bench('omaha turn ahead vs range', () => {
   omahaAheadScore(
     {
-      board: randCards(4),
-      hand: randCards(4)
+      board: randCardsHashed(4),
+      hand: randCardsHashed(4)
     },
     randomOmahaRange
   )
@@ -151,8 +151,8 @@ bench('omaha turn ahead vs range', () => {
 bench('omaha flop ahead vs range', () => {
   omahaAheadScore(
     {
-      board: randCards(3),
-      hand: randCards(4)
+      board: randCardsHashed(3),
+      hand: randCardsHashed(4)
     },
     randomOmahaRange
   )
