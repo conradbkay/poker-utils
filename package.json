@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "11.1.0",
+  "version": "11.1.2",
   "description": "Fast poker ranges, evaluation, equity calculation",
   "author": "Conrad Kay",
   "main": "build/module/index.js",
@@ -11,7 +11,6 @@
   "keywords": [],
   "type": "module",
   "scripts": {
-    "publish": "semver -i patch",
     "build": "run-p build:*",
     "build:module": "tsc -p tsconfig.module.json",
     "bench": "tsx --expose-gc src/benchmarks/benchmark.ts",
