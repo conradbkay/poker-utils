@@ -7,7 +7,7 @@ import { initFromPathSync } from '../lib/init.js'
 import { resolve } from 'path'
 import { getPHEValue } from '../lib/phe/evaluate.js'
 import { randomInt } from 'node:crypto'
-import { phe } from 'lib/evaluate.js'
+import { phe } from '../lib/evaluate.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 describe('PHE <--> 2p2 conversions', () => {

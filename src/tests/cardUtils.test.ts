@@ -2,18 +2,16 @@ import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   containsStraight,
-  formatCards,
   getRank,
   getSuit,
   makeCard,
   suitCount,
   uniqueRanks
-} from 'lib/cards/utils'
-import { DECK, RANKS } from 'lib/constants'
-import { randCards } from 'benchmarks/utils'
-import { evaluate } from 'lib/evaluate'
-import { HAND_TYPES } from 'lib/twoplustwo/constants'
-import { initFromPathSync } from 'lib/init'
+} from '../lib/cards/utils.js'
+import { DECK, RANKS } from '../lib/constants.js'
+import { randCards } from '../benchmarks/utils.js'
+import { evaluate } from '../lib/evaluate.js'
+import { HAND_TYPES } from '../lib/twoplustwo/constants.js'
 
 describe('cards/utils', (t) => {
   test('getSuit', () => {

@@ -125,11 +125,8 @@ export type RvRArgs = {
 }
 
 /**
- * sorts both ranges by strength
- *
- * todo create wrapper function rangeVsRangeAhead that just averages
- *
- * 4k/s on full ranges
+ * returns [combo, ahead, weight]
+ * ! weight is blocker independent so maybe range vs range equity is bugged because of that
  */
 export const combosVsRangeAhead = ({
   board,
@@ -137,6 +134,10 @@ export const combosVsRangeAhead = ({
   vsRange,
   chopIsWin
 }: RvRArgs) => {
+  const getWinVal = (p: number, vsP: number) => {
+    return p < vsP ? 0 : chopIsWin || p > vsP ? 1 : 0.5
+  }
+
   const blocked = new Set(board) // todo test what 2p2 returns for duplicate cards, if it's "invalid hand" just run it and use that
   const isOmaha = range.getHandLen() >= 4
 
@@ -149,34 +150,26 @@ export const combosVsRangeAhead = ({
   rangeRankings.sort((a, b) => a[1] - b[1])
   vsRangeRankings.sort((a, b) => a[1] - b[1])
 
-  const result: [number[], number][] = []
-  let vsPointer = 0
-  let beats = 0
-  let weightSum = 0
+  const result: [number[], number, number][] = []
+
+  // TODO need to store all blocker indexes
 
   for (let i = 0; i < rangeRankings.length; i++) {
     const [hand, handRanking, weight] = rangeRankings[i]
-
-    while (vsPointer < vsRangeRankings.length) {
-      const [vsHand, vsRanking, vsWeight] = vsRangeRankings[vsPointer]
-      vsPointer++
-      // blockers
+    let beats = 0
+    let weightSum = 0
+    for (let vsIdx = 0; vsIdx < vsRangeRankings.length; vsIdx++) {
+      const [vsHand, vsRanking, vsWeight] = vsRangeRankings[vsIdx]
       if (vsHand.some((c) => hand.includes(c))) {
-        continue
+        continue // blockers
       }
 
-      const winNum =
-        handRanking < vsRanking
-          ? 0
-          : chopIsWin || handRanking > vsRanking
-            ? 1
-            : 0.5
-      const matchupWeight = weight * vsWeight
-      beats += winNum * matchupWeight
-      weightSum += matchupWeight
+      const winVal = getWinVal(handRanking, vsRanking)
+      beats += winVal * vsWeight
+      weightSum += vsWeight
     }
 
-    result.push([sortCards(hand), beats / weightSum])
+    result.push([sortCards(hand), beats / weightSum, weight])
   }
 
   return result

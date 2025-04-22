@@ -74,7 +74,7 @@ export const pInfo = (p: number) => ({
 })
 
 export const genBoardEval = (board: number[], evalFunc = fastEval) => {
-  if (!RANKS_DATA) return (h: number[]) => evaluate(h).value
+  if (!RANKS_DATA) return (h: number[]) => evaluate([...board, ...h]).value
 
   let boardP = fastEval(board)
   return board.length === 5

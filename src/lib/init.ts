@@ -1,4 +1,4 @@
-import importSync from 'import-sync'
+import fs from 'node:fs'
 
 export let RANKS_DATA = null
 let usedPath: string | null = null // file never changes so don't load it more than once
@@ -18,9 +18,8 @@ export const initFromPath = async (path: string) => {
 
 export const initFromPathSync = (path: string) => {
   try {
-    const { readFileSync } = importSync('fs')
-    if (path && path !== usedPath) {
-      RANKS_DATA = readFileSync(path)
+    if (fs && path && path !== usedPath) {
+      RANKS_DATA = fs.readFileSync(path)
       usedPath = path
     }
   } catch (err) {
