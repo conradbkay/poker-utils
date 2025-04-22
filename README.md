@@ -8,7 +8,6 @@ Really fast poker evaluation in pure TypeScript
 - advanced poker theory math like `alpha`, `bluffEv`, and `catchEV`
 - range operations (`combosVsRangeEquity`)
 - easily generate and access from a hash of every combo on every unique flop
-- Zero dependencies
 - site-specific rake information
 
 Returned percentages are always between 0 and 1

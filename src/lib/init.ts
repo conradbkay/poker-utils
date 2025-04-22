@@ -1,3 +1,5 @@
+import importSync from 'import-sync'
+
 export let RANKS_DATA = null
 let usedPath: string | null = null // file never changes so don't load it more than once
 
@@ -16,12 +18,11 @@ export const initFromPath = async (path: string) => {
 
 export const initFromPathSync = (path: string) => {
   try {
-    require('fs').then(({ readFileSync }) => {
-      if (path && path !== usedPath) {
-        RANKS_DATA = readFileSync(path)
-        usedPath = path
-      }
-    })
+    const { readFileSync } = importSync('fs')
+    if (path && path !== usedPath) {
+      RANKS_DATA = readFileSync(path)
+      usedPath = path
+    }
   } catch (err) {
     console.error('could not initialize HandRanks')
   }

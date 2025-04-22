@@ -9,7 +9,6 @@ import { getPHEValue } from '../lib/phe/evaluate.js'
 import { randomInt } from 'node:crypto'
 
 initFromPathSync(resolve('./HandRanks.dat'))
-
 describe('PHE <--> 2p2 conversions', () => {
   it('creates equivalent rank values', () => {
     for (let i = 0; i < 5000; i++) {
