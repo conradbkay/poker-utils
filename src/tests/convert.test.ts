@@ -7,6 +7,7 @@ import { initFromPathSync } from '../lib/init.js'
 import { resolve } from 'path'
 import { getPHEValue } from '../lib/phe/evaluate.js'
 import { randomInt } from 'node:crypto'
+import { phe } from 'lib/evaluate.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 describe('PHE <--> 2p2 conversions', () => {
@@ -14,9 +15,10 @@ describe('PHE <--> 2p2 conversions', () => {
     for (let i = 0; i < 5000; i++) {
       const hand = randCards(randomInt(5, 8), false)
       const tpt = eval2p2(hand)
-      const phe = valueFromPHE(getPHEValue(cardsToPHE(hand)))
-      assert.equal(tpt.value, phe)
-      assert.equal(tpt.p, addGaps(phe))
+      const pheValue = valueFromPHE(getPHEValue(cardsToPHE(hand)))
+      const pheP = phe(hand)
+      assert.equal(tpt.value, pheValue)
+      assert.equal(tpt.p, pheP)
     }
   })
 })

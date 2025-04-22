@@ -11,6 +11,7 @@ export const getSuit = (card: number) => (card - 1) % 4
 /** returns 2 for 2, 14 for ace */
 export const getRank = (card: number) => ((card - 1) >> 2) + 2
 
+/** returns array of ranks */
 export const uniqueRanks = (board: number[]) =>
   Array.from(new Set(board.map((c) => getRank(c))))
 
