@@ -1,7 +1,7 @@
 /**
  *
  * @param depth how many cards to generate
- * all returned combos are sorted desc
+ * combos and combos arr returned sorted descending
  */
 export const genCardCombinations = (depth = 3, minCard = 1) => {
   if (depth > 5) {
@@ -16,9 +16,9 @@ export const genCardCombinations = (depth = 3, minCard = 1) => {
     let cur = []
 
     for (const cards of result) {
-      const start = cards.length ? cards[0] + 1 : minCard
-      for (let j = start; j <= maxCard - (depth - i); j++) {
-        cur.push([j, ...cards])
+      const start = cards.length ? cards[cards.length - 1] - 1 : maxCard
+      for (let j = start; j >= minCard + (depth - i); j--) {
+        cur.push([...cards, j])
       }
     }
 

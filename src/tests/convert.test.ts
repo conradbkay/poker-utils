@@ -1,14 +1,13 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { evaluate as eval2p2 } from '../lib/twoplustwo/evaluate.js'
-import { randCardsHashed } from '../benchmarks/utils.js'
-import { addGaps, cardsToPHE, valueFromPHE } from '../lib/phe/convert.js'
+import { cardsToPHE, valueFromPHE } from '../lib/phe/convert.js'
 import { initFromPathSync } from '../lib/init.js'
 import { resolve } from 'path'
 import { getPHEValue } from '../lib/phe/evaluate.js'
 import { randomInt } from 'node:crypto'
 import { phe } from '../lib/evaluate.js'
-import { randUniqueCards } from 'lib/cards/utils.js'
+import { randUniqueCards } from '../lib/cards/utils.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 describe('PHE <--> 2p2 conversions', () => {

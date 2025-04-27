@@ -7,6 +7,7 @@ import { boardToInts, randUniqueCards } from '../lib/cards/utils.js'
 import { omahaAheadScore } from '../lib/twoplustwo/equity.js'
 import { evalOmaha } from '../lib/twoplustwo/strength.js'
 import { initFromPathSync } from '../lib/init.js'
+import { evaluate } from 'src/lib/twoplustwo/evaluate.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 

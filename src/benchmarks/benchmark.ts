@@ -4,21 +4,23 @@ import { getPHEValue } from '../lib/phe/evaluate.js'
 import { cardsToPHE } from '../lib/phe/convert.js'
 import { valueFromPHE } from '../lib/phe/convert.js'
 import { canonize, flopIsoRunouts, isoRange, isoRunouts } from '../lib/iso.js'
-import { any2, Range } from '../lib/ranges/ranges.js'
+import { any2, PokerRange } from '../lib/range/range.js'
 import { sortCards } from '../lib/sort.js'
 import { evaluate, phe } from '../lib/evaluate.js'
 import {
   combosVsRangeAhead,
+  fastCombosVsRangeAhead,
   omahaAheadScore
 } from '../lib/twoplustwo/equity.js'
 import {
-  genBoardEval,
   fastEval,
   fastEvalPartial,
   evalOmaha
 } from '../lib/twoplustwo/strength.js'
+import { genBoardEval } from 'src/lib/evaluate.js'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init.js'
+import { BitRange } from 'src/lib/range/bit.js'
 
 /**
  * todo total memory usage
@@ -63,9 +65,26 @@ if (!markdown) {
   })
 }
 
-/*bench('phe rand 5 cards', () => {
-  getPHEValue(cardsToPHE(randCards(5, false))) // very odd bug making it return 5 of the same rank somehow? Only used in bench so whatever
-})*/
+const bitRange = BitRange.fromPokerRange(any2)
+const vsBitRange = BitRange.fromPokerRange(any2)
+
+bench('PHE bit range full range vs range equity', () => {
+  fastCombosVsRangeAhead({
+    board: randCardsHashed(5),
+    range: bitRange,
+    vsRange: vsBitRange,
+    useHandBlockers: false
+  })
+})
+
+bench('PHE bit range full range vs range equity with handBlockers', () => {
+  fastCombosVsRangeAhead({
+    board: randCardsHashed(5),
+    range: bitRange,
+    vsRange: vsBitRange,
+    useHandBlockers: true
+  })
+})
 
 // twoplustwo vs phe
 // ensure data is loaded BEFORE running benchmarks
@@ -110,7 +129,7 @@ bench('2p2 river full range vs range equity', () => {
 })
 
 // twoplustwo omaha
-const randomOmahaRange = new Range(4)
+const randomOmahaRange = new PokerRange(4)
 
 while (randomOmahaRange.getSize() < 1000) {
   const add = sortCards(randCardsHashed(4))

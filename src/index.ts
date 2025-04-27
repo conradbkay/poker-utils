@@ -8,7 +8,8 @@ export * from './lib/phe/convert.js'
 export * from './lib/phe/evaluate.js'
 export * from './lib/phe/phe.js'
 
-export * from './lib/ranges/ranges.js'
+export * from './lib/range/range.js'
+export * from './lib/range/preflop.js'
 
 export * from './lib/twoplustwo/constants.js'
 export * from './lib/twoplustwo/equity.js'

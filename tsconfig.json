@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    "baseUrl": ".",
     "outDir": "build/main",
-    "rootDir": "src",
-    "baseUrl": "src",
     "moduleResolution": "node16",
     "module": "Node16",
     "declaration": true,
@@ -18,10 +17,12 @@
     "lib": [
       "es2023"
     ],
-    "typeRoots": [
-      "node_modules/@types",
-      "src/types"
-    ]
+    "paths": {
+      "typeRoots": [
+        "node_modules/@types",
+        "src/types"
+      ]
+    },
   },
   "include": [
     "src/**/*.ts"

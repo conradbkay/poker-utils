@@ -1,7 +1,7 @@
 // twoplustwo algorithm based
 
 export const HAND_TYPES = [
-  'invalid hand',
+  'Invalid Hand',
   'High Card',
   'One Pair',
   'Two Pair',

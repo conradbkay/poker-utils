@@ -1,12 +1,9 @@
 import { hash } from '../cards/permuHash.js'
 import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants.js'
 import { RANKS_DATA } from '../init.js'
-import { evaluate } from '../evaluate.js'
+import { genBoardEval } from '../evaluate.js'
 import { removeGaps } from '../phe/convert.js'
 
-/**
- * todo the fastest solution is probably to store each board's p
- */
 export const evalOmaha = (
   board: number[],
   holeCards: number[]
@@ -72,15 +69,6 @@ export const pInfo = (p: number) => ({
   value: removeGaps(p),
   handName: HAND_TYPES[p >> 12]
 })
-
-export const genBoardEval = (board: number[], evalFunc = fastEval) => {
-  if (!RANKS_DATA) return (h: number[]) => evaluate([...board, ...h]).value
-
-  let boardP = fastEval(board)
-  return board.length === 5
-    ? (hand: number[]) => evalFunc(hand, boardP)
-    : (hand: number[]) => nextP(evalFunc(hand, boardP))
-}
 
 // 2p2 eval only
 export const genOmahaBoardEval = (board: number[]) => {

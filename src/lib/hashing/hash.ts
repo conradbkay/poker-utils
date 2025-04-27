@@ -1,4 +1,4 @@
-import { any2, Range } from '../ranges/ranges.js'
+import { any2, PokerRange } from '../range/range.js'
 import { flops } from './flops.js'
 import { combosVsRangeAhead } from '../twoplustwo/equity.js'
 import { equityBuckets } from '../constants.js'
@@ -29,7 +29,7 @@ export const eachRiver = (
 
 export const flopEquities = (
   flop: number[],
-  vsRange: Range,
+  vsRange: PokerRange,
   chopIsWin: boolean = true
 ) => {
   const hash: number[][] = new Array(1326)
@@ -53,7 +53,7 @@ export const flopEquities = (
   return hash
 }
 
-export const generateEquityHash = (vsRange: Range) => {
+export const generateEquityHash = (vsRange: PokerRange) => {
   const hash: RiverEquityHash = {}
 
   for (const [s, flop] of flops) {

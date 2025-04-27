@@ -10,7 +10,6 @@ import {
   uniqueRanks
 } from '../lib/cards/utils.js'
 import { CARDS, DECK, RANKS } from '../lib/constants.js'
-import { randCardsHashed } from '../benchmarks/utils.js'
 import { evaluate } from '../lib/evaluate.js'
 import { HAND_TYPES } from '../lib/twoplustwo/constants.js'
 import { randomInt } from 'node:crypto'
@@ -38,7 +37,7 @@ describe('cards/utils', (t) => {
   })
   test('containsStraight', () => {
     for (let i = 0; i < 1000; i++) {
-      const hand = randCardsHashed(7)
+      const hand = randUniqueCards(7)
       const { handName, handType } = evaluate(hand)
       const containsStrt = containsStraight(hand)
 

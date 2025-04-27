@@ -1,6 +1,6 @@
 # poker-utils
 
-Really fast poker evaluation in pure TypeScript
+Really fast poker hand evaluation in pure TypeScript
 
 - NLHE and 4-6 card Omaha strength evaluation
 - fast isomorphism and weighted isomorphic runouts
@@ -12,17 +12,27 @@ Really fast poker evaluation in pure TypeScript
 
 Returned percentages are always between 0 and 1
 
-deck is 1-indexed ascending from 2 to 'a' (Ace) alphabetic suit tie-break (c,d,h,s)
+The deck is 1-indexed, ascending from 2c (1) to As (52). Most methods input/output a `number[]`. You can use `boardToInts()` to convert to, and `formatCards()` to convert from
 
 "ahead" methods don't look at each runout like the corresponding "equity" methods do
 
 ## Quickstart
 
-The highest-level usage is with the `evaluate` function
+Use the `evaluate` function to get hand strength information
+
+```js
+const pfRange = new PreflopRange()
+pfRange.set('66')
+pfRange.set('AKs')
+pfRange.toString() // "AKs,66"
+pfRange.handCombos('22') //
+```
+
+use `new PokerRange()` or `PokerRange.fromPreflop(...)`
 
 ## Benchmarks
 
-V8 is pretty fast, but the fastest algorithms (OMPEval) use SIMD and bit behavior only feasible in JS with `BigInt` (slow)
+V8 is pretty fast, but the fastest algorithms (OMPEval) use SIMD which isn't available
 
 Ran using `mitata` for `poker-utils v11.0.0`
 
@@ -56,6 +66,8 @@ runtime: node 23.11.0 (x64-win32)
 
 ## Twoplustwo algorithm
 
+By default this package uses a modified version of PHE (<https://github.com/HenryRLee/PokerHandEvaluator>) which returns equivalent values to the 2p2 algorithm, making them interchangeable. It can run on the browser since 5-7 card hashes are ~500 KB combined
+
 The 2p2 algorithm is basically this, where hr is an precomputed array of ~32m ints
 
 ```py
@@ -85,23 +97,6 @@ For example, all monotone flops become 3 spades (Kh7h3h -> Ks7s3s)
 - equities should be represented as [lose, chop, win]
 - representing omaha ranges well (AKQ9ss type)
 - bucketing
-- all the specific range functionality should map in/out of 1326 (169 for preflop) values as weights
-- probably centralize hashes to one class with method to initialize all but default lazy fetch
-- exported RFPHE class
 - CLI commands for hash genration (PHE omaha, flops)
 - Monte carlo necessary for many preflop and 3+ players spots, and maybe for PLO flops
 - webassembly OMPEval <https://github.com/emscripten-core/emscripten> <https://emscripten.org/docs/porting/simd.html>
-
-## Breaking Changes
-
-### v11
-
-- removed `ranksFile` argument everywhere
-
-### v10
-
-Added option to use `PHE` for evaluation, which is a JS port of <https://github.com/HenryRLee/PokerHandEvaluator>. It can run on the browser since 5-7 card hashes are ~500 KB combined
-
-- `omahaAheadScore` -> `omahaAheadPct`
-- `combosVsRangeEquity` -> `rangeVsRangeAhead`
-- `init` -> `initFromPath`

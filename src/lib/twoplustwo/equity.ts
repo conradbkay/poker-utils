@@ -1,9 +1,129 @@
 import { iso } from '../iso.js'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash.js'
-import { evalOmaha, genBoardEval } from './strength.js'
+import { evalOmaha } from './strength.js'
+import { genBoardEval } from '../evaluate.js'
 import { evaluate } from '../evaluate.js'
-import { Range } from '../ranges/ranges.js'
+import { PokerRange } from '../range/range.js'
 import { sortCards } from '../sort.js'
+import { BitRange, cardsBlockBitmap } from '../range/bit.js'
+import { fromHandIdx } from '../utils.js'
+import { BitSet } from 'bitset'
+
+// ugly name and uglier code to get [idx, strength, weightAccum][] sorted strength asc
+const genSortedBitEvalInfo = (
+  bitmap: BitSet,
+  weights: ArrayLike<number>,
+  strengths: ArrayLike<number>
+) => {
+  let weightSum = 0
+  let infos: [number, number, number][] = new Array(bitmap.cardinality())
+  let set = 0
+  // prob could use lsb msb and shifting
+  for (let i = 0; i < 1326; i++) {
+    if (bitmap.get(i)) {
+      const w = weights[i]
+      infos[set] = [i, strengths[i], w]
+      weightSum += w
+      set++
+    }
+  }
+
+  infos.sort((a, b) => a[1] - b[1])
+
+  for (let i = 1; i < infos.length; i++) {
+    infos[i][2] = infos[i][2] + infos[i - 1][2]
+  }
+
+  return { infos, weightSum }
+}
+
+/**
+ * maybe we calculate strength of all 1326 2 card combos, but such that each combo maps to 0-1326
+ *
+ * for flop/turn store each `p` in 1326 length uint32
+ *
+ * should have option to disable hand vs hand blockers since that takes so much time
+ *
+ * Only works for 2 card ranges. Optimized for twoplustwo algorithm
+ */
+export const fastCombosVsRangeAhead = ({
+  board,
+  range,
+  vsRange,
+  chopIsWin,
+  useHandBlockers = true
+}: {
+  board: number[]
+  range: BitRange
+  vsRange: BitRange
+  chopIsWin?: boolean
+  useHandBlockers?: boolean // around 200x slower
+}) => {
+  const blockers = cardsBlockBitmap(board)
+  const ranges = [range, vsRange]
+  const bitmaps = ranges.map((r) => r.blockedBitmap(blockers))
+
+  const evaluate = genBoardEval(board)
+  const strengths = new Uint16Array(1326)
+  for (let i = 0; i < 1326; i++) {
+    strengths[i] = evaluate([10, 20])
+  }
+
+  const [{ infos }, { infos: vsInfos, weightSum: unblockedWeightSum }] =
+    bitmaps.map((b, i) => genSortedBitEvalInfo(b, ranges[i].weights, strengths))
+
+  let pointer = 0
+  let beatPointer = 0
+  let result: number[] = new Array(infos.length)
+
+  let chopWeight = 0
+  // like 95% of time is spent in this loop
+  while (pointer < infos.length) {
+    const info = infos[pointer]
+    const handBlockers = useHandBlockers
+      ? cardsBlockBitmap(fromHandIdx(info[0]), true)
+      : null
+    let weightSum = unblockedWeightSum
+
+    while (beatPointer < vsInfos.length && info[1] >= vsInfos[beatPointer][1]) {
+      if (handBlockers && handBlockers.get(vsInfos[beatPointer][0])) {
+        // blocked combo
+      } else if (info[1] > vsInfos[beatPointer][1]) {
+        chopWeight = 0
+      } else {
+        chopWeight += ranges[1].weights[vsInfos[beatPointer][0]]
+      }
+      beatPointer++
+    }
+    beatPointer-- // set it to the last index we beat
+    if (beatPointer < 0) {
+      result[pointer] = 0
+    } else {
+      let beatWeight = vsInfos[beatPointer][2]
+
+      if (handBlockers) {
+        for (const blockedIdx of handBlockers) {
+          if (bitmaps[1].get(blockedIdx)) {
+            weightSum -= ranges[1].weights[blockedIdx]
+            if (strengths[blockedIdx] < info[1]) {
+              beatWeight -= ranges[1].weights[blockedIdx]
+            }
+          }
+        }
+      }
+
+      if (!chopIsWin) {
+        beatWeight -= chopWeight / 2
+      }
+
+      result[pointer] = beatWeight / unblockedWeightSum
+    }
+
+    pointer++
+  }
+
+  return result
+}
 
 export type EvalOptions = {
   board: number[]
@@ -12,6 +132,7 @@ export type EvalOptions = {
   chopIsWin?: boolean
 }
 
+// ! really ugly implementation
 // returns equity for every river, or whatever is inside the flop hash
 export const equityEval = ({
   board,
@@ -19,7 +140,7 @@ export const equityEval = ({
   flopHash,
   vsRange,
   chopIsWin
-}: EvalOptions & { vsRange: Range }) => {
+}: EvalOptions & { vsRange: PokerRange }) => {
   const result: number[] = []
 
   if (board.length === 3) {
@@ -73,7 +194,7 @@ const defaultEval = (board: number[], hand: number[]) =>
 // doesn't account for runouts, just what % of hands you're ahead of currently
 export const aheadPct = (
   { board, hand, chopIsWin }: EvalOptions,
-  vsRange: Range,
+  vsRange: PokerRange,
   evalFunc = defaultEval
 ) => {
   const blocked = new Set([...hand, ...board])
@@ -101,7 +222,7 @@ export const aheadPct = (
 
 /** returns [hand, n, weight][] */
 const getRangeRankings = (
-  r: Range,
+  r: PokerRange,
   evalHand: (h: number[]) => number,
   blocked?: Set<number>
 ) => {
@@ -119,14 +240,13 @@ const getRangeRankings = (
 // range vs range
 export type RvRArgs = {
   board: number[]
-  range: Range
-  vsRange: Range
+  range: PokerRange
+  vsRange: PokerRange
   chopIsWin?: boolean
 }
 
 /**
  * returns [combo, ahead, weight]
- * ! weight is blocker independent here, so range vs range equity is slightly off because of that
  */
 export const combosVsRangeAhead = ({
   board,
@@ -138,7 +258,7 @@ export const combosVsRangeAhead = ({
     return p < vsP ? 0 : chopIsWin || p > vsP ? 1 : 0.5
   }
 
-  const blocked = new Set(board) // todo test what 2p2 returns for duplicate cards, if it's "invalid hand" just run it and use that
+  const blocked = new Set(board)
   const isOmaha = range.getHandLen() >= 4
 
   const evalHand = isOmaha
@@ -147,17 +267,16 @@ export const combosVsRangeAhead = ({
 
   const rangeRankings = getRangeRankings(range, evalHand, blocked)
   const vsRangeRankings = getRangeRankings(vsRange, evalHand, blocked)
+  // sort by strength ascending
   rangeRankings.sort((a, b) => a[1] - b[1])
   vsRangeRankings.sort((a, b) => a[1] - b[1])
 
   const result: [number[], number, number][] = []
 
-  // TODO need to store all blocker indexes to make two pointer approach work
-
   for (let i = 0; i < rangeRankings.length; i++) {
     const [hand, handRanking, weight] = rangeRankings[i]
     let beats = 0
-    let weightSum = 0
+    let total = 0
     for (let vsIdx = 0; vsIdx < vsRangeRankings.length; vsIdx++) {
       const [vsHand, vsRanking, vsWeight] = vsRangeRankings[vsIdx]
       if (vsHand.some((c) => hand.includes(c))) {
@@ -166,10 +285,10 @@ export const combosVsRangeAhead = ({
 
       const winVal = getWinVal(handRanking, vsRanking)
       beats += winVal * vsWeight
-      weightSum += vsWeight
+      total += vsWeight
     }
 
-    result.push([sortCards(hand), beats / weightSum, weight])
+    result.push([sortCards(hand), beats / total, weight])
   }
 
   return result
@@ -181,6 +300,9 @@ export const rangeVsRangeAhead = (args: RvRArgs) => {
   return res.reduce((a, c) => a + c[1], 0) / res.length
 }
 
-export const omahaAheadScore = (evalOptions: EvalOptions, vsRange: Range) => {
+export const omahaAheadScore = (
+  evalOptions: EvalOptions,
+  vsRange: PokerRange
+) => {
   return aheadPct(evalOptions, vsRange, (b, h) => evalOmaha(b, h).value)
 }

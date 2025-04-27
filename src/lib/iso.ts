@@ -1,7 +1,6 @@
 import { getRank, getSuit, makeCard } from './cards/utils.js'
-import { Range } from './ranges/ranges.js'
+import { PokerRange } from './range/range.js'
 import { sortCards } from './sort.js'
-import { getHandIdx } from './utils.js'
 
 export const sortBoard = (cards: number[]) => {
   return sortCards(cards, 3) // sort 1st 3 cards only
@@ -174,8 +173,11 @@ export const totalIsoWeight = (runouts: Runouts) => {
 }
 
 /** returns a new Range without modifying original */
-export const isoRange = (range: Range, map = [-1, -1, -1, -1]): Range => {
-  let result = new Range()
+export const isoRange = (
+  range: PokerRange,
+  map = [-1, -1, -1, -1]
+): PokerRange => {
+  let result = new PokerRange()
 
   range.forEach((hand, w) => {
     const iso = getIsoHand(hand, map)
