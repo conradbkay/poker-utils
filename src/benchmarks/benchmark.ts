@@ -1,8 +1,7 @@
 import { run, bench, boxplot, summary, do_not_optimize } from 'mitata'
-import { genRandHash, randCardsHashed, sequentialCards, time } from './utils.js'
+import { genRandHash, randCardsHashed, sequentialCards } from './utils.js'
 import { getPHEValue } from '../lib/phe/evaluate.js'
 import { cardsToPHE } from '../lib/phe/convert.js'
-import { valueFromPHE } from '../lib/phe/convert.js'
 import { canonize, flopIsoRunouts, isoRange, isoRunouts } from '../lib/iso.js'
 import { any2, PokerRange } from '../lib/range/range.js'
 import { sortCards } from '../lib/sort.js'
@@ -21,6 +20,9 @@ import { genBoardEval } from 'src/lib/evaluate.js'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init.js'
 import { BitRange } from 'src/lib/range/bit.js'
+import { readFileSync } from 'fs'
+
+const { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
 
 /**
  * todo total memory usage
@@ -33,11 +35,11 @@ const markdown =
 genRandHash() // for randCards
 
 // sort
-bench('Node.js 6 card .sort', () => {
-  randCardsHashed(6).sort((a, b) => b - a)
+bench('Node.js 7 cards .sort', () => {
+  randCardsHashed(7).sort((a, b) => b - a)
 })
-bench('...`(sortCards)`', () => {
-  sortCards(randCardsHashed(6))
+bench('poker-utils 7 cards sortCards()', () => {
+  sortCards(randCardsHashed(7))
 })
 
 // iso
@@ -68,7 +70,7 @@ if (!markdown) {
 const bitRange = BitRange.fromPokerRange(any2)
 const vsBitRange = BitRange.fromPokerRange(any2)
 
-bench('PHE bit range full range vs range equity', () => {
+bench('PHE bit range RvR equity', () => {
   fastCombosVsRangeAhead({
     board: randCardsHashed(5),
     range: bitRange,
@@ -77,7 +79,7 @@ bench('PHE bit range full range vs range equity', () => {
   })
 })
 
-bench('PHE bit range full range vs range equity with handBlockers', () => {
+bench('...with handBlockers', () => {
   fastCombosVsRangeAhead({
     board: randCardsHashed(5),
     range: bitRange,
@@ -136,19 +138,19 @@ while (randomOmahaRange.getSize() < 1000) {
   randomOmahaRange.set(add, 1)
 }
 
-bench('4 card omaha flop hand strength', () => {
+bench('omaha flop hand strength', () => {
   evalOmaha(randCardsHashed(3), randCardsHashed(4))
 })
-bench('4 card omaha river hand strength', () => {
+bench('omaha river hand strength', () => {
   evalOmaha(randCardsHashed(5), randCardsHashed(4))
 })
-bench('...5 cards', () => {
+bench('...5 card omaha river', () => {
   evalOmaha(randCardsHashed(5), randCardsHashed(5))
 })
-bench('...6 cards', () => {
+bench('...6 card omaha river', () => {
   evalOmaha(randCardsHashed(5), randCardsHashed(6))
 })
-bench('omaha river equity vs 1000 random hands', () => {
+bench('omaha river equity vs 1k random combos', () => {
   omahaAheadScore(
     {
       board: randCardsHashed(5),
@@ -177,4 +179,53 @@ bench('omaha flop ahead vs range', () => {
   )
 })
 
-run(markdown ? { format: 'markdown' } : {})
+// Convert nanoseconds to more readable units
+const formatTime = (ns: number): string => {
+  if (ns < 1000) return `${ns.toFixed(2)}ns`
+  if (ns < 1000000) return `${(ns / 1000).toFixed(2)}µs`
+  return `${(ns / 1000000).toFixed(2)}ms`
+}
+
+run(markdown ? { format: 'markdown' } : { format: 'mitata' }).then((result) => {
+  console.log(`Ran using \`mitata\` for \`poker-utils v${version}\`\n`)
+  console.log('arch:', result.context.arch)
+  console.log(`clk: ~${Math.round(result.context.cpu.freq)} GHz`)
+  //console.log('cpu:', result.context.cpu.name)
+  console.log('Node.js', process.version)
+
+  // Custom output showing only avg and p99 as markdown table
+  const longestName = Math.max(
+    ...result.benchmarks.flatMap((b) => b.runs.map((r) => r.name.length))
+  )
+  const rowLengths = [longestName + 2, 13, 13]
+  const headers = ['Benchmark', 'Mean', 'p99']
+  console.log(
+    '\n' +
+      headers.map((h, i) => `| ${h.padEnd(rowLengths[i] - 2)} `).join('') +
+      '|'
+  )
+  console.log(rowLengths.map((n) => `|${'-'.repeat(n)}`).join('') + '|')
+
+  result.benchmarks.forEach((trial) => {
+    trial.runs.forEach((run) => {
+      if (run.stats) {
+        const headers = [
+          run.name,
+          formatTime(run.stats.avg),
+          formatTime(run.stats.p99)
+        ]
+
+        // only runtime in ``
+        const formattedHeaders = headers.map(
+          (h, i) => '| ' + (i > 0 ? `\`${h}\`` : h)
+        )
+
+        console.log(
+          formattedHeaders.map((h, i) => h.padEnd(rowLengths[i] + 1)).join('') +
+            '|'
+        )
+      }
+    })
+  })
+  console.log()
+})

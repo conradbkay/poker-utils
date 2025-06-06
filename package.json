@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "11.1.7",
+  "version": "11.1.8",
   "description": "Fast poker ranges, evaluation, equity calculation",
   "author": "Conrad Kay",
   "main": "build/module/index.js",
