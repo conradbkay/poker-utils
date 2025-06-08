@@ -8,7 +8,6 @@ import { sortCards } from '../lib/sort.js'
 import { evaluate, phe } from '../lib/evaluate.js'
 import {
   combosVsRangeAhead,
-  fastCombosVsRangeAhead,
   omahaAheadScore
 } from '../lib/twoplustwo/equity.js'
 import {
@@ -19,7 +18,6 @@ import {
 import { genBoardEval } from 'src/lib/evaluate.js'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init.js'
-import { BitRange } from 'src/lib/range/bit.js'
 import { readFileSync } from 'fs'
 
 const { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
@@ -66,27 +64,6 @@ if (!markdown) {
     cardsToPHE(sequentialCards)
   })
 }
-
-const bitRange = BitRange.fromPokerRange(any2)
-const vsBitRange = BitRange.fromPokerRange(any2)
-
-bench('PHE bit range RvR equity', () => {
-  fastCombosVsRangeAhead({
-    board: randCardsHashed(5),
-    range: bitRange,
-    vsRange: vsBitRange,
-    useHandBlockers: false
-  })
-})
-
-bench('...with handBlockers', () => {
-  fastCombosVsRangeAhead({
-    board: randCardsHashed(5),
-    range: bitRange,
-    vsRange: vsBitRange,
-    useHandBlockers: true
-  })
-})
 
 // twoplustwo vs phe
 // ensure data is loaded BEFORE running benchmarks

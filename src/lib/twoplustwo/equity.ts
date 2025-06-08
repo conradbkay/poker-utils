@@ -9,34 +9,6 @@ import { BitRange, cardsBlockBitmap } from '../range/bit.js'
 import { fromHandIdx } from '../utils.js'
 import { BitSet } from 'bitset'
 
-// ugly name and uglier code to get [idx, strength, weightAccum][] sorted strength asc
-const genSortedBitEvalInfo = (
-  bitmap: BitSet,
-  weights: ArrayLike<number>,
-  strengths: ArrayLike<number>
-) => {
-  let weightSum = 0
-  let infos: [number, number, number][] = new Array(bitmap.cardinality())
-  let set = 0
-  // prob could use lsb msb and shifting
-  for (let i = 0; i < 1326; i++) {
-    if (bitmap.get(i)) {
-      const w = weights[i]
-      infos[set] = [i, strengths[i], w]
-      weightSum += w
-      set++
-    }
-  }
-
-  infos.sort((a, b) => a[1] - b[1])
-
-  for (let i = 1; i < infos.length; i++) {
-    infos[i][2] = infos[i][2] + infos[i - 1][2]
-  }
-
-  return { infos, weightSum }
-}
-
 /**
  * maybe we calculate strength of all 1326 2 card combos, but such that each combo maps to 0-1326
  *
