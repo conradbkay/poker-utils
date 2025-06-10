@@ -29,11 +29,10 @@ const readme =
   process.argv.includes('--markdown') || process.argv.includes('-md') // just run benchmarks for README.md
 
 genRandHash()
-
 initFromPathSync(resolve('./HandRanks.dat'))
 
 const holdemAny2 = HoldemRange.fromPokerRange(any2)
-bench('range vs range river equity', () => {
+bench('2p2 range vs range river equity', () => {
   holdemAny2.equityVsRange({
     board: randCardsHashed(5),
     vsRange: holdemAny2

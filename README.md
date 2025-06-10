@@ -89,10 +89,10 @@ For example, all monotone flops become 3 spades (Kh7h3h -> Ks7s3s)
 
 - **Breaking** Equity/ahead methods now return an array `[lose, tie, win]`, or `[combo, lose, tie, win][]` if evaluating a range
 - Added `equityVsRange` to `HoldemRange` which is 10-200x faster
+- Deck now goes from 0-51, and ranks from 0-12
 
 ## Roadmap
 
-- deck to 0-51, ranks to 0-12
 - representing omaha ranges well (AKQ9ss type)
 - CLI commands for hash generation
 - bucketing, or other ways to trade precision for speed
