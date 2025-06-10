@@ -1,7 +1,6 @@
 import { genCardCombinations } from '../utils.js'
 import { canonizeBoard, isoWeight } from '../iso.js'
 import { cardsStr, formatCards, fromCardsStr } from '../cards/utils.js'
-import { sortCards } from '../sort.js'
 
 // exported for testing
 export const allFlops = genCardCombinations(3)

@@ -4,7 +4,6 @@ import { equityBuckets } from '../constants.js'
 import { isoRunouts, Runout, canonizeBoard } from '../iso.js'
 import { closestIdx } from '../utils.js'
 import { HoldemRange } from '../range/holdem.js'
-import { formatCards, randUniqueCards } from '../cards/utils.js'
 
 /**
  * Flops are the most computationally expensive to calculate equities for

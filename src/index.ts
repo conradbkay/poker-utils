@@ -10,10 +10,12 @@ export * from './lib/phe/phe.js'
 
 export * from './lib/range/range.js'
 export * from './lib/range/preflop.js'
+export * from './lib/range/holdem.js'
 
 export * from './lib/twoplustwo/constants.js'
 export * from './lib/twoplustwo/equity.js'
 export * from './lib/twoplustwo/strength.js'
+// don't export twoplustwo/evaluate.js since it has duplicate function name with evaluate.js
 
 export * from './lib/constants.js'
 

@@ -5,7 +5,7 @@ import { any2pre, PreflopRange } from '../lib/range/preflop.js'
 import { PokerRange } from '../lib/range/range.js'
 import { formatCards, randUniqueCards } from '../lib/cards/utils.js'
 
-describe('PreflopRange', (t) => {
+describe('PreflopRange', () => {
   test('any2pre percentiles is [0,1]', () => {
     assert.deepEqual([0, 1], any2pre.toPercentiles())
   })
@@ -54,7 +54,7 @@ describe('PreflopRange', (t) => {
   })
 })
 
-describe('PokerRange', (t) => {
+describe('PokerRange', () => {
   test('any2 is 1326 combos', () => {
     assert.equal(any2.getSize(), 1326)
   })

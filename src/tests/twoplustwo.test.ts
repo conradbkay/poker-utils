@@ -1,4 +1,4 @@
-import test, { describe, it } from 'node:test'
+import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { hash } from '../lib/cards/permuHash.js'
@@ -11,11 +11,11 @@ import { PokerRange } from '../lib/range/range.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 
-test('combinations hash', (t) => {
+test('combinations hash', () => {
   assert.deepEqual(hash[5][3][0], [0, 1, 2])
 })
 
-test('PLO Strength', (t) => {
+test('PLO Strength', () => {
   const board = boardToInts('2s 5c 9h')
   const hand = boardToInts('6s 7s 4c Ac')
 

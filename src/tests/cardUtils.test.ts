@@ -1,4 +1,4 @@
-import test, { describe, it } from 'node:test'
+import test, { describe } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   containsStraight,
@@ -15,7 +15,7 @@ import { evaluate } from '../lib/evaluate.js'
 import { HAND_TYPES } from '../lib/twoplustwo/constants.js'
 import { randomInt } from 'node:crypto'
 
-describe('cards/utils', (t) => {
+describe('cards/utils', () => {
   test('getSuit', () => {
     assert.deepEqual(
       [0, 1, 2, 3],
@@ -57,7 +57,7 @@ describe('cards/utils', (t) => {
       assert.ok(Math.min(...cards) >= Math.min(...CARDS))
     }
   })
-  test('boardToInts', (t) => {
+  test('boardToInts', () => {
     assert.deepEqual(boardToInts(['As', '4s']), [51, 11])
     assert.deepEqual(boardToInts('As4s'), [51, 11])
     assert.deepEqual(boardToInts('as 4s'), [51, 11])

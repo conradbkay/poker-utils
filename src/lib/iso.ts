@@ -1,4 +1,4 @@
-import { formatCards, getRank, getSuit, makeCard } from './cards/utils.js'
+import { getRank, getSuit, makeCard } from './cards/utils.js'
 import { sortCards } from './sort.js'
 
 /** PioSOLVER format */

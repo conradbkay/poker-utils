@@ -1,4 +1,4 @@
-import { run, bench, boxplot, summary, do_not_optimize } from 'mitata'
+import { run, bench } from 'mitata'
 import { genRandHash, randCardsHashed, sequentialCards } from './utils.js'
 import { getPHEValue } from '../lib/phe/evaluate.js'
 import { cardsToPHE } from '../lib/phe/convert.js'

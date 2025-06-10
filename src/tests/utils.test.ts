@@ -1,4 +1,4 @@
-import { describe, test } from 'node:test'
+import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { genCardCombinations } from '../lib/utils.js'
 import { sortCards } from '../lib/sort.js'

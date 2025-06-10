@@ -1,24 +1,14 @@
-import test, { describe, it } from 'node:test'
+import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops.js'
-import {
-  canonizeBoard,
-  getIsoHand,
-  isoRunouts,
-  totalIsoWeight
-} from '../lib/iso.js'
+import { getIsoHand, isoRunouts, totalIsoWeight } from '../lib/iso.js'
 import { pioFlops } from '../data/pioFlops.js'
 import { genCardCombinations } from '../lib/utils.js'
-import {
-  boardToInts,
-  makeCard,
-  randUniqueCards,
-  shuffle
-} from '../lib/cards/utils.js'
+import { makeCard, randUniqueCards, shuffle } from '../lib/cards/utils.js'
 
 const allHands = genCardCombinations(2)
 
-describe('isomorphism', (t) => {
+describe('isomorphism', () => {
   it('generates 1755 unique flops from 22100', () => {
     assert.equal(allFlops.length, 22100)
     assert.equal(flops.length, 1755)
