@@ -1,27 +1,35 @@
 import { any2, PokerRange } from '../range/range.js'
 import { flops } from './flops.js'
-import { combosVsRangeAhead } from '../twoplustwo/equity.js'
 import { equityBuckets } from '../constants.js'
-import { flopIsoRunouts, getIsoBoard, isoRange, Runout } from '../iso.js'
-import { closestIdx, genCardCombinations, getHandIdx } from '../utils.js'
+import { isoRunouts, Runout, canonizeBoard } from '../iso.js'
+import { closestIdx } from '../utils.js'
+import { HoldemRange } from '../range/holdem.js'
+import { formatCards, randUniqueCards } from '../cards/utils.js'
 
 /**
  * Flops are the most computationally expensive to calculate equities for
- * there's only 1755 unique flops after applying isomorphism, so we can precompute every combo's equity on every flop vs a specific range
+ * There's only 1755 unique flops after applying isomorphism, so we can precompute every combo's equity vs a specific range for every flop
  */
 
 export const eachRiver = (
   flop: number[],
   f: (board: number[], iso: Runout) => void
 ) => {
-  const runouts = flopIsoRunouts(flop)
+  const isoFlop = canonizeBoard(flop).cards
+  const runouts = isoRunouts(isoFlop)
+
   for (const turnStr in runouts) {
     const rivers = runouts[turnStr].children!
     const turn = parseInt(turnStr)
     for (const riverStr in rivers) {
+      if (turnStr === riverStr) {
+        console.log('err', turnStr, riverStr, flop, rivers, canonizeBoard(flop))
+      }
+
       const isoInfo = rivers[riverStr]
       const river = parseInt(riverStr)
-      const board = [...flop, turn, river]
+      const board = [...isoFlop, turn, river]
+
       f(board, isoInfo)
     }
   }
@@ -29,24 +37,28 @@ export const eachRiver = (
 
 export const flopEquities = (
   flop: number[],
-  vsRange: PokerRange,
+  vsPokerRange: PokerRange,
   chopIsWin: boolean = true
 ) => {
   const hash: number[][] = new Array(1326)
     .fill(0)
-    .map((_) => new Array(23).fill(0))
+    .map((_) => new Array(equityBuckets.length).fill(0))
 
   eachRiver(flop, (board, { map, weight }) => {
-    const comboEqs = combosVsRangeAhead({
+    const range = HoldemRange.fromPokerRange(PokerRange.iso(any2, map))
+    const vsRange = HoldemRange.fromPokerRange(
+      PokerRange.iso(vsPokerRange, map)
+    )
+
+    const result = range.equityVsRange({
       board,
-      range: isoRange(any2, map),
-      vsRange: isoRange(vsRange, map),
-      chopIsWin
+      vsRange
     })
 
-    for (const [combo, eq] of comboEqs) {
+    for (const [combo, win, tie, lose] of result) {
+      const eq = (win + (chopIsWin ? tie : tie / 2)) / (win + tie + lose)
       const bucket = closestIdx(equityBuckets, eq * 100)
-      hash[getHandIdx(combo)][bucket] += weight
+      hash[HoldemRange.getHandIdx(combo)][bucket] += weight
     }
   })
 
@@ -68,7 +80,7 @@ export type EquityHash = {
   [board: string]: number[]
 }
 export type RiverEquityHash = {
-  [board: string]: number[][] // same as above but instead of a general flop equity, every river is added to hash via some bucketing scheme
+  [board: string]: number[][] // same as above but instead of a general flop equity, every river is aggregated to the hash via some bucketing scheme so it doesn't end up crazy large
 }
 
 export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
@@ -76,5 +88,7 @@ export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
   board: number[],
   hand: number[]
 ): T['board'][0] => {
-  return hash[getIsoBoard(board).join(' ')][getHandIdx(hand)]
+  return hash[canonizeBoard(board).cards.join(' ')][
+    HoldemRange.getHandIdx(hand)
+  ]
 }

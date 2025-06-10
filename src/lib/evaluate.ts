@@ -1,7 +1,7 @@
 import { RANKS_DATA } from './init.js'
 import { addGaps, cardsToPHE, valueFromPHE } from './phe/convert.js'
 import { getPHEValue } from './phe/evaluate.js'
-import { fastEval, nextP, pInfo } from './twoplustwo/strength.js'
+import { fastEval, finalP, pInfo } from './twoplustwo/strength.js'
 import { evaluate as twoplustwoEval } from './twoplustwo/evaluate.js'
 
 /** exact same input/output as twoplustwo algorithm */
@@ -18,5 +18,5 @@ export const genBoardEval = (board: number[], evalFunc = fastEval) => {
   let boardP = fastEval(board)
   return board.length === 5
     ? (hand: number[]) => evalFunc(hand, boardP)
-    : (hand: number[]) => nextP(evalFunc(hand, boardP))
+    : (hand: number[]) => finalP(evalFunc(hand, boardP))
 }

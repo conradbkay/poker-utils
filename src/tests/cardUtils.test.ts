@@ -7,7 +7,8 @@ import {
   makeCard,
   randUniqueCards,
   suitCount,
-  uniqueRanks
+  uniqueRanks,
+  boardToInts
 } from '../lib/cards/utils.js'
 import { CARDS, DECK, RANKS } from '../lib/constants.js'
 import { evaluate } from '../lib/evaluate.js'
@@ -18,7 +19,7 @@ describe('cards/utils', (t) => {
   test('getSuit', () => {
     assert.deepEqual(
       [0, 1, 2, 3],
-      [1, 2, 3, 4].map((c) => getSuit(c))
+      [0, 1, 2, 3].map((c) => getSuit(c))
     )
   })
   test('getRank', () => {
@@ -30,10 +31,10 @@ describe('cards/utils', (t) => {
     assert.equal(13, uniqueRanks(Object.values(DECK)).length)
   })
   test('makeCard', () => {
-    assert.equal(DECK['Ah'], makeCard(14, 2))
+    assert.equal(DECK['Ah'], makeCard(12, 2))
   })
   test('suitCount', () => {
-    assert.equal(3, suitCount([1, 2, 3, 5, 6, 7, 9, 10, 11]))
+    assert.equal(3, suitCount([0, 1, 2, 4, 5, 6, 8, 9, 10]))
   })
   test('containsStraight', () => {
     for (let i = 0; i < 1000; i++) {
@@ -55,5 +56,11 @@ describe('cards/utils', (t) => {
       assert.ok(Math.max(...cards) <= Math.max(...CARDS))
       assert.ok(Math.min(...cards) >= Math.min(...CARDS))
     }
+  })
+  test('boardToInts', (t) => {
+    assert.deepEqual(boardToInts(['As', '4s']), [51, 11])
+    assert.deepEqual(boardToInts('As4s'), [51, 11])
+    assert.deepEqual(boardToInts('as 4s'), [51, 11])
+    assert.deepEqual(boardToInts('4s as'), [11, 51])
   })
 })

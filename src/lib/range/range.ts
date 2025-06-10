@@ -1,25 +1,25 @@
+import { randUniqueCards } from '../cards/utils.js'
 import { sortCards } from '../sort.js'
-import { fromHandIdx, getHandIdx } from '../utils.js'
 import { any2pre, PreflopRange } from './preflop.js'
+import { getIsoHand } from '../iso.js'
 
 // todo option to return as isomorphic (would need to have methods to set board then?)
 
 /**
+ * `Range` is a DOM Global so we use `PokerRange`
+ *
  * enforces that all combos have the same # of cards
  *
- * accessed by and returns (1-52)[] cards
+ * accessed by and returns (0-51)[] cards
  *
  * every method that takes cards sorts them in-place
  */
-// `Range` is a DOM Global
 export class PokerRange {
   private range: Map<string, number> //Weighted cardStr dict: {"43,20": 0.63}
   private handLen: number
-  private board?: number[]
 
-  constructor(handLen = 2, board?: number[]) {
+  constructor(handLen = 2) {
     this.handLen = handLen
-    this.board = board
     this.reset()
   }
 
@@ -52,10 +52,6 @@ export class PokerRange {
           `attempting to set ${hand.length} len hand in ${this.getHandLen()} len range`
         )
       } else {
-        console.warn(
-          `Changing empty range from ${this.getHandLen()} to ${hand.length} length`
-        )
-
         this.handLen = hand.length
       }
     }
@@ -92,29 +88,19 @@ export class PokerRange {
     return result
   }
 
-  /** returns all combos in this range but not in `compare` */
-  public advantage(compare: PokerRange) {
-    const rIdxs = this.map((hand) => getHandIdx(hand))
-    const cIdxs = compare.map((hand) => getHandIdx(hand))
-    const rSet = new Set(rIdxs)
-    const cSet = new Set(cIdxs)
-    const idxs = Array.from(new Set([...rIdxs, ...cIdxs]))
-    return idxs.filter((c) => !rSet.has(c) || !cSet.has(c)).map(fromHandIdx)
+  /** doesn't modify original */
+  public static iso(range: PokerRange, suitMap = [-1, -1, -1, -1]) {
+    let result = new PokerRange()
+
+    range.forEach((hand, w) => {
+      const iso = getIsoHand(hand, suitMap)
+      result.set(iso, result.getWeight(iso) + w)
+    })
+
+    return result
   }
 
-  /** returns all combos in only one range */
-  public asymmetry(compare: PokerRange) {
-    return [...this.advantage(compare), ...compare.advantage(this)]
-  }
-
-  /** what percent of total combos are shared */
-  public overlap(compare: PokerRange) {
-    const asymm = this.asymmetry(compare)
-    const dissim = asymm.length / (this.getSize() + compare.getSize())
-    return 1 - dissim
-  }
-
-  // todo just do iterator override
+  // faster than Symbol iterator
   public forEach(f: (combo: number[], weight: number) => void) {
     this.range.forEach((v, k) => {
       f(this.fromKey(k), v)
@@ -134,16 +120,10 @@ export class PokerRange {
 
 export const any2 = PokerRange.fromPreflop(any2pre)
 
-// maybe want this to actually be reasonably usable with just 1 range?
-/**
- * does blockers and isomorphism
- */
-export class PokerRanges {
-  private board: number[]
-  private ranges: PokerRange[]
-
-  constructor(board: number[], ranges: PokerRange[] = []) {
-    this.board = board
-    this.ranges = ranges
+export const genRandRange = (size: number) => {
+  const range = new PokerRange(2)
+  while (range.getSize() < size) {
+    range.set(randUniqueCards(2))
   }
+  return range
 }

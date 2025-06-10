@@ -74,8 +74,6 @@ describe('PokerRange', (t) => {
     assert.equal(r.getSize(), 0)
   })
 
-  // todo test advantage, asymmetry, overlap
-
   it('handles inserting lots of combos', () => {
     for (let i = 0; i < 5000; i++) {
       r.set(randUniqueCards(2))

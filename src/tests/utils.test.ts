@@ -1,22 +1,37 @@
-import test from 'node:test'
+import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
+import { genCardCombinations } from '../lib/utils.js'
 import { sortCards } from '../lib/sort.js'
-import { randomInt } from 'node:crypto'
-import { boardToInts, randUniqueCards } from '../lib/cards/utils.js'
+import { HoldemRange } from '../lib/range/holdem.js'
 
-test('sort cards', () => {
-  for (let i = 0; i < 5000; i++) {
-    const cards = randUniqueCards(randomInt(2, 12)) // 2-11
-    assert.deepEqual(
-      [...cards].sort((a, b) => b - a),
-      sortCards(cards)
-    )
+test('combos map to/from 0-1325', () => {
+  let count = {}
+
+  for (let c1 = 51; c1 >= 0; c1--) {
+    for (let c2 = 51; c2 >= 0; c2--) {
+      if (c1 === c2) {
+        continue
+      }
+      const idx = HoldemRange.getHandIdx([c1, c2])
+
+      assert.ok(idx >= 0 && idx <= 1325, `idx out of bounds: ${idx}`)
+      assert.deepEqual(HoldemRange.fromHandIdx(idx), sortCards([c1, c2]))
+
+      count[idx] = (count[idx] || 0) + 1
+    }
   }
+
+  assert.equal(Object.keys(count).length, 1326)
+  assert.equal(
+    Object.values(count).every((v) => v === 2),
+    true
+  )
 })
 
-test('boardToInts', (t) => {
-  assert.deepEqual(boardToInts(['As', '4s']), [52, 12])
-  assert.deepEqual(boardToInts('As4s'), [52, 12])
-  assert.deepEqual(boardToInts('as 4s'), [52, 12])
-  assert.deepEqual(boardToInts('4s as'), [12, 52])
+const allFlops = genCardCombinations(3)
+const allHands = genCardCombinations(2)
+
+test('genCardCombinations', () => {
+  assert.equal(allFlops.length, (52 * 51 * 50) / 6)
+  assert.equal(allHands.length, (52 * 51) / 2)
 })

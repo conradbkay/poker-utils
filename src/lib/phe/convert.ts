@@ -4,12 +4,12 @@ import { stringifyCardCode, toCardCode } from './hand-code.js'
 
 const _toPHE = (card: number) => toCardCode(c2str[card])
 const _fromPHE = (code: number) => DECK[stringifyCardCode(code)]
-export const toPHE = new Array(53).fill(0).map((_, i) => (i ? _toPHE(i) : -1))
+export const toPHE = new Array(52).fill(0).map((_, i) => _toPHE(i))
 export const fromPHE = new Array(52).fill(0).map((_, i) => _fromPHE(i))
 export const cardsToPHE = (cards: number[]) => cards.map((c) => toPHE[c])
 export const cardsFromPHE = (codes: number[]) => codes.map((c) => fromPHE[c])
 
-// 0 -> 9, 1 -> 8
+// 0 -> 9, 1 -> 8, "type" as in idx of "three of a kind" etc
 export const typeFromPHE = new Array(9).fill(0).map((_, i) => 9 - i)
 
 /**

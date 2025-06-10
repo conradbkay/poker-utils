@@ -7,7 +7,7 @@ import { boardToInts, randUniqueCards } from '../lib/cards/utils.js'
 import { omahaAheadScore } from '../lib/twoplustwo/equity.js'
 import { evalOmaha } from '../lib/twoplustwo/strength.js'
 import { initFromPathSync } from '../lib/init.js'
-import { evaluate } from 'src/lib/twoplustwo/evaluate.js'
+import { PokerRange } from '../lib/range/range.js'
 
 initFromPathSync(resolve('./HandRanks.dat'))
 
@@ -21,11 +21,17 @@ test('PLO Strength', (t) => {
 
   evalOmaha(board, hand)
 
+  const range = new PokerRange()
+
+  for (let i = 0; i < 100; i++) {
+    range.set(randUniqueCards(4))
+  }
+
   omahaAheadScore(
     {
       board,
       hand
     },
-    new Array(100).fill(0).map(() => randUniqueCards(4))
+    range
   )
 })

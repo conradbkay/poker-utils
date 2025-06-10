@@ -182,8 +182,8 @@ const order = [...orderDesc].reverse()
 // "isoPre" means AKo, 43s type representation
 
 const isoPre: string[] = []
-for (let i = 14; i >= 2; i--) {
-  for (let j = 14; j >= 2; j--) {
+for (let i = 12; i >= 0; i--) {
+  for (let j = 12; j >= 0; j--) {
     const type = i === j ? '' : i > j ? 's' : 'o'
     isoPre.push(RANKS[Math.max(i, j)] + RANKS[Math.min(i, j)] + type)
   }

@@ -2,21 +2,20 @@ import { c2str, CARDS } from '../constants.js'
 import { DECK } from '../constants.js'
 
 /**
- * these utils assume a deck from 1-52
+ * these utils assume a deck from 0-51
  */
 
 /** returns 0-3 */
-export const getSuit = (card: number) => (card - 1) % 4
+export const getSuit = (card: number) => card & 3
 
-/** returns 2 for 2, 14 for ace */
-export const getRank = (card: number) => ((card - 1) >> 2) + 2
+/** returns 0 for 2, 12 for ace */
+export const getRank = (card: number) => card >> 2
 
 /** returns array of ranks */
 export const uniqueRanks = (board: number[]) =>
   Array.from(new Set(board.map((c) => getRank(c))))
 
-export const makeCard = (rank: number, suit: number) =>
-  (rank - 2) * 4 + suit + 1
+export const makeCard = (rank: number, suit: number) => (rank << 2) | suit
 
 /** for non user-facing purposes where dealing with str is easier than arr */
 export const cardsStr = (cards: number[]) => cards.join(',')
@@ -40,11 +39,11 @@ export const containsStraight = (board: number[]) => {
 
   // wheel
   if (
-    ranks[0] === 2 &&
-    ranks[1] === 3 &&
-    ranks[2] === 4 &&
-    ranks[3] === 5 &&
-    ranks[ranks.length - 1] === 14
+    ranks[0] === 0 &&
+    ranks[1] === 1 &&
+    ranks[2] === 2 &&
+    ranks[3] === 3 &&
+    ranks[ranks.length - 1] === 12
   ) {
     return true
   }
@@ -71,7 +70,7 @@ export const calcStraightOuts = (board: number[]) => {
   let result = 0
 
   // loop unique ranks since suits don't affect straights
-  for (let i = 1; i <= 52; i += 4) {
+  for (let i = 0; i < 52; i += 4) {
     const hypothetical = [...board, i]
 
     if (containsStraight(hypothetical)) {
@@ -91,7 +90,7 @@ export const straightPossible = (board: number[]) => {
   // wheels
   if (
     ranks.filter((r) => r <= 5).length >= 2 &&
-    ranks[ranks.length - 1] === 14
+    ranks[ranks.length - 1] === 12
   ) {
     return true
   }
@@ -162,7 +161,7 @@ export const randUniqueCards = (count: number) => {
   let result: number[] = []
 
   while (result.length < count) {
-    let next = Math.floor(Math.random() * 52) + 1
+    let next = Math.floor(Math.random() * 52)
     if (!result.includes(next)) {
       result.push(next)
     }

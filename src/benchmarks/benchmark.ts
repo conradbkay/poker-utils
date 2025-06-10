@@ -2,14 +2,11 @@ import { run, bench, boxplot, summary, do_not_optimize } from 'mitata'
 import { genRandHash, randCardsHashed, sequentialCards } from './utils.js'
 import { getPHEValue } from '../lib/phe/evaluate.js'
 import { cardsToPHE } from '../lib/phe/convert.js'
-import { canonize, flopIsoRunouts, isoRange, isoRunouts } from '../lib/iso.js'
-import { any2, PokerRange } from '../lib/range/range.js'
+import { canonize, isoRunouts } from '../lib/iso.js'
+import { any2, genRandRange, PokerRange } from '../lib/range/range.js'
 import { sortCards } from '../lib/sort.js'
 import { evaluate, phe } from '../lib/evaluate.js'
-import {
-  combosVsRangeAhead,
-  omahaAheadScore
-} from '../lib/twoplustwo/equity.js'
+import { omahaAheadScore } from '../lib/twoplustwo/equity.js'
 import {
   fastEval,
   fastEvalPartial,
@@ -19,18 +16,38 @@ import { genBoardEval } from 'src/lib/evaluate.js'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init.js'
 import { readFileSync } from 'fs'
+import { HoldemRange } from '../lib/range/holdem.js'
 
 const { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
 
 /**
- * todo total memory usage
- * todo total startup time
+ * todo memory usage
+ * todo startup time
  */
 
-const markdown =
+const readme =
   process.argv.includes('--markdown') || process.argv.includes('-md') // just run benchmarks for README.md
 
-genRandHash() // for randCards
+genRandHash()
+
+initFromPathSync(resolve('./HandRanks.dat'))
+
+const holdemAny2 = HoldemRange.fromPokerRange(any2)
+bench('range vs range river equity', () => {
+  holdemAny2.equityVsRange({
+    board: randCardsHashed(5),
+    vsRange: holdemAny2
+  })
+})
+
+const sparse = HoldemRange.fromPokerRange(genRandRange(100))
+const sparse2 = HoldemRange.fromPokerRange(genRandRange(100))
+bench('...sparser ranges (random 100 combos)', () => {
+  sparse.equityVsRange({
+    board: randCardsHashed(5),
+    vsRange: sparse2
+  })
+})
 
 // sort
 bench('Node.js 7 cards .sort', () => {
@@ -42,23 +59,27 @@ bench('poker-utils 7 cards sortCards()', () => {
 
 // iso
 // ! 40x slower than the original implementation. Maybe change to set an internal suit mapping of the original and always fetch cards based on that
-bench('range to isomorphic', () => {
-  isoRange(any2)
+bench('full range to isomorphic', () => {
+  PokerRange.iso(any2)
 })
-bench('generate river runouts', () => {
-  isoRunouts(randCardsHashed(4))
-})
+if (!readme) {
+  bench('generate river runouts', () => {
+    isoRunouts(randCardsHashed(4))
+  })
+}
 bench('generate turn+river runouts', () => {
-  flopIsoRunouts(randCardsHashed(3))
+  isoRunouts(randCardsHashed(3))
 })
 bench('flop isomorphism', () => {
   canonize(randCardsHashed(3))
 })
-bench('river isomorphism', () => {
-  canonize(randCardsHashed(5))
-})
+if (!readme) {
+  bench('river isomorphism', () => {
+    canonize(randCardsHashed(5))
+  })
+}
 
-if (!markdown) {
+if (!readme) {
   // phe
   bench('cardsToPHE', () => {
     cardsToPHE(sequentialCards)
@@ -66,104 +87,108 @@ if (!markdown) {
 }
 
 // twoplustwo vs phe
-// ensure data is loaded BEFORE running benchmarks
-const ranksFile = resolve('./HandRanks.dat')
-initFromPathSync(ranksFile)
 
 const riverEval = genBoardEval(randCardsHashed(5))
-const flopEval = genBoardEval(randCardsHashed(3))
+const flop = randCardsHashed(3)
 
-bench('phe sequential+convert', () => {
-  phe(sequentialCards)
-})
-bench('2p2 sequential', () => {
-  fastEval(sequentialCards)
-})
 bench('phe rand 7 cards', () => {
   getPHEValue(cardsToPHE(randCardsHashed(7)))
 })
 bench('2p2 rand 7 cards', () => {
   fastEval(randCardsHashed(7))
 })
-if (!markdown) {
+if (!readme) {
   bench('...with 5-6 card conditional handling', () => {
     fastEvalPartial(randCardsHashed(7))
   })
   bench('...with pInfo overhead', () => {
     evaluate(randCardsHashed(7))
   })
+
+  bench('phe sequential+convert', () => {
+    phe(sequentialCards)
+  })
+  bench('2p2 sequential', () => {
+    fastEval(sequentialCards)
+  })
 }
 bench('2p2 random 2 cards on fixed river', () => {
   riverEval(randCardsHashed(2))
 })
-bench('2p2 random 2 cards on fixed flop', () => {
-  flopEval(randCardsHashed(2))
+
+// doesn't bother checking for duplicate cards, so it's 52^2
+bench('2p2 all combos all runouts after flop (~7.3m evals)', () => {
+  for (let turn = 0; turn < 52; turn++) {
+    for (let river = 0; river < 52; river++) {
+      const runout = [...flop, turn, river]
+      const runoutEval = genBoardEval(runout)
+      for (let c1 = 0; c1 < 52; c1++) {
+        for (let c2 = 0; c2 < 52; c2++) {
+          runoutEval([c2, c1])
+        }
+      }
+    }
+  }
 })
-bench('2p2 river full range vs range equity', () => {
-  combosVsRangeAhead({
-    board: randCardsHashed(5),
-    range: any2,
-    vsRange: any2
+
+// twoplustwo omaha. Maybe just print as a separate table?
+if (!readme) {
+  const randomOmahaRange = new PokerRange(4)
+
+  while (randomOmahaRange.getSize() < 1000) {
+    const add = sortCards(randCardsHashed(4))
+    randomOmahaRange.set(add, 1)
+  }
+
+  bench('omaha flop hand strength', () => {
+    evalOmaha(randCardsHashed(3), randCardsHashed(4))
   })
-})
-
-// twoplustwo omaha
-const randomOmahaRange = new PokerRange(4)
-
-while (randomOmahaRange.getSize() < 1000) {
-  const add = sortCards(randCardsHashed(4))
-  randomOmahaRange.set(add, 1)
+  bench('omaha river hand strength', () => {
+    evalOmaha(randCardsHashed(5), randCardsHashed(4))
+  })
+  bench('...5 card omaha river', () => {
+    evalOmaha(randCardsHashed(5), randCardsHashed(5))
+  })
+  bench('...6 card omaha river', () => {
+    evalOmaha(randCardsHashed(5), randCardsHashed(6))
+  })
+  bench('omaha river equity vs 1k random combos', () => {
+    omahaAheadScore(
+      {
+        board: randCardsHashed(5),
+        hand: randCardsHashed(4)
+      },
+      randomOmahaRange
+    )
+  })
+  bench('omaha turn ahead vs range', () => {
+    omahaAheadScore(
+      {
+        board: randCardsHashed(4),
+        hand: randCardsHashed(4)
+      },
+      randomOmahaRange
+    )
+  })
+  // ! 3.5x slower than originally
+  bench('omaha flop ahead vs range', () => {
+    omahaAheadScore(
+      {
+        board: randCardsHashed(3),
+        hand: randCardsHashed(4)
+      },
+      randomOmahaRange
+    )
+  })
 }
 
-bench('omaha flop hand strength', () => {
-  evalOmaha(randCardsHashed(3), randCardsHashed(4))
-})
-bench('omaha river hand strength', () => {
-  evalOmaha(randCardsHashed(5), randCardsHashed(4))
-})
-bench('...5 card omaha river', () => {
-  evalOmaha(randCardsHashed(5), randCardsHashed(5))
-})
-bench('...6 card omaha river', () => {
-  evalOmaha(randCardsHashed(5), randCardsHashed(6))
-})
-bench('omaha river equity vs 1k random combos', () => {
-  omahaAheadScore(
-    {
-      board: randCardsHashed(5),
-      hand: randCardsHashed(4)
-    },
-    randomOmahaRange
-  )
-})
-bench('omaha turn ahead vs range', () => {
-  omahaAheadScore(
-    {
-      board: randCardsHashed(4),
-      hand: randCardsHashed(4)
-    },
-    randomOmahaRange
-  )
-})
-// ! 3.5x slower than originally
-bench('omaha flop ahead vs range', () => {
-  omahaAheadScore(
-    {
-      board: randCardsHashed(3),
-      hand: randCardsHashed(4)
-    },
-    randomOmahaRange
-  )
-})
-
-// Convert nanoseconds to more readable units
 const formatTime = (ns: number): string => {
   if (ns < 1000) return `${ns.toFixed(2)}ns`
   if (ns < 1000000) return `${(ns / 1000).toFixed(2)}µs`
   return `${(ns / 1000000).toFixed(2)}ms`
 }
 
-run(markdown ? { format: 'markdown' } : { format: 'mitata' }).then((result) => {
+run(readme ? { format: 'markdown' } : { format: 'mitata' }).then((result) => {
   console.log(`Ran using \`mitata\` for \`poker-utils v${version}\`\n`)
   console.log('arch:', result.context.arch)
   console.log(`clk: ~${Math.round(result.context.cpu.freq)} GHz`)
@@ -204,5 +229,4 @@ run(markdown ? { format: 'markdown' } : { format: 'mitata' }).then((result) => {
       }
     })
   })
-  console.log()
 })

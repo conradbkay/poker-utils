@@ -1,101 +1,10 @@
 import { iso } from '../iso.js'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash.js'
 import { evalOmaha } from './strength.js'
-import { genBoardEval } from '../evaluate.js'
 import { evaluate } from '../evaluate.js'
-import { PokerRange } from '../range/range.js'
 import { sortCards } from '../sort.js'
-import { BitRange, cardsBlockBitmap } from '../range/bit.js'
-import { fromHandIdx } from '../utils.js'
-import { BitSet } from 'bitset'
-
-/**
- * maybe we calculate strength of all 1326 2 card combos, but such that each combo maps to 0-1326
- *
- * for flop/turn store each `p` in 1326 length uint32
- *
- * should have option to disable hand vs hand blockers since that takes so much time
- *
- * Only works for 2 card ranges. Optimized for twoplustwo algorithm
- */
-export const fastCombosVsRangeAhead = ({
-  board,
-  range,
-  vsRange,
-  chopIsWin,
-  useHandBlockers = true
-}: {
-  board: number[]
-  range: BitRange
-  vsRange: BitRange
-  chopIsWin?: boolean
-  useHandBlockers?: boolean // around 200x slower
-}) => {
-  const blockers = cardsBlockBitmap(board)
-  const ranges = [range, vsRange]
-  const bitmaps = ranges.map((r) => r.blockedBitmap(blockers))
-
-  const evaluate = genBoardEval(board)
-  const strengths = new Uint16Array(1326)
-  for (let i = 0; i < 1326; i++) {
-    strengths[i] = evaluate([10, 20])
-  }
-
-  const [{ infos }, { infos: vsInfos, weightSum: unblockedWeightSum }] =
-    bitmaps.map((b, i) => genSortedBitEvalInfo(b, ranges[i].weights, strengths))
-
-  let pointer = 0
-  let beatPointer = 0
-  let result: number[] = new Array(infos.length)
-
-  let chopWeight = 0
-  // like 95% of time is spent in this loop
-  while (pointer < infos.length) {
-    const info = infos[pointer]
-    const handBlockers = useHandBlockers
-      ? cardsBlockBitmap(fromHandIdx(info[0]), true)
-      : null
-    let weightSum = unblockedWeightSum
-
-    while (beatPointer < vsInfos.length && info[1] >= vsInfos[beatPointer][1]) {
-      if (handBlockers && handBlockers.get(vsInfos[beatPointer][0])) {
-        // blocked combo
-      } else if (info[1] > vsInfos[beatPointer][1]) {
-        chopWeight = 0
-      } else {
-        chopWeight += ranges[1].weights[vsInfos[beatPointer][0]]
-      }
-      beatPointer++
-    }
-    beatPointer-- // set it to the last index we beat
-    if (beatPointer < 0) {
-      result[pointer] = 0
-    } else {
-      let beatWeight = vsInfos[beatPointer][2]
-
-      if (handBlockers) {
-        for (const blockedIdx of handBlockers) {
-          if (bitmaps[1].get(blockedIdx)) {
-            weightSum -= ranges[1].weights[blockedIdx]
-            if (strengths[blockedIdx] < info[1]) {
-              beatWeight -= ranges[1].weights[blockedIdx]
-            }
-          }
-        }
-      }
-
-      if (!chopIsWin) {
-        beatWeight -= chopWeight / 2
-      }
-
-      result[pointer] = beatWeight / unblockedWeightSum
-    }
-
-    pointer++
-  }
-
-  return result
-}
+import { PokerRange } from '../range/range.js'
+import { genBoardEval } from '../evaluate.js'
 
 export type EvalOptions = {
   board: number[]
@@ -120,7 +29,7 @@ export const equityEval = ({
       const { board: isoBoard, hand: isoHand } = iso({ board, hand })
       return equityFromHash(flopHash, isoBoard, isoHand)
     } else {
-      for (let j = 1; j <= 52; j++) {
+      for (let j = 0; j < 52; j++) {
         if (board.includes(j)) {
           continue
         }
@@ -145,7 +54,7 @@ export const equityEval = ({
     if (board.length === 4) {
       const boardCards = new Set(board)
 
-      for (let j = 1; j <= 52; j++) {
+      for (let j = 0; j < 52; j++) {
         if (boardCards.has(j) || hand.includes(j)) {
           continue
         }
@@ -218,7 +127,7 @@ export type RvRArgs = {
 }
 
 /**
- * returns [combo, ahead, weight]
+ * returns [combo, ahead, weight][]
  */
 export const combosVsRangeAhead = ({
   board,
@@ -248,6 +157,7 @@ export const combosVsRangeAhead = ({
   for (let i = 0; i < rangeRankings.length; i++) {
     const [hand, handRanking, weight] = rangeRankings[i]
     let beats = 0
+    let ties = 0
     let total = 0
     for (let vsIdx = 0; vsIdx < vsRangeRankings.length; vsIdx++) {
       const [vsHand, vsRanking, vsWeight] = vsRangeRankings[vsIdx]
@@ -257,6 +167,7 @@ export const combosVsRangeAhead = ({
 
       const winVal = getWinVal(handRanking, vsRanking)
       beats += winVal * vsWeight
+      ties += handRanking === vsRanking ? vsWeight : 0
       total += vsWeight
     }
 

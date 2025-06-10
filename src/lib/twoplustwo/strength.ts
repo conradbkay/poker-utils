@@ -33,9 +33,12 @@ export const evalOmaha = (
   return pInfo(max)
 }
 
-export function nextP(card: number): number {
-  return RANKS_DATA.readUInt32LE(card * 4)
+/** assumes 0-indexed deck, but lookup uses 1-indexed */
+function nextP(card: number): number {
+  return RANKS_DATA.readUInt32LE(card * 4 + 4)
 }
+
+export const finalP = (p: number) => RANKS_DATA.readUInt32LE(p * 4)
 
 /**
  * ~1.3x faster than `evaluate`, but just returns `value`
@@ -55,7 +58,7 @@ export const fastEvalPartial = (cards: number[], p = 53) => {
   p = fastEval(cards, p)
 
   if (cards.length === 5 || cards.length === 6) {
-    return nextP(p)
+    return finalP(p)
   }
 
   return p

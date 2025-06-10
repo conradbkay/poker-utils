@@ -3,7 +3,7 @@
  * @param depth how many cards to generate
  * combos and combos arr returned sorted descending
  */
-export const genCardCombinations = (depth = 3, minCard = 1) => {
+export const genCardCombinations = (depth = 3, minCard = 0) => {
   if (depth > 5) {
     // for depth=6 output length would be 14658134400
     throw new Error('calculating too many combinations')
@@ -44,22 +44,3 @@ export const closestIdx = (counts: number[], value: number) => {
 
   return resultIdx
 }
-
-// maps a 2 card 1-indexed hand to 0-1325
-export const getHandIdx = (hand: number[]) => {
-  // a is larger than b
-  const a = hand[0] > hand[1] ? hand[0] - 1 : hand[1] - 1
-  const b = hand[0] > hand[1] ? hand[1] - 1 : hand[0] - 1
-
-  const aOffset = (a * (a - 1)) / 2 // prod of even and odd is always even
-  return aOffset + b
-}
-
-const idx2hand = new Array<number[]>(1326)
-// 0.2ms
-for (let a = 52; a > 0; a--) {
-  for (let b = a - 1; b >= 0; b--) {
-    idx2hand[getHandIdx([a, b])] = [a, b]
-  }
-}
-export const fromHandIdx = (idx: number) => idx2hand[idx]
