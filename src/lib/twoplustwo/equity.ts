@@ -52,10 +52,8 @@ export const equityEval = ({
     const evalFunc = hand.length >= 4 ? omahaAheadScore : aheadPct
 
     if (board.length === 4) {
-      const boardCards = new Set(board)
-
       for (let j = 0; j < 52; j++) {
-        if (boardCards.has(j) || hand.includes(j)) {
+        if (board.includes(j) || hand.includes(j)) {
           continue
         }
 
@@ -66,7 +64,7 @@ export const equityEval = ({
     }
   }
 
-  return result.map((eq) => Math.round(eq * 100) / 100)
+  return result
 }
 
 const defaultEval = (board: number[], hand: number[]) =>
