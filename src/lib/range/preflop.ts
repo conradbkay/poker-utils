@@ -2,7 +2,7 @@ import { getRank, getSuit } from '../cards/utils.js'
 import { sortCards } from '../sort.js'
 import { RANKS } from '../constants.js'
 import { genCardCombinations } from '../utils.js'
-import { PokerRange } from './range.js'
+// import { PokerRange } from './range.js'
 
 const NUM_COMBOS = 169
 
@@ -327,7 +327,7 @@ export class PreflopRange {
   }
 
   // ! once PokerRange stores board state this should take that into account wrt weighting (many combos will be blocked things won't add up to 4/6/12)
-  public static fromPokerRange(range: PokerRange) {}
+  // public static fromPokerRange(range: PokerRange) {}
 
   /** returns [0-1, 0-1] generating the closest match using min/max index of `order` */
   public toPercentiles() {

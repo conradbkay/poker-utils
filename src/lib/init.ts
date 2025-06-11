@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 
-export let RANKS_DATA = null
+export let RANKS_DATA: Buffer | null = null
 let usedPath: string | null = null // file never changes so don't load it more than once
 
 export const initFromPath = async (path: string) => {

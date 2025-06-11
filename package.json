@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "12.0.1",
+  "version": "12.0.3",
   "description": "Fast poker ranges, evaluation, equity calculation",
   "author": "Conrad Kay",
   "main": "build/module/index.js",
@@ -10,6 +10,9 @@
   "license": "MIT",
   "keywords": [],
   "type": "module",
+  "bin": {
+    "poker-utils": "build/module/lib/cli.js"
+  },
   "scripts": {
     "build": "run-p build:*",
     "build:module": "tsc -p tsconfig.module.json",

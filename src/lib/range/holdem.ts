@@ -1,6 +1,7 @@
 import { PokerRange } from './range.js'
 import { sortCards } from '../sort.js'
 import { genBoardEval } from '../evaluate.js'
+import { PreflopRange } from './preflop.js'
 
 /**
  * only for 2 card hands
@@ -51,6 +52,10 @@ export class HoldemRange {
     })
 
     return result
+  }
+
+  public static fromPreflopRange(range: PreflopRange) {
+    return HoldemRange.fromPokerRange(PokerRange.fromPreflop(range))
   }
 
   public static getHandIdx(hand: number[]) {
@@ -191,7 +196,7 @@ export class HoldemRange {
     // console.time('result')
     // todo seems like each handIdx is getting called twice?
     let result: [number[], number, number, number][] = []
-    this.forEachWeighted((weight, idx) => {
+    this.forEachWeighted((_, idx) => {
       const combo = HoldemRange.fromHandIdx(idx)
       if (boardMask[combo[0]] || boardMask[combo[1]]) {
         return null

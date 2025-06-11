@@ -1,75 +1,84 @@
-import { any2, PokerRange } from '../range/range.js'
+import { any2 } from '../range/range.js'
 import { flops } from './flops.js'
 import { equityBuckets } from '../constants.js'
-import { isoRunouts, Runout, canonizeBoard } from '../iso.js'
+import { canonizeBoard } from '../iso.js'
 import { closestIdx } from '../utils.js'
 import { HoldemRange } from '../range/holdem.js'
+import { formatCards } from '../cards/utils.js'
 
 /**
  * Flops are the most computationally expensive to calculate equities for
  * There's only 1755 unique flops after applying isomorphism, so we can precompute every combo's equity vs a specific range for every flop
  */
 
-export const eachRiver = (
-  flop: number[],
-  f: (board: number[], iso: Runout) => void
-) => {
-  const isoFlop = canonizeBoard(flop).cards
-  const runouts = isoRunouts(isoFlop)
-
-  for (const turnStr in runouts) {
-    const rivers = runouts[turnStr].children!
-    const turn = parseInt(turnStr)
-    for (const riverStr in rivers) {
-      if (turnStr === riverStr) {
-        console.log('err', turnStr, riverStr, flop, rivers, canonizeBoard(flop))
-      }
-
-      const isoInfo = rivers[riverStr]
-      const river = parseInt(riverStr)
-      const board = [...isoFlop, turn, river]
-
-      f(board, isoInfo)
-    }
-  }
-}
-
+/**
+ * buckets all NLHE combos by equity. Assumes flop is already isomorphic
+ *
+ * passing chopReduction reduces equity into a single number rather than [win, tie, lose]
+ *
+ * it's tempting to convert flops into an iso index and then use a giant, flattened 1755x1326x23 uint16array and bypass json costs
+ */
 export const flopEquities = (
   flop: number[],
-  vsPokerRange: PokerRange,
-  chopIsWin: boolean = true
+  vsRange: HoldemRange,
+  chopReduction: 'win' | 'half' | 'skip' = 'skip'
 ) => {
   const hash: number[][] = new Array(1326)
     .fill(0)
     .map((_) => new Array(equityBuckets.length).fill(0))
 
-  eachRiver(flop, (board, { map, weight }) => {
-    const range = HoldemRange.fromPokerRange(PokerRange.iso(any2, map))
-    const vsRange = HoldemRange.fromPokerRange(
-      PokerRange.iso(vsPokerRange, map)
-    )
+  const range = HoldemRange.fromPokerRange(any2)
 
-    const result = range.equityVsRange({
-      board,
-      vsRange
-    })
+  const board = [...flop, undefined, undefined]
+  // for bucketing we can consider turn and river sortable,
+  for (let turn = 51; turn >= 1; turn--) {
+    if (flop.includes(turn)) continue
+    board[3] = turn
+    for (let river = turn - 1; river >= 0; river--) {
+      if (turn === river || flop.includes(river)) continue
+      board[4] = river
 
-    for (const [combo, win, tie, lose] of result) {
-      const eq = (win + (chopIsWin ? tie : tie / 2)) / (win + tie + lose)
-      const bucket = closestIdx(equityBuckets, eq * 100)
-      hash[HoldemRange.getHandIdx(combo)][bucket] += weight
+      const result = range.equityVsRange({
+        board,
+        vsRange
+      })
+
+      for (let [combo, win, tie, lose] of result) {
+        if (chopReduction) {
+          win +=
+            chopReduction === 'win'
+              ? tie
+              : chopReduction === 'half'
+                ? tie / 2
+                : 0
+          tie = 0
+        }
+
+        const denom = win + tie + lose
+
+        if (!denom) {
+          continue // must be chop board with skip reduction, which doesn't fit well with any bucket. Maybe could be an argument to make it increment the 50% bucket
+        }
+
+        const eq = (win + tie) / denom
+        const bucket = closestIdx(equityBuckets, eq * 100)
+        hash[HoldemRange.getHandIdx(combo)][bucket] += 1
+      }
     }
-  })
+  }
 
   return hash
 }
 
-export const generateEquityHash = (vsRange: PokerRange) => {
+const flopToHashKey = (flop: number[]) =>
+  formatCards(canonizeBoard(flop).cards).join('')
+
+export const generateEquityHash = (vsRange: HoldemRange) => {
   const hash: RiverEquityHash = {}
 
-  for (const [s, flop] of flops) {
+  for (const [_, flop] of flops) {
     const equities = flopEquities(flop, vsRange)
-    hash[s] = equities
+    hash[flopToHashKey(flop)] = equities
   }
 
   return hash
@@ -84,10 +93,8 @@ export type RiverEquityHash = {
 
 export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
   hash: T,
-  board: number[],
+  flop: number[],
   hand: number[]
-): T['board'][0] => {
-  return hash[canonizeBoard(board).cards.join(' ')][
-    HoldemRange.getHandIdx(hand)
-  ]
+): T[string][number] => {
+  return hash[flopToHashKey(flop)][HoldemRange.getHandIdx(hand)]
 }

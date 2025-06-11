@@ -19,7 +19,7 @@ const gaps = sort
   .map((n) => [n + 1, sort[sort.findIndex((compare) => compare > n)] - 1])
 
 let g = 4096
-const revGapIdxs = gaps.map((c, i) => {
+const revGapIdxs = gaps.map((c) => {
   g += c[1] + 1 - c[0]
   return [c[0], g]
 })
