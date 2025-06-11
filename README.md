@@ -12,14 +12,31 @@ Really fast poker hand evaluation in pure TypeScript
 
 ## Quickstart
 
-Use the `evaluate` function to get hand strength information
-
 ```js
-const pfRange = new PreflopRange()
-pfRange.set('66')
-pfRange.set('AKs')
-pfRange.toString() // "AKs,66"
-pfRange.handCombos('22') //
+import { PreflopRange, boardToInts, evaluate, iso } from 'poker-utils'
+
+const preRange = new PreflopRange()
+preRange.set('66')
+preRange.set('AKs', 0.5)
+preRange.toString() // "AKs:0.5,66"
+preRange.getWeight('AKs') // 0.5
+
+const { board, hand } = iso({
+  board: boardToInts('Kh9c4s3c5h'),
+  hand: boardToInts('3d3s')
+})
+console.log(formatCards(board)) // [ 'Ks', '9h', '4d', '3h', '5s' ]
+console.log(formatCards(hand)) // [ '3d', '3c' ]
+
+const evaluated = evaluate([...board, ...hand])
+
+console.log(evaluated) /*{
+  handType: 4,
+  handRank: 118,
+  p: 16502,
+  value: 5113,
+  handName: 'Three of a Kind'
+}*/
 ```
 
 use `new PokerRange()` or `PokerRange.fromPreflop(...)`
@@ -28,7 +45,7 @@ use `new PokerRange()` or `PokerRange.fromPreflop(...)`
 
 Percentages are always 0-1 with no rounding
 
-The deck is 1-indexed, ascending from 2c (1) to As (52). Most methods input/output a `number[]`. Use `boardToInts(str): number[]` and `formatCards(number[]): str` for conversion.
+The deck is 0-indexed, ascending from 2c (0) to As (51). Most methods input/output a `number[]`. Use `boardToInts(str): number[]` and `formatCards(number[]): str` for conversion.
 
 `ahead` methods don't compute each runout like the corresponding `equity` methods do
 

@@ -137,7 +137,7 @@ export const shuffle = (arr: number[]) => {
   return arr
 }
 
-export const boardToInts = (board: string | string[] | number[]) => {
+export const boardToInts = (board: string | string[] | number[]): number[] => {
   if (Array.isArray(board)) {
     return board.map((card) => boardToInts(card)).flat()
   }

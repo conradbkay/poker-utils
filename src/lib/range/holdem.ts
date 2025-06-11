@@ -2,6 +2,7 @@ import { PokerRange } from './range.js'
 import { sortCards } from '../sort.js'
 import { genBoardEval } from '../evaluate.js'
 import { PreflopRange } from './preflop.js'
+import { any2pre } from './preflop.js'
 
 /**
  * only for 2 card hands
@@ -246,3 +247,5 @@ for (let a = 51; a >= 1; a--) {
     idx2hand[HoldemRange.getHandIdx(hand)] = hand
   }
 }
+
+export const holdemAny2 = HoldemRange.fromPreflopRange(any2pre)

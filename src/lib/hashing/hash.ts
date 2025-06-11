@@ -1,7 +1,7 @@
 import { any2 } from '../range/range.js'
 import { flops } from './flops.js'
 import { equityBuckets } from '../constants.js'
-import { canonizeBoard } from '../iso.js'
+import { canonizeBoard, iso } from '../iso.js'
 import { closestIdx } from '../utils.js'
 import { HoldemRange } from '../range/holdem.js'
 import { formatCards } from '../cards/utils.js'
@@ -15,6 +15,8 @@ import { formatCards } from '../cards/utils.js'
  * buckets all NLHE combos by equity. Assumes flop is already isomorphic
  *
  * it's tempting to convert flops into an iso index and then use a giant, flattened 1755x1326x23 uint16array and bypass json costs
+ *
+ * todo make this more general to allow for things like storing [win, tie, lose] aggregate, or bucketing into percentiles of range rather than equity
  */
 export const flopEquities = (
   flop: number[],
@@ -23,6 +25,7 @@ export const flopEquities = (
 ) => {
   const hash: number[][] = new Array(1326)
 
+  // hands that collide with flop should remain undefined to conserve space
   for (let idx = 0; idx < 1326; idx++) {
     const combo = HoldemRange.fromHandIdx(idx)
     if (combo.some((c) => flop.includes(c))) continue
@@ -91,5 +94,6 @@ export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
   flop: number[],
   hand: number[]
 ): T[string][number] => {
-  return hash[flopToHashKey(flop)][HoldemRange.getHandIdx(hand)]
+  const { board, hand: isoHand } = iso({ board: flop, hand })
+  return hash[flopToHashKey(board)][HoldemRange.getHandIdx(isoHand)]
 }
