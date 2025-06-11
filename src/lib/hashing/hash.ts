@@ -14,8 +14,6 @@ import { formatCards } from '../cards/utils.js'
 /**
  * buckets all NLHE combos by equity. Assumes flop is already isomorphic
  *
- * passing chopReduction reduces equity into a single number rather than [win, tie, lose]
- *
  * it's tempting to convert flops into an iso index and then use a giant, flattened 1755x1326x23 uint16array and bypass json costs
  */
 export const flopEquities = (
@@ -24,13 +22,17 @@ export const flopEquities = (
   chopReduction: 'win' | 'half' | 'skip' = 'skip'
 ) => {
   const hash: number[][] = new Array(1326)
-    .fill(0)
-    .map((_) => new Array(equityBuckets.length).fill(0))
+
+  for (let idx = 0; idx < 1326; idx++) {
+    const combo = HoldemRange.fromHandIdx(idx)
+    if (combo.some((c) => flop.includes(c))) continue
+    hash[idx] = new Array(equityBuckets.length).fill(0)
+  }
 
   const range = HoldemRange.fromPokerRange(any2)
 
   const board = [...flop, undefined, undefined]
-  // for bucketing we can consider turn and river sortable,
+  // for bucketing we can consider turn and river sortable. That is, there's no need to do 43,30 and 30,43 since they're equivalent and ranges stay fixed
   for (let turn = 51; turn >= 1; turn--) {
     if (flop.includes(turn)) continue
     board[3] = turn
@@ -44,23 +46,16 @@ export const flopEquities = (
       })
 
       for (let [combo, win, tie, lose] of result) {
-        if (chopReduction) {
-          win +=
-            chopReduction === 'win'
-              ? tie
-              : chopReduction === 'half'
-                ? tie / 2
-                : 0
-          tie = 0
-        }
+        win +=
+          chopReduction === 'win' ? tie : chopReduction === 'half' ? tie / 2 : 0
 
-        const denom = win + tie + lose
+        const denom = win + lose
 
         if (!denom) {
           continue // must be chop board with skip reduction, which doesn't fit well with any bucket. Maybe could be an argument to make it increment the 50% bucket
         }
 
-        const eq = (win + tie) / denom
+        const eq = win / denom
         const bucket = closestIdx(equityBuckets, eq * 100)
         hash[HoldemRange.getHandIdx(combo)][bucket] += 1
       }
