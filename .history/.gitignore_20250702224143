@@ -1,5 +1,4 @@
 diff
-.history
 .idea/*
 .nyc_output
 build
@@ -10,4 +9,3 @@ coverage
 data
 HandRanks.dat
 .vscode
-!data/pioFlops.js

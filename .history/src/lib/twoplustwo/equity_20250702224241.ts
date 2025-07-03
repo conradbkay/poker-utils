@@ -9,7 +9,7 @@ import { genBoardEval } from '../evaluate.js'
 export type EvalOptions = {
   board: number[]
   hand: number[]
-  flopHash?: EquityHash | RiverEquityHash | (<T>(isoBoard: number[], isoHand: number[]) => T)
+  flopHash?: EquityHash | RiverEquityHash
   chopIsWin?: boolean
 }
 
@@ -26,11 +26,7 @@ export const equityEval = ({
   if (board.length === 3) {
     if (flopHash) {
       const { board: isoBoard, hand: isoHand } = iso({ board, hand })
-      if (typeof flopHash === 'function') {
-        return flopHash(isoBoard, isoHand)
-      } else {
-        return equityFromHash(flopHash, isoBoard, isoHand)
-      }
+      return equityFromHash(flopHash, isoBoard, isoHand)
     } else {
       for (let j = 0; j < 52; j++) {
         if (board.includes(j)) {

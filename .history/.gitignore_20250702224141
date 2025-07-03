@@ -1,5 +1,4 @@
 diff
-.history
 .idea/*
 .nyc_output
 build
@@ -7,7 +6,7 @@ node_modules
 test
 coverage
 *.log
+yarn.lock
 data
 HandRanks.dat
 .vscode
-!data/pioFlops.js
