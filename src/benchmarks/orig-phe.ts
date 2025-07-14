@@ -1,6 +1,6 @@
 import { evaluateCardCodes } from 'phe'
 import { run, bench } from 'mitata'
-import { genRandHash, randCardsHashed, sequentialCards } from './utils.js'
+import { genRandHash, randCardsHashed, sequentialCards } from './utils'
 
 /**
  * here to make sure the port doesn't become slower, which even though it's essentially the same small changes randomly make it slower

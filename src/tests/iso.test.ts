@@ -1,10 +1,10 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops.js'
-import { getIsoHand, isoRunouts, totalIsoWeight } from '../lib/iso.js'
-import { pioFlops } from '../data/pioFlops.js'
-import { genCardCombinations } from '../lib/utils.js'
-import { makeCard, randUniqueCards, shuffle } from '../lib/cards/utils.js'
+import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops'
+import { getIsoHand, isoRunouts, totalIsoWeight } from '../lib/iso'
+import { pioFlops } from './data/pioFlops'
+import { genCardCombinations } from '../lib/utils'
+import { makeCard, randUniqueCards, shuffle } from '../lib/cards/utils'
 
 const allHands = genCardCombinations(2)
 
@@ -17,10 +17,9 @@ describe('isomorphism', () => {
 
   it('generates flops in PioSOLVER format', () => {
     const flopStrs = flops.map((f) => f[0])
-    const pioStrs = pioFlops.map((f) => f[0])
 
     for (let i = 0; i < flopStrs.length; i++) {
-      assert.equal(pioStrs.includes(flopStrs[i]), true)
+      assert.equal(pioFlops.includes(flopStrs[i]), true)
     }
   })
 

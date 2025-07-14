@@ -1,9 +1,9 @@
 import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { any2 } from '../lib/range/range.js'
-import { any2pre, PreflopRange } from '../lib/range/preflop.js'
-import { PokerRange } from '../lib/range/range.js'
-import { formatCards, randUniqueCards } from '../lib/cards/utils.js'
+import { any2 } from '../lib/range/range'
+import { any2pre, PreflopRange } from '../lib/range/preflop'
+import { PokerRange } from '../lib/range/range'
+import { formatCards, randUniqueCards } from '../lib/cards/utils'
 
 describe('PreflopRange', () => {
   test('any2pre percentiles is [0,1]', () => {

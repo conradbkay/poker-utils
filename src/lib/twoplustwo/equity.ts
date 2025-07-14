@@ -1,15 +1,18 @@
-import { iso } from '../iso.js'
-import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash.js'
-import { evalOmaha } from './strength.js'
-import { evaluate } from '../evaluate.js'
-import { sortCards } from '../sort.js'
-import { PokerRange } from '../range/range.js'
-import { genBoardEval } from '../evaluate.js'
+import { iso } from '../iso'
+import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
+import { evalOmaha } from './strength'
+import { evaluate } from '../evaluate'
+import { sortCards } from '../sort'
+import { PokerRange } from '../range/range'
+import { genBoardEval } from '../evaluate'
 
 export type EvalOptions = {
   board: number[]
   hand: number[]
-  flopHash?: EquityHash | RiverEquityHash | (<T>(isoBoard: number[], isoHand: number[]) => T)
+  flopHash?:
+    | EquityHash
+    | RiverEquityHash
+    | (<T>(isoBoard: number[], isoHand: number[]) => T)
   chopIsWin?: boolean
 }
 

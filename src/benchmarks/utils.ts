@@ -1,5 +1,5 @@
-import { randUniqueCards, shuffle } from '../lib/cards/utils.js'
-import { CARDS } from '../lib/constants.js'
+import { randUniqueCards, shuffle } from '../lib/cards/utils'
+import { CARDS } from '../lib/constants'
 
 // for benchmarks we don't want it wasting time generating random cards, but setting to specific card values might (test this though) make it cheat by storing everything in cache
 const randHash: Record<string, number[][]> = {}

@@ -1,22 +1,22 @@
 import { run, bench } from 'mitata'
-import { genRandHash, randCardsHashed, sequentialCards } from './utils.js'
-import { getPHEValue } from '../lib/phe/evaluate.js'
-import { cardsToPHE } from '../lib/phe/convert.js'
-import { canonize, isoRunouts } from '../lib/iso.js'
-import { any2, genRandRange, PokerRange } from '../lib/range/range.js'
-import { sortCards } from '../lib/sort.js'
-import { evaluate, phe } from '../lib/evaluate.js'
-import { omahaAheadScore } from '../lib/twoplustwo/equity.js'
+import { genRandHash, randCardsHashed, sequentialCards } from './utils'
+import { getPHEValue } from '../lib/phe/evaluate'
+import { cardsToPHE } from '../lib/phe/convert'
+import { canonize, isoRunouts } from '../lib/iso'
+import { any2, genRandRange, PokerRange } from '../lib/range/range'
+import { sortCards } from '../lib/sort'
+import { evaluate, phe } from '../lib/evaluate'
+import { omahaAheadScore } from '../lib/twoplustwo/equity'
 import {
   fastEval,
   fastEvalPartial,
   evalOmaha
-} from '../lib/twoplustwo/strength.js'
-import { genBoardEval } from 'src/lib/evaluate.js'
+} from '../lib/twoplustwo/strength'
+import { genBoardEval } from 'src/lib/evaluate'
 import { resolve } from 'path'
-import { initFromPathSync } from '../lib/init.js'
+import { initFromPathSync } from '../lib/init'
 import { readFileSync } from 'fs'
-import { HoldemRange } from '../lib/range/holdem.js'
+import { HoldemRange } from '../lib/range/holdem'
 
 const { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
 

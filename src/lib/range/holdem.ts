@@ -1,8 +1,8 @@
-import { PokerRange } from './range.js'
-import { sortCards } from '../sort.js'
-import { genBoardEval } from '../evaluate.js'
-import { PreflopRange } from './preflop.js'
-import { any2pre } from './preflop.js'
+import { PokerRange } from './range'
+import { sortCards } from '../sort'
+import { genBoardEval } from '../evaluate'
+import { PreflopRange } from './preflop'
+import { any2pre } from './preflop'
 
 /**
  * only for 2 card hands
@@ -68,15 +68,14 @@ export class HoldemRange {
     return idx2hand[idx]
   }
 
-  // todo refactor this out into a few methods, and make it possible to get results for both hero and villain
   /*
   C(52, 2) means there are 1326 unique NLHE combos, and we can do basic map to convert each hand (two ints) to 0-1325 which we'll call comboIdx
 
-  From both ranges, we can create an array `allCombos` of [strength, comboIdx, vsWeight, combo, weight]
+  From both ranges, we create a combined array `allCombos` of tuples [strength, comboIdx, vsWeight, combo, weight]
 
-  we sort that by strength, then compute the prefix sum for vsWeight
+  we sort that by strength, then store the prefix sum for vsWeight in `prefix`
 
-  now we can create a lookup such that every comboIdx maps to an index range ([min, max]) in `allCombos` for its hand strength
+  now we can create a lookup such that every comboIdx maps to an index range ([min, max]) in `allCombos` based on its hand strength
 
   that means that for any combo, we can simply use the lookup to get the weight sum of all combos we beat via `prefix[min - 1]`, the sum of ties via `prefix[max] - prefix[min]`, and the sum of losses via `totalWeight - win - tie`  
 
@@ -89,7 +88,7 @@ export class HoldemRange {
   To get the final result for every combo in our range, we get the naive sums (win tie lose), but subtract the blocker prefix sums for both cards using the same logic, then simply undo the double blocked (equivalent) combo
   */
   /**
-   * O(N log N) algorithm which only does O(N) evaluations, where N is the size of the union of range and vsRange
+   * O(N) algorithm which only does O(N) evaluations, where N is the size of the union of range and vsRange
    *
    * Results get 10x faster after a few sequential calls for smaller ranges, even when completely randomizing the board and both ranges. Full ranges get a 3x speedup
    *

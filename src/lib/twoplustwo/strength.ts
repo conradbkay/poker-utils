@@ -1,8 +1,8 @@
-import { hash } from '../cards/permuHash.js'
-import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants.js'
-import { RANKS_DATA } from '../init.js'
-import { genBoardEval } from '../evaluate.js'
-import { removeGaps } from '../phe/convert.js'
+import { hash } from '../cards/permuHash'
+import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants'
+import { RANKS_DATA } from '../init'
+import { genBoardEval } from '../evaluate'
+import { removeGaps } from '../phe/convert'
 
 export const evalOmaha = (
   board: number[],

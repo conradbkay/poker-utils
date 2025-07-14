@@ -1,5 +1,5 @@
-import { c2str, CARDS } from '../constants.js'
-import { DECK } from '../constants.js'
+import { c2str, CARDS } from '../constants'
+import { DECK } from '../constants'
 
 /**
  * these utils assume a deck from 0-51

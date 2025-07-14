@@ -1,8 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { genCardCombinations } from '../lib/utils.js'
-import { sortCards } from '../lib/sort.js'
-import { HoldemRange } from '../lib/range/holdem.js'
+import { genCardCombinations } from '../lib/utils'
+import { sortCards } from '../lib/sort'
+import { HoldemRange } from '../lib/range/holdem'
 
 test('combos map to/from 0-1325', () => {
   let count = {}

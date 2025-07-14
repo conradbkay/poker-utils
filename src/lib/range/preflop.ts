@@ -1,8 +1,8 @@
-import { getRank, getSuit } from '../cards/utils.js'
-import { sortCards } from '../sort.js'
-import { RANKS } from '../constants.js'
-import { genCardCombinations } from '../utils.js'
-// import { PokerRange } from './range.js'
+import { getRank, getSuit } from '../cards/utils'
+import { sortCards } from '../sort'
+import { RANKS } from '../constants'
+import { genCardCombinations } from '../utils'
+// import { PokerRange } from './range'
 
 const NUM_COMBOS = 169
 

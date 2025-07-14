@@ -1,6 +1,6 @@
-import { c2str } from '../constants.js'
-import { DECK } from '../constants.js'
-import { stringifyCardCode, toCardCode } from './hand-code.js'
+import { c2str } from '../constants'
+import { DECK } from '../constants'
+import { stringifyCardCode, toCardCode } from './hand-code'
 
 const _toPHE = (card: number) => toCardCode(c2str[card])
 const _fromPHE = (code: number) => DECK[stringifyCardCode(code)]

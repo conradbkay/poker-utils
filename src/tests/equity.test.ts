@@ -1,10 +1,10 @@
 import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { any2 } from '../lib/range/range.js'
-import { rangeVsRangeAhead } from '../lib/twoplustwo/equity.js'
-import { boardToInts, randUniqueCards } from '../lib/cards/utils.js'
-import { initFromPathSync } from 'src/lib/init.js'
-import { HoldemRange } from '../lib/range/holdem.js'
+import { any2 } from '../lib/range/range'
+import { rangeVsRangeAhead } from '../lib/twoplustwo/equity'
+import { boardToInts, randUniqueCards } from '../lib/cards/utils'
+import { initFromPathSync } from 'src/lib/init'
+import { HoldemRange } from '../lib/range/holdem'
 
 const range = any2
 

@@ -1,9 +1,9 @@
 import { skip } from 'node:test'
 import assert from 'node:assert/strict'
-import { flopEquities } from '../lib/hashing/hash.js'
-import { HoldemRange } from '../lib/range/holdem.js'
-import { flops } from 'src/lib/hashing/flops.js'
-import { any2 } from 'src/lib/range/range.js'
+import { flopEquities } from '../lib/hashing/hash'
+import { HoldemRange } from '../lib/range/holdem'
+import { flops } from 'src/lib/hashing/flops'
+import { any2 } from 'src/lib/range/range'
 
 // takes a bit long (500ms)
 skip('flopEquities', () => {

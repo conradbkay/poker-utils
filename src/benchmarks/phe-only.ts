@@ -1,6 +1,6 @@
-import { HoldemRange } from '../lib/range/holdem.js'
-import { any2 } from '../lib/range/range.js'
-import { genRandHash, randCardsHashed } from './utils.js'
+import { HoldemRange } from '../lib/range/holdem'
+import { any2 } from '../lib/range/range'
+import { genRandHash, randCardsHashed } from './utils'
 import { run, bench } from 'mitata'
 
 /** have to put this in a separate file that doesn't load the 2p2 algorithm */

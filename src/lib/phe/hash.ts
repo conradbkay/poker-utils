@@ -1,4 +1,4 @@
-import { dp, choose } from './dptables.js'
+import { dp, choose } from './dptables'
 
 /**
  * Calculates the quinary hash using the dp table.

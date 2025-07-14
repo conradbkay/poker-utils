@@ -2,9 +2,9 @@
 /*const { suits } = require('./dptables')
 const { hash_quinary } = require('./hash')
 const { flush, noflush } = require('./hash-table')*/
-import { suits } from './dptables.js'
-import { hash_quinary } from './hash.js'
-import { flush, noflush } from './hash-table.js'
+import { suits } from './dptables'
+import { hash_quinary } from './hash'
+import { flush, noflush } from './hash-table'
 
 const binaries_by_id = [
   // 52

@@ -9,10 +9,10 @@ import {
   suitCount,
   uniqueRanks,
   boardToInts
-} from '../lib/cards/utils.js'
-import { CARDS, DECK, RANKS } from '../lib/constants.js'
-import { evaluate } from '../lib/evaluate.js'
-import { HAND_TYPES } from '../lib/twoplustwo/constants.js'
+} from '../lib/cards/utils'
+import { CARDS, DECK, RANKS } from '../lib/constants'
+import { evaluate } from '../lib/evaluate'
+import { HAND_TYPES } from '../lib/twoplustwo/constants'
 import { randomInt } from 'node:crypto'
 
 describe('cards/utils', () => {

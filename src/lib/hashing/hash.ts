@@ -1,10 +1,10 @@
-import { any2 } from '../range/range.js'
-import { flops } from './flops.js'
-import { equityBuckets } from '../constants.js'
-import { canonizeBoard, iso } from '../iso.js'
-import { closestIdx } from '../utils.js'
-import { HoldemRange } from '../range/holdem.js'
-import { formatCards } from '../cards/utils.js'
+import { any2 } from '../range/range'
+import { flops } from './flops'
+import { equityBuckets } from '../constants'
+import { canonizeBoard, iso } from '../iso'
+import { closestIdx } from '../utils'
+import { HoldemRange } from '../range/holdem'
+import { formatCards } from '../cards/utils'
 
 /**
  * Flops are the most computationally expensive to calculate equities for

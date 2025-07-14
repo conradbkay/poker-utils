@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { sortCards } from '../lib/sort.js'
-import { randUniqueCards } from '../lib/cards/utils.js'
+import { sortCards } from '../lib/sort'
+import { randUniqueCards } from '../lib/cards/utils'
 
 test('sort cards', () => {
   for (let n = 1; n <= 11; n++) {

@@ -1,7 +1,7 @@
-import { randUniqueCards } from '../cards/utils.js'
-import { sortCards } from '../sort.js'
-import { any2pre, PreflopRange } from './preflop.js'
-import { getIsoHand } from '../iso.js'
+import { randUniqueCards } from '../cards/utils'
+import { sortCards } from '../sort'
+import { any2pre, PreflopRange } from './preflop'
+import { getIsoHand } from '../iso'
 
 // todo option to return as isomorphic (would need to have methods to set board then?)
 

@@ -1,7 +1,7 @@
-import { PreflopRange } from './range/preflop.js'
-import { boardToInts, formatCards } from './cards/utils.js'
-import { evaluate } from './evaluate.js'
-import { iso } from './iso.js'
+import { PreflopRange } from './range/preflop'
+import { boardToInts, formatCards } from './cards/utils'
+import { evaluate } from './evaluate'
+import { iso } from './iso'
 
 const preRange = new PreflopRange()
 preRange.set('66')

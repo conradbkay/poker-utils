@@ -1,8 +1,8 @@
-import { RANKS_DATA } from './init.js'
-import { addGaps, cardsToPHE, valueFromPHE } from './phe/convert.js'
-import { getPHEValue } from './phe/evaluate.js'
-import { fastEval, finalP, pInfo } from './twoplustwo/strength.js'
-import { evaluate as twoplustwoEval } from './twoplustwo/evaluate.js'
+import { RANKS_DATA } from './init'
+import { addGaps, cardsToPHE, valueFromPHE } from './phe/convert'
+import { getPHEValue } from './phe/evaluate'
+import { fastEval, finalP, pInfo } from './twoplustwo/strength'
+import { evaluate as twoplustwoEval } from './twoplustwo/evaluate'
 
 /** exact same input/output as twoplustwo algorithm */
 export const phe = (cards: number[]) => {

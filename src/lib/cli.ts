@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { generateEquityHash } from './hashing/hash.js'
-import { HoldemRange } from './range/holdem.js'
-import { any2, PokerRange } from './range/range.js'
-import { PreflopRange } from './range/preflop.js'
+import { generateEquityHash } from './hashing/hash'
+import { HoldemRange } from './range/holdem'
+import { any2, PokerRange } from './range/range'
+import { PreflopRange } from './range/preflop'
 import { writeFileSync } from 'fs'
 import { resolve } from 'path'
 

@@ -1,5 +1,5 @@
-import { getRank, getSuit, makeCard } from './cards/utils.js'
-import { sortCards } from './sort.js'
+import { getRank, getSuit, makeCard } from './cards/utils'
+import { sortCards } from './sort'
 
 /** PioSOLVER format */
 export const iso = ({ board, hand }: { board: number[]; hand?: number[] }) => {

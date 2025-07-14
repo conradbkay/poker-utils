@@ -1,6 +1,6 @@
-import { genCardCombinations } from '../utils.js'
-import { canonizeBoard, isoWeight } from '../iso.js'
-import { cardsStr, formatCards, fromCardsStr } from '../cards/utils.js'
+import { genCardCombinations } from '../utils'
+import { canonizeBoard, isoWeight } from '../iso'
+import { cardsStr, formatCards, fromCardsStr } from '../cards/utils'
 
 // exported for testing
 export const allFlops = genCardCombinations(3)

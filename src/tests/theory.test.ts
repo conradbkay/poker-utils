@@ -12,7 +12,7 @@ import {
   raiseAlphaToWeak,
   toPct,
   weak
-} from '../lib/theory.js'
+} from '../lib/theory'
 
 describe('poker theory math', () => {
   test('alpha', () => {
