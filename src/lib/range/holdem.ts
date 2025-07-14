@@ -88,7 +88,7 @@ export class HoldemRange {
   To get the final result for every combo in our range, we get the naive sums (win tie lose), but subtract the blocker prefix sums for both cards using the same logic, then simply undo the double blocked (equivalent) combo
   */
   /**
-   * O(N) algorithm which only does O(N) evaluations, where N is the size of the union of range and vsRange
+   * Technically this is an O(N log N) algorithm which only does O(N) evaluations (N being the size of the union of range and vsRange) but the sorting step is a lot less than the rest of the algorithm
    *
    * Results get 10x faster after a few sequential calls for smaller ranges, even when completely randomizing the board and both ranges. Full ranges get a 3x speedup
    *
@@ -108,7 +108,6 @@ export class HoldemRange {
       boardMask[card] = true
     }
 
-    // console.time('vsRange')
     const allCombos: [number, number, number, number[], number][] = []
     vsRange.forEachWeighted((weight, idx) => {
       const combo = HoldemRange.fromHandIdx(idx)
@@ -124,16 +123,12 @@ export class HoldemRange {
         0
       ])
     })
-    // console.timeEnd('vsRange')
 
-    // console.time('insertMap')
     const insertMap = new Array<number>(1326) // handIdx to idx in allCombos
     for (let i = 0; i < allCombos.length; i++) {
       insertMap[allCombos[i][1]] = i
     }
-    // console.timeEnd('insertMap')
 
-    // console.time('range')
     this.forEachWeighted((weight, idx) => {
       const combo = HoldemRange.fromHandIdx(idx)
       if (boardMask[combo[0]] || boardMask[combo[1]]) {
@@ -146,13 +141,9 @@ export class HoldemRange {
         allCombos.push([boardEval(combo), handIdx, 0, combo, weight])
       }
     })
-    // console.timeEnd('range')
 
-    // console.time('sort')
     allCombos.sort((a, b) => a[0] - b[0]) // strength ascending
-    // console.timeEnd('sort')
 
-    // console.time('prefix')
     let totalWeight = 0
     let weightPrefix = new Array<number>(allCombos.length)
 
@@ -175,9 +166,7 @@ export class HoldemRange {
       idxToRange[idx] = curPIdxRange // pointer
       idxToSorted[idx] = i
     }
-    // console.timeEnd('prefix')
 
-    // console.time('blockedPrefix')
     const blockedPrefix = new Array<Array<number>>(52)
     for (let card = 0; card < 52; card++) {
       let cumBlockedWeight = 0
@@ -191,9 +180,7 @@ export class HoldemRange {
         blockedPrefix[card][i] = cumBlockedWeight
       }
     }
-    // console.timeEnd('blockedPrefix')
 
-    // console.time('result')
     // todo seems like each handIdx is getting called twice?
     let result: [number[], number, number, number][] = []
     this.forEachWeighted((_, idx) => {
@@ -233,7 +220,6 @@ export class HoldemRange {
 
       result.push([combo, beatWeight, tieWeight, loseWeight])
     })
-    // console.timeEnd('result')
     return result
   }
 }
