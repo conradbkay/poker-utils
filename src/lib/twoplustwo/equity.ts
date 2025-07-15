@@ -1,7 +1,6 @@
 import { iso } from '../iso'
 import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
 import { evalOmaha } from './strength'
-import { evaluate } from '../evaluate'
 import { sortCards } from '../sort'
 import { PokerRange } from '../range/range'
 import { genBoardEval } from '../evaluate'
@@ -73,16 +72,18 @@ export const equityEval = ({
   return result
 }
 
-const defaultEval = (board: number[], hand: number[]) =>
-  evaluate([...board, ...hand]).value
-
 // doesn't account for runouts, just what % of hands you're ahead of currently
 export const aheadPct = (
   { board, hand, chopIsWin }: EvalOptions,
   vsRange: PokerRange,
-  evalFunc = defaultEval
+  evalFunc?: (board: number[], hand: number[]) => number
 ) => {
   const blocked = new Set([...hand, ...board])
+
+  if (!evalFunc) {
+    const boardEval = genBoardEval(board)
+    evalFunc = (h) => boardEval(h)
+  }
 
   const vsRangeRankings = getRangeRankings(
     vsRange,
