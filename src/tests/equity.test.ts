@@ -10,21 +10,23 @@ const range = any2
 
 describe('equity calculations', () => {
   test('rangeVsRangeAhead returns 0.5 for equal ranges', () => {
-    const eq = rangeVsRangeAhead({
+    const [win, tie] = rangeVsRangeAhead({
       board: randUniqueCards(3),
       range,
       vsRange: range
     })
+    const eq = win + tie / 2
     assert.equal(Math.round(eq * 100000) / 100000, 0.5)
   })
   it('returns > 0.5 when chopIsWin=true', () => {
     const board = boardToInts('Js9h4h') // if we did totally random we might get weird always chop boards
-    const eq = rangeVsRangeAhead({
+    const [win, tie] = rangeVsRangeAhead({
       board,
       range,
       vsRange: range,
       chopIsWin: true
     })
+    const eq = win + tie
     assert.ok(eq > 0.501) // usually result of prior test is like .500000001
     assert.ok(eq < 0.55)
   })

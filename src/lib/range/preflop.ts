@@ -177,7 +177,8 @@ const orderDesc = [
   '73o',
   '72o'
 ]
-const order = [...orderDesc].reverse()
+
+export const preflopStrengthOrder = [...orderDesc].reverse()
 
 // "isoPre" means AKo, 43s type representation
 
@@ -299,7 +300,7 @@ export class PreflopRange {
       throw new Error(`min: ${min} and max: ${max} must be 0-1`)
     }
 
-    const hands = order.slice(
+    const hands = preflopStrengthOrder.slice(
       Math.floor(NUM_COMBOS * min),
       Math.floor(NUM_COMBOS * max)
     )

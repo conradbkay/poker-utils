@@ -49,17 +49,25 @@ export const flopEquities = (
       })
 
       for (let [combo, win, tie, lose] of result) {
-        win +=
-          chopReduction === 'win' ? tie : chopReduction === 'half' ? tie / 2 : 0
+        let bucket: number
 
-        const denom = win + lose
+        let denom = win + lose
 
-        if (!denom) {
-          continue // must be chop board with skip reduction, which doesn't fit well with any bucket. Maybe could be an argument to make it increment the 50% bucket
+        if (chopReduction === 'win') {
+          win += tie
+          denom += tie
+        } else if (chopReduction === 'half') {
+          win += tie / 2
+          denom += tie
+        } else {
+          // skip
         }
 
+        if (!denom) continue
+
         const eq = win / denom
-        const bucket = closestIdx(equityBuckets, eq * 100)
+        bucket = closestIdx(equityBuckets, eq * 100)
+
         hash[HoldemRange.getHandIdx(combo)][bucket] += 1
       }
     }
@@ -82,14 +90,11 @@ export const generateEquityHash = (vsRange: HoldemRange) => {
   return hash
 }
 
-export type EquityHash = {
-  [board: string]: number[]
-}
 export type RiverEquityHash = {
-  [board: string]: number[][] // same as above but instead of a general flop equity, every river is aggregated to the hash via some bucketing scheme so it doesn't end up crazy large
+  [board: string]: number[][] // every river is aggregated to the hash via a bucketing scheme
 }
 
-export const equityFromHash = <T extends RiverEquityHash | EquityHash>(
+export const equityFromHash = <T extends RiverEquityHash>(
   hash: T,
   flop: number[],
   hand: number[]

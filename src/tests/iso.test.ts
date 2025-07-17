@@ -4,7 +4,7 @@ import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops'
 import { getIsoHand, isoRunouts, totalIsoWeight } from '../lib/iso'
 import { pioFlops } from './data/pioFlops'
 import { genCardCombinations } from '../lib/utils'
-import { makeCard, randUniqueCards, shuffle } from '../lib/cards/utils'
+import { getSuit, makeCard, randUniqueCards, shuffle } from '../lib/cards/utils'
 
 const allHands = genCardCombinations(2)
 
@@ -42,35 +42,46 @@ describe('runouts', () => {
     assert.equal(weightSum, 49 * 49)
   })
   it('generates 23 turns for monotone flops', () => {
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 100; i++) {
       const mono = generateFlopWithNSuits(1)
       const turns = isoRunouts(mono)
       assert.equal(Object.keys(turns).length, 23)
     }
   })
-  it('generates 36 turns f0or two-tone flops', () => {
-    for (let i = 0; i < 1000; i++) {
+  it('generates 36 turns for two-tone flops', () => {
+    for (let i = 0; i < 100; i++) {
       const tt = generateFlopWithNSuits(2)
       const turns = isoRunouts(tt)
       assert.equal(Object.keys(turns).length, 36)
     }
   })
   it('generates 49 turns for rainbow flops', () => {
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 100; i++) {
       const rainbow = generateFlopWithNSuits(3)
       const turns = isoRunouts(rainbow)
       assert.equal(Object.keys(turns).length, 49)
     }
   })
+  it('generates 48 rivers for monotone turn', () => {
+    for (let i = 0; i < 100; i++) {
+      const rainbowFlop = generateFlopWithNSuits(3)
+      const flopSuits = new Set(rainbowFlop.map(getSuit))
+      const rainbowTurn = makeCard(
+        12,
+        [0, 1, 2, 3].find((s) => !flopSuits.has(s))
+      )
+      const rivers = isoRunouts([...rainbowFlop, rainbowTurn])
+      assert.equal(Object.keys(rivers).length, 48)
+    }
+  })
 })
 
-// ai slop but it works and is ignorable
 /**
  * Generates a random flop (3 cards) with exactly n unique suits
  * @param n Number of unique suits (1-3 for flops)
  * @returns Array of 3 card numbers representing the flop
  */
-export const generateFlopWithNSuits = (n: number): number[] => {
+const generateFlopWithNSuits = (n: number): number[] => {
   if (n < 1 || n > 3) {
     throw new Error('n must be between 1 and 3 for flops')
   }

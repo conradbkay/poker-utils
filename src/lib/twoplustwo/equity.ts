@@ -1,17 +1,13 @@
-import { iso } from '../iso'
-import { EquityHash, RiverEquityHash, equityFromHash } from '../hashing/hash'
 import { evalOmaha } from './strength'
 import { sortCards } from '../sort'
 import { PokerRange } from '../range/range'
 import { genBoardEval } from '../evaluate'
 
+export type EquityResult = [win: number, tie: number, lose: number]
+
 export type EvalOptions = {
   board: number[]
   hand: number[]
-  flopHash?:
-    | EquityHash
-    | RiverEquityHash
-    | (<T>(isoBoard: number[], isoHand: number[]) => T)
   chopIsWin?: boolean
 }
 
@@ -19,35 +15,25 @@ export type EvalOptions = {
 export const equityEval = ({
   board,
   hand,
-  flopHash,
   vsRange,
   chopIsWin
-}: EvalOptions & { vsRange: PokerRange }) => {
-  const result: number[] = []
-
+}: EvalOptions & { vsRange: PokerRange }): EquityResult[] | EquityResult => {
   if (board.length === 3) {
-    if (flopHash) {
-      const { board: isoBoard, hand: isoHand } = iso({ board, hand })
-      if (typeof flopHash === 'function') {
-        return flopHash(isoBoard, isoHand)
-      } else {
-        return equityFromHash(flopHash, isoBoard, isoHand)
+    const result: EquityResult[] = []
+    for (let j = 0; j < 52; j++) {
+      if (board.includes(j)) {
+        continue
       }
-    } else {
-      for (let j = 0; j < 52; j++) {
-        if (board.includes(j)) {
-          continue
-        }
-        result.push(
-          ...(equityEval({
-            hand,
-            vsRange,
-            chopIsWin,
-            board: [...board, j]
-          }) as number[])
-        )
-      }
+      result.push(
+        ...(equityEval({
+          hand,
+          vsRange,
+          chopIsWin,
+          board: [...board, j]
+        }) as EquityResult[])
+      )
     }
+    return result
   } else {
     const evalOptions = {
       hand,
@@ -57,6 +43,7 @@ export const equityEval = ({
     const evalFunc = hand.length >= 4 ? omahaAheadScore : aheadPct
 
     if (board.length === 4) {
+      const result: EquityResult[] = []
       for (let j = 0; j < 52; j++) {
         if (board.includes(j) || hand.includes(j)) {
           continue
@@ -64,25 +51,24 @@ export const equityEval = ({
 
         result.push(evalFunc({ ...evalOptions, board: [...board, j] }, vsRange))
       }
+      return result
     } else {
-      result.push(evalFunc({ ...evalOptions, board }, vsRange))
+      return evalFunc({ ...evalOptions, board }, vsRange)
     }
   }
-
-  return result
 }
 
 // doesn't account for runouts, just what % of hands you're ahead of currently
 export const aheadPct = (
-  { board, hand, chopIsWin }: EvalOptions,
+  { board, hand }: Omit<EvalOptions, 'chopIsWin'>,
   vsRange: PokerRange,
   evalFunc?: (board: number[], hand: number[]) => number
-) => {
+): EquityResult => {
   const blocked = new Set([...hand, ...board])
 
   if (!evalFunc) {
     const boardEval = genBoardEval(board)
-    evalFunc = (h) => boardEval(h)
+    evalFunc = (_, h) => boardEval(h)
   }
 
   const vsRangeRankings = getRangeRankings(
@@ -93,20 +79,24 @@ export const aheadPct = (
 
   const handRanking = evalFunc(board, hand)
 
-  let beats = 0
+  let wins = 0
+  let losses = 0
+  let ties = 0
 
-  for (const [_, value] of vsRangeRankings) {
+  for (const [_, value, weight] of vsRangeRankings) {
     if (handRanking > value) {
-      beats += 1
+      wins += weight
     } else if (handRanking === value) {
-      beats += chopIsWin ? 1 : 0.5
+      ties += weight
+    } else {
+      losses += weight
     }
   }
 
-  return beats / vsRangeRankings.length
+  return [wins, ties, losses]
 }
 
-/** returns [hand, n, weight][] */
+/** returns [hand, p, weight][] */
 const getRangeRankings = (
   r: PokerRange,
   evalHand: (h: number[]) => number,
@@ -131,19 +121,20 @@ export type RvRArgs = {
   chopIsWin?: boolean
 }
 
+export type ComboEquity = [
+  combo: number[],
+  equity: EquityResult,
+  weight: number
+]
+
 /**
- * returns [combo, ahead, weight][]
+ * returns [combo, [wins, losses, ties], weight][]
  */
 export const combosVsRangeAhead = ({
   board,
   range,
-  vsRange,
-  chopIsWin
-}: RvRArgs) => {
-  const getWinVal = (p: number, vsP: number) => {
-    return p < vsP ? 0 : chopIsWin || p > vsP ? 1 : 0.5
-  }
-
+  vsRange
+}: RvRArgs): ComboEquity[] => {
   const blocked = new Set(board)
   const isOmaha = range.getHandLen() >= 4
 
@@ -157,40 +148,71 @@ export const combosVsRangeAhead = ({
   rangeRankings.sort((a, b) => a[1] - b[1])
   vsRangeRankings.sort((a, b) => a[1] - b[1])
 
-  const result: [number[], number, number][] = []
+  const result: ComboEquity[] = []
 
   for (let i = 0; i < rangeRankings.length; i++) {
     const [hand, handRanking, weight] = rangeRankings[i]
-    let beats = 0
+    let wins = 0
+    let losses = 0
     let ties = 0
-    let total = 0
+    let totalWeight = 0
     for (let vsIdx = 0; vsIdx < vsRangeRankings.length; vsIdx++) {
       const [vsHand, vsRanking, vsWeight] = vsRangeRankings[vsIdx]
       if (vsHand.some((c) => hand.includes(c))) {
         continue // blockers
       }
 
-      const winVal = getWinVal(handRanking, vsRanking)
-      beats += winVal * vsWeight
-      ties += handRanking === vsRanking ? vsWeight : 0
-      total += vsWeight
+      if (handRanking > vsRanking) {
+        wins += vsWeight
+      } else if (handRanking === vsRanking) {
+        ties += vsWeight
+      } else {
+        losses += vsWeight
+      }
+      totalWeight += vsWeight
     }
 
-    result.push([sortCards(hand), beats / total, weight])
+    if (totalWeight > 0) {
+      result.push([
+        sortCards(hand),
+        [wins / totalWeight, ties / totalWeight, losses / totalWeight],
+        weight
+      ])
+    }
   }
 
   return result
 }
 
 // returns average ahead of range
-export const rangeVsRangeAhead = (args: RvRArgs) => {
+export const rangeVsRangeAhead = (args: RvRArgs): EquityResult => {
   const res = combosVsRangeAhead(args)
-  return res.reduce((a, c) => a + c[1], 0) / res.length
+  const totalWins = res.reduce((a, c) => a + c[1][0] * c[2], 0)
+  const totalTies = res.reduce((a, c) => a + c[1][1] * c[2], 0)
+  const totalLosses = res.reduce((a, c) => a + c[1][2] * c[2], 0)
+  const totalWeight = totalWins + totalTies + totalLosses
+
+  if (totalWeight <= 0) return [0, 0, 0]
+
+  return [
+    totalWins / totalWeight,
+    totalTies / totalWeight,
+    totalLosses / totalWeight
+  ]
 }
 
 export const omahaAheadScore = (
-  evalOptions: EvalOptions,
+  evalOptions: Omit<EvalOptions, 'chopIsWin'>,
   vsRange: PokerRange
-) => {
-  return aheadPct(evalOptions, vsRange, (b, h) => evalOmaha(b, h).value)
+): EquityResult => {
+  const [wins, ties, losses] = aheadPct(
+    evalOptions,
+    vsRange,
+    (b, h) => evalOmaha(b, h).value
+  )
+  const total = wins + ties + losses
+
+  if (total === 0) return [0, 0, 0]
+
+  return [wins / total, ties / total, losses / total]
 }

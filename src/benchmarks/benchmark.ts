@@ -6,7 +6,7 @@ import { canonize, isoRunouts } from '../lib/iso'
 import { any2, genRandRange, PokerRange } from '../lib/range/range'
 import { sortCards } from '../lib/sort'
 import { evaluate, phe } from '../lib/evaluate'
-import { omahaAheadScore } from '../lib/twoplustwo/equity'
+import { equityEval, omahaAheadScore } from '../lib/twoplustwo/equity'
 import {
   fastEval,
   fastEvalPartial,
@@ -128,6 +128,14 @@ bench('2p2 all combos all runouts after flop (~7.3m evals)', () => {
       }
     }
   }
+})
+
+bench('2p2 turn equity vs range', () => {
+  equityEval({
+    board: randCardsHashed(4),
+    hand: randCardsHashed(2),
+    vsRange: any2
+  })
 })
 
 // twoplustwo omaha. Maybe just print as a separate table?
