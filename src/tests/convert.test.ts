@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { evaluate as eval2p2 } from '../lib/twoplustwo/evaluate'
+import { twoplustwoEvaluate as eval2p2 } from 'src/lib/twoplustwo/strength'
 import { cardsToPHE, valueFromPHE } from '../lib/phe/convert'
 import { initFromPathSync } from '../lib/init'
 import { resolve } from 'path'

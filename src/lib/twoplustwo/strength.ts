@@ -1,37 +1,7 @@
 import { hash } from '../cards/permuHash'
 import { EvaluatedHand, HAND_TYPES } from '../twoplustwo/constants'
 import { RANKS_DATA } from '../init'
-import { genBoardEval } from '../evaluate'
 import { removeGaps } from '../phe/convert'
-
-export const evalOmaha = (
-  board: number[],
-  holeCards: number[]
-): EvaluatedHand => {
-  // in Omaha you need to use exactly 2 hole cards and therefore 3 from the board
-  const holeIdxsArr = hash[holeCards.length][2]
-  const boardIdxsArr = hash[board.length][3]
-
-  let max = -Infinity
-
-  for (const boardIdxs of boardIdxsArr) {
-    const handEval = genBoardEval([
-      board[boardIdxs[0]],
-      board[boardIdxs[1]],
-      board[boardIdxs[2]]
-    ])
-
-    for (const holeIdxs of holeIdxsArr) {
-      const p = handEval([holeCards[holeIdxs[0]], holeCards[holeIdxs[1]]])
-
-      if (p > max) {
-        max = p
-      }
-    }
-  }
-
-  return pInfo(max)
-}
 
 /** assumes 0-indexed deck, but lookup uses 1-indexed */
 function nextP(card: number): number {
@@ -64,15 +34,6 @@ export const fastEvalPartial = (cards: number[], p = 53) => {
   return p
 }
 
-// copied from https://github.com/Sukhmai/poker-evaluator
-export const pInfo = (p: number) => ({
-  handType: p >> 12,
-  handRank: p & 0x00000fff,
-  p,
-  value: removeGaps(p),
-  handName: HAND_TYPES[p >> 12]
-})
-
 // 2p2 eval only
 export const genOmahaBoardEval = (board: number[]) => {
   const boardIdxsArr = hash[board.length][3]
@@ -82,4 +43,16 @@ export const genOmahaBoardEval = (board: number[]) => {
   )
 
   return (hand: number[]) => Math.max(...boardPs.map((p) => fastEval(hand, p)))
+} // copied from https://github.com/Sukhmai/poker-evaluator
+
+export const pInfo = (p: number) => ({
+  handType: p >> 12,
+  handRank: p & 0x00000fff,
+  p,
+  value: removeGaps(p),
+  handName: HAND_TYPES[p >> 12]
+})
+
+export const twoplustwoEvaluate = (cardValues: number[]): EvaluatedHand => {
+  return pInfo(fastEvalPartial(cardValues))
 }

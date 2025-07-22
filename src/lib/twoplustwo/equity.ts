@@ -1,4 +1,4 @@
-import { evalOmaha } from './strength'
+import { evalOmaha } from '../evaluate'
 import { sortCards } from '../sort'
 import { PokerRange } from '../range/range'
 import { genBoardEval } from '../evaluate'

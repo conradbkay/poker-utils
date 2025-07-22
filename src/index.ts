@@ -15,7 +15,6 @@ export * from './lib/range/holdem'
 export * from './lib/twoplustwo/constants'
 export * from './lib/twoplustwo/equity'
 export * from './lib/twoplustwo/strength'
-// don't export twoplustwo/evaluate.js since it has duplicate function name with evaluate.js
 
 export * from './lib/constants'
 
@@ -26,5 +25,3 @@ export * from './lib/rake'
 export * from './lib/sort'
 export * from './lib/theory'
 export * from './lib/utils'
-
-export * from './lib/evaluate'

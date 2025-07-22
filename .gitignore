@@ -2,9 +2,8 @@ diff
 .history
 .idea/*
 .nyc_output
-build
+dist
 node_modules
-test
 coverage
 *.log
 data

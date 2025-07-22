@@ -5,7 +5,7 @@ import { hash } from '../lib/cards/permuHash'
 import { resolve } from 'path'
 import { boardToInts, randUniqueCards } from '../lib/cards/utils'
 import { omahaAheadScore } from '../lib/twoplustwo/equity'
-import { evalOmaha } from '../lib/twoplustwo/strength'
+import { evalOmaha } from 'src/lib/evaluate'
 import { initFromPathSync } from '../lib/init'
 import { PokerRange } from '../lib/range/range'
 

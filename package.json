@@ -1,20 +1,27 @@
 {
   "name": "poker-utils",
-  "version": "13.0.1",
+  "version": "13.0.2",
   "description": "Fast poker ranges, evaluation, equity calculation",
   "author": "Conrad Kay",
-  "main": "build/module/index.js",
-  "types": "build/module/index.d.ts",
-  "module": "build/module/index.js",
   "repository": "https://github.com/conradbkay/poker-utils",
   "license": "MIT",
   "keywords": [],
-  "bin": {
-    "poker-utils": "build/module/lib/cli.js"
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
   },
+  "bin": "./dist/cli.js",
   "scripts": {
-    "build": "run-p build:*",
-    "build:module": "tsc -p tsconfig.module.json",
+    "build": "pkgroll",
     "bench": "tsx --expose-gc src/benchmarks/benchmark.ts",
     "bench:readme": "tsx --expose-gc src/benchmarks/benchmark.ts -md",
     "test": "tsx --test ./src/tests/*.ts",
@@ -31,6 +38,7 @@
     "mitata": "^1.0.34",
     "npm-run-all": "^4.1.5",
     "phe": "^0.6.0",
+    "pkgroll": "^2.14.3",
     "prettier": "^3.3.3",
     "semver": "^7.7.1",
     "ts-node": "^10.9.2",
@@ -38,8 +46,7 @@
     "typescript": "^5.6.2"
   },
   "files": [
-    "build/main",
-    "build/module",
+    "dist",
     "!**/*.test.*",
     "!**/*.json",
     "CHANGELOG.md",

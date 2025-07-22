@@ -1,7 +1,7 @@
 import { genCardCombinations } from '../lib/utils'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
-import { evaluate as eval2p2 } from '../lib/twoplustwo/evaluate'
+import { twoplustwoEvaluate as eval2p2 } from 'src/lib/twoplustwo/strength'
 
 const allHands = genCardCombinations(5)
 initFromPathSync(resolve('./HandRanks.dat'))

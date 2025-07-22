@@ -7,11 +7,8 @@ import { any2, genRandRange, PokerRange } from '../lib/range/range'
 import { sortCards } from '../lib/sort'
 import { evaluate, phe } from '../lib/evaluate'
 import { equityEval, omahaAheadScore } from '../lib/twoplustwo/equity'
-import {
-  fastEval,
-  fastEvalPartial,
-  evalOmaha
-} from '../lib/twoplustwo/strength'
+import { fastEval, fastEvalPartial } from '../lib/twoplustwo/strength'
+import { evalOmaha } from 'src/lib/evaluate'
 import { genBoardEval } from 'src/lib/evaluate'
 import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
