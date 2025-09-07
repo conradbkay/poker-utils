@@ -3,9 +3,7 @@ export const alpha = (risk: number, reward: number) => {
 }
 
 export const mdf = (risk: number, reward: number) => {
-  const a = alpha(risk, reward)
-
-  return 1 - a
+  return 1 - alpha(risk, reward)
 }
 
 export const weak = (risk: number, reward: number) => {
@@ -13,9 +11,7 @@ export const weak = (risk: number, reward: number) => {
 }
 
 export const alphaToPot = (alpha: number) => {
-  const y = -alpha / (alpha - 1)
-
-  return y
+  return -alpha / (alpha - 1)
 }
 
 export const potToAlpha = (pct: number) => {
@@ -44,8 +40,12 @@ export const catchEV = (weak: number, size: number) => {
   return weak * (1 + size) - (1 - weak) * size
 }
 
+/** expects raise/bet in fraction of pot */
 export const catchEVFromOdds = (weak: number, raise: number, bet: number) => {
-  return weak * (1 + raise + bet) - (1 - weak) * (raise - bet)
+  const reward = 1 + raise + bet
+  const risk = raise - bet
+  const lose = 1 - weak
+  return weak * reward - lose * risk
 }
 
 export const alphaToRaise = (alpha: number, faced: number) => {

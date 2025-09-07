@@ -6,7 +6,7 @@ export type CombinationsHash = {
 }
 
 // from thunderkid on Github https://gist.github.com/axelpale/3118596?permalink_comment_id=3945828#gistcomment-3945828
-function* combinations<T>(
+export function* combinations<T>(
   arr: T[],
   size: number
 ): Generator<T[], void, unknown> {
