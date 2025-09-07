@@ -1,6 +1,6 @@
 {
   "name": "poker-utils",
-  "version": "13.0.2",
+  "version": "13.0.4",
   "description": "Fast poker ranges, evaluation, equity calculation",
   "author": "Conrad Kay",
   "repository": "https://github.com/conradbkay/poker-utils",

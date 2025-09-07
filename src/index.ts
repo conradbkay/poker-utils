@@ -17,9 +17,8 @@ export * from './lib/twoplustwo/equity'
 export * from './lib/twoplustwo/strength'
 
 export * from './lib/constants'
-
+export * from './lib/evaluate'
 export * from './lib/init'
-
 export * from './lib/iso'
 export * from './lib/rake'
 export * from './lib/sort'
