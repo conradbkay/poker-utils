@@ -5,9 +5,5 @@
     "outDir": "build/module",
     "module": "CommonJS"
   },
-  "exclude": [
-    "node_modules/**",
-    "src/tests/**",
-    "src/benchmarks/**"
-  ]
+  "exclude": ["node_modules/**", "src/tests/**", "src/benchmarks/**"]
 }

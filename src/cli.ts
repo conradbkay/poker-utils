@@ -4,8 +4,6 @@ import { generateEquityHash } from './lib/hashing/hash'
 import { HoldemRange } from './lib/range/holdem'
 import { any2, PokerRange } from './lib/range/range'
 import { PreflopRange } from './lib/range/preflop'
-import { writeFileSync } from 'fs'
-import { resolve } from 'path'
 
 interface CLIArgs {
   command?: string
@@ -95,6 +93,9 @@ async function main() {
   const startTime = Date.now()
 
   try {
+    const { writeFileSync } = await import('fs')
+    const { resolve } = await import('path')
+
     const hash = generateEquityHash(vsRange)
     const outputFullPath = resolve(outputPath)
 

@@ -11,6 +11,8 @@ export const getSuit = (card: number) => card & 3
 /** returns 0 for 2, 12 for ace */
 export const getRank = (card: number) => card >> 2
 
+const ACE_RANK = getRank(DECK['As'])
+
 /** returns array of ranks */
 export const uniqueRanks = (board: number[]) =>
   Array.from(new Set(board.map((c) => getRank(c))))
@@ -43,7 +45,7 @@ export const containsStraight = (board: number[]) => {
     ranks[1] === 1 &&
     ranks[2] === 2 &&
     ranks[3] === 3 &&
-    ranks[ranks.length - 1] === 12
+    ranks[ranks.length - 1] === ACE_RANK
   ) {
     return true
   }
@@ -89,8 +91,8 @@ export const straightPossible = (board: number[]) => {
 
   // wheels
   if (
-    ranks.filter((r) => r <= 5).length >= 2 &&
-    ranks[ranks.length - 1] === 12
+    ranks.filter((r) => r <= getRank(DECK['5s'])).length >= 2 &&
+    ranks[ranks.length - 1] === ACE_RANK
   ) {
     return true
   }

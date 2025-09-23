@@ -8,7 +8,8 @@ import {
   randUniqueCards,
   suitCount,
   uniqueRanks,
-  boardToInts
+  boardToInts,
+  straightPossible
 } from '../lib/cards/utils'
 import { CARDS, DECK, RANKS } from '../lib/constants'
 import { evaluate } from '../lib/evaluate'
@@ -48,6 +49,10 @@ describe('cards/utils', () => {
         assert.equal(containsStrt, false)
       }
     }
+  })
+  test('straightPossible', () => {
+    assert.equal(straightPossible(boardToInts('As7s5c')), false)
+    assert.equal(straightPossible(boardToInts('As8s5c3s')), true)
   })
   test('randUniqueCards', () => {
     for (let i = 0; i < 5000; i++) {
