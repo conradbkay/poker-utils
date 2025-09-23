@@ -21,7 +21,9 @@ export declare const suitCount: (cards: number[]) => number;
  * for textural analysis where you don't just want the strongest possible hand (a board could have a straight and a flush which returns true here)
  */
 export declare const containsStraight: (board: number[]) => boolean;
+/** returns 0, 4, 8. 0 if board already is a straight */
 export declare const calcStraightOuts: (board: number[]) => number;
+export declare const oesdPossible: (board: number[]) => boolean;
 export declare const straightPossible: (board: number[]) => boolean;
 export declare const highCard: (board: number[]) => number;
 export declare const suitCounts: (board: number[]) => number[];

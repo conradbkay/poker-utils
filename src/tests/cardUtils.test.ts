@@ -9,7 +9,9 @@ import {
   suitCount,
   uniqueRanks,
   boardToInts,
-  straightPossible
+  straightPossible,
+  calcStraightOuts,
+  oesdPossible
 } from '../lib/cards/utils'
 import { CARDS, DECK, RANKS } from '../lib/constants'
 import { evaluate } from '../lib/evaluate'
@@ -53,6 +55,18 @@ describe('cards/utils', () => {
   test('straightPossible', () => {
     assert.equal(straightPossible(boardToInts('As7s5c')), false)
     assert.equal(straightPossible(boardToInts('As8s5c3s')), true)
+  })
+  test('calcStraightOuts', () => {
+    assert.equal(calcStraightOuts(boardToInts('As7s5c')), 0)
+    assert.equal(calcStraightOuts(boardToInts('As9s8h7h6s')), 8)
+    assert.equal(calcStraightOuts(boardToInts('AsTs8h7h6s')), 4)
+  })
+  test('oesdPossible', () => {
+    assert.equal(oesdPossible(boardToInts('As7s5c')), true)
+    assert.equal(oesdPossible(boardToInts('As9h6h')), true)
+    assert.equal(oesdPossible(boardToInts('7h3sAs')), true) // 54 can hit 6 or 2
+    assert.equal(oesdPossible(boardToInts('8h3sAs')), false)
+    assert.equal(oesdPossible(boardToInts('Ks9s5h')), false)
   })
   test('randUniqueCards', () => {
     for (let i = 0; i < 5000; i++) {

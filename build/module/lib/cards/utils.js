@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.randUniqueCards = exports.boardToInts = exports.shuffle = exports.deckWithoutSpecifiedCards = exports.mostSuit = exports.suitCounts = exports.highCard = exports.straightPossible = exports.calcStraightOuts = exports.containsStraight = exports.suitCount = exports.formatCards = exports.formatCard = exports.fromCardsStr = exports.cardsStr = exports.makeCard = exports.uniqueRanks = exports.getRank = exports.getSuit = void 0;
+exports.randUniqueCards = exports.boardToInts = exports.shuffle = exports.deckWithoutSpecifiedCards = exports.mostSuit = exports.suitCounts = exports.highCard = exports.straightPossible = exports.oesdPossible = exports.calcStraightOuts = exports.containsStraight = exports.suitCount = exports.formatCards = exports.formatCard = exports.fromCardsStr = exports.cardsStr = exports.makeCard = exports.uniqueRanks = exports.getRank = exports.getSuit = void 0;
 const constants_1 = require("../constants");
 const constants_2 = require("../constants");
 /**
@@ -12,6 +12,7 @@ exports.getSuit = getSuit;
 /** returns 0 for 2, 12 for ace */
 const getRank = (card) => card >> 2;
 exports.getRank = getRank;
+const MIN_RANK = (0, exports.getRank)(constants_2.DECK['2s']);
 const ACE_RANK = (0, exports.getRank)(constants_2.DECK['As']);
 /** returns array of ranks */
 const uniqueRanks = (board) => Array.from(new Set(board.map((c) => (0, exports.getRank)(c))));
@@ -56,10 +57,10 @@ const containsStraight = (board) => {
     return false;
 };
 exports.containsStraight = containsStraight;
-// returns 0, 4, 8, or # of remaining cards if board already has a straight
+/** returns 0, 4, 8. 0 if board already is a straight */
 const calcStraightOuts = (board) => {
     if ((0, exports.containsStraight)(board)) {
-        return 52 - board.length;
+        return 0;
     }
     let result = 0;
     // loop unique ranks since suits don't affect straights
@@ -72,6 +73,28 @@ const calcStraightOuts = (board) => {
     return result;
 };
 exports.calcStraightOuts = calcStraightOuts;
+/* returns false is straight already possible */
+const oesdPossible = (board) => {
+    if ((0, exports.straightPossible)(board)) {
+        return false;
+    }
+    const ranks = (0, exports.uniqueRanks)(board).sort((a, b) => a - b);
+    if (ranks.length < 2)
+        return false;
+    // Try all rank pairs (including pairs) for hole cards.
+    for (let r1 = MIN_RANK; r1 <= ACE_RANK; r1++) {
+        for (let r2 = r1; r2 <= ACE_RANK; r2++) {
+            const c1 = (0, exports.makeCard)(r1, 0);
+            const c2 = (0, exports.makeCard)(r2, r1 === r2 ? 1 : 0);
+            const hypothetical = [...board, c1, c2];
+            if ((0, exports.calcStraightOuts)(hypothetical) === 8) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+exports.oesdPossible = oesdPossible;
 // returns whether you can add 2 cards to the board to make a straight
 const straightPossible = (board) => {
     const ranks = (0, exports.uniqueRanks)(board).sort((a, b) => a - b);

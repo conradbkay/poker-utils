@@ -11,6 +11,7 @@ export const getSuit = (card: number) => card & 3
 /** returns 0 for 2, 12 for ace */
 export const getRank = (card: number) => card >> 2
 
+const MIN_RANK = getRank(DECK['2s'])
 const ACE_RANK = getRank(DECK['As'])
 
 /** returns array of ranks */
@@ -63,10 +64,10 @@ export const containsStraight = (board: number[]) => {
   return false
 }
 
-// returns 0, 4, 8, or # of remaining cards if board already has a straight
+/** returns 0, 4, 8. 0 if board already is a straight */
 export const calcStraightOuts = (board: number[]) => {
   if (containsStraight(board)) {
-    return 52 - board.length
+    return 0
   }
 
   let result = 0
@@ -81,6 +82,32 @@ export const calcStraightOuts = (board: number[]) => {
   }
 
   return result
+}
+
+/* returns false is straight already possible */
+export const oesdPossible = (board: number[]) => {
+  if (straightPossible(board)) {
+    return false
+  }
+
+  const ranks = uniqueRanks(board).sort((a, b) => a - b)
+
+  if (ranks.length < 2) return false
+
+  // Try all rank pairs (including pairs) for hole cards.
+  for (let r1 = MIN_RANK; r1 <= ACE_RANK; r1++) {
+    for (let r2 = r1; r2 <= ACE_RANK; r2++) {
+      const c1 = makeCard(r1, 0)
+      const c2 = makeCard(r2, r1 === r2 ? 1 : 0)
+      const hypothetical = [...board, c1, c2]
+
+      if (calcStraightOuts(hypothetical) === 8) {
+        return true
+      }
+    }
+  }
+
+  return false
 }
 
 // returns whether you can add 2 cards to the board to make a straight
