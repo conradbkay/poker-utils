@@ -2,8 +2,7 @@ import test, { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { any2 } from '../lib/range/range'
 import { rangeVsRangeAhead } from '../lib/twoplustwo/equity'
-import { boardToInts, randUniqueCards } from '../lib/cards/utils'
-import { initFromPathSync } from 'src/lib/init'
+import { randUniqueCards } from '../lib/cards/utils'
 import { HoldemRange } from '../lib/range/holdem'
 
 const range = any2
@@ -18,21 +17,7 @@ describe('equity calculations', () => {
     const eq = win + tie / 2
     assert.equal(Math.round(eq * 100000) / 100000, 0.5)
   })
-  it('returns > 0.5 when chopIsWin=true', () => {
-    const board = boardToInts('Js9h4h') // if we did totally random we might get weird always chop boards
-    const [win, tie] = rangeVsRangeAhead({
-      board,
-      range,
-      vsRange: range,
-      chopIsWin: true
-    })
-    const eq = win + tie
-    assert.ok(eq > 0.501) // usually result of prior test is like .500000001
-    assert.ok(eq < 0.55)
-  })
 })
-
-initFromPathSync('./HandRanks.dat')
 
 test('fastCombosVsRangeAhead', () => {
   for (let i = 0; i < 10; i++) {

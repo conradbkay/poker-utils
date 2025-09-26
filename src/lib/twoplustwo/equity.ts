@@ -8,6 +8,7 @@ export type EquityResult = [win: number, tie: number, lose: number]
 export type EvalOptions = {
   board: number[]
   hand: number[]
+  // @deprecated, doesn't do anything
   chopIsWin?: boolean
 }
 
@@ -15,8 +16,7 @@ export type EvalOptions = {
 export const equityEval = ({
   board,
   hand,
-  vsRange,
-  chopIsWin
+  vsRange
 }: EvalOptions & { vsRange: PokerRange }): EquityResult[] | EquityResult => {
   if (board.length === 3) {
     const result: EquityResult[] = []
@@ -28,7 +28,6 @@ export const equityEval = ({
         ...(equityEval({
           hand,
           vsRange,
-          chopIsWin,
           board: [...board, j]
         }) as EquityResult[])
       )
@@ -36,8 +35,7 @@ export const equityEval = ({
     return result
   } else {
     const evalOptions = {
-      hand,
-      chopIsWin
+      hand
     }
 
     const evalFunc = hand.length >= 4 ? omahaAheadScore : aheadPct
@@ -202,7 +200,7 @@ export const rangeVsRangeAhead = (args: RvRArgs): EquityResult => {
 }
 
 export const omahaAheadScore = (
-  evalOptions: Omit<EvalOptions, 'chopIsWin'>,
+  evalOptions: EvalOptions,
   vsRange: PokerRange
 ): EquityResult => {
   const [wins, ties, losses] = aheadPct(

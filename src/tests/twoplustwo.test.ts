@@ -2,14 +2,10 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { hash } from '../lib/cards/permuHash'
-import { resolve } from 'path'
 import { boardToInts, randUniqueCards } from '../lib/cards/utils'
 import { omahaAheadScore } from '../lib/twoplustwo/equity'
 import { evalOmaha } from 'src/lib/evaluate'
-import { initFromPathSync } from '../lib/init'
 import { PokerRange } from '../lib/range/range'
-
-initFromPathSync(resolve('./HandRanks.dat'))
 
 test('combinations hash', () => {
   assert.deepEqual(hash[5][3][0], [0, 1, 2])

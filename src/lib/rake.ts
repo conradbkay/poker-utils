@@ -72,6 +72,25 @@ const ggAnteCutoffs: Cutoff[] = [
   [500, [200, 400, 600, 800, 800]]
 ]
 
+// https://coinpoker.com/community-contributions/
+const coinCutoffs: Cutoff[] = [
+  [2, [10, 15, 15, 20, 20, 20]],
+  [5, [20, 30, 30, 40, 40, 40]],
+  [10, [35, 50, 50, 70, 70, 70]],
+  [25, [75, 110, 110, 150, 150, 150]],
+  [50, [100, 150, 150, 200, 200, 200]],
+  [100, [125, 185, 185, 250, 250, 250]],
+  [200, [150, 225, 225, 300, 300, 300]],
+  [500, [200, 300, 300, 400, 400, 400]],
+  [1000, [300, 450, 450, 600, 600, 600]],
+  [2000, [400, 600, 600, 800, 800, 800]],
+  [5000, [500, 750, 750, 1000, 1000, 1000]],
+  [10000, [750, 1125, 1125, 1500, 1500, 1500]],
+  [20000, [1000, 1500, 1500, 2000, 2000, 2000]],
+  [40000, [2000, 3000, 3000, 4000, 4000, 4000]],
+  [60000, [3000, 4500, 4500, 6000, 6000, 6000]]
+]
+
 const cap = (cutoffs: Cutoff[]) => (BB: number, dealt: number) => {
   const useIdx = cutoffs.findLastIndex((c) => BB <= c[0])
 
@@ -116,6 +135,12 @@ const ggAnteInfo = {
   cap: cap(ggAnteCutoffs)
 }
 
+const coinPokerInfo = {
+  atEnd: false,
+  percent: () => 0.05,
+  cap: cap(coinCutoffs)
+}
+
 export const rake: Record<
   string,
   {
@@ -141,5 +166,7 @@ export const rake: Record<
   PWL: iggyInfo,
   Ignition: iggyInfo,
   Bodog: iggyInfo,
-  Bovada: iggyInfo
+  Bovada: iggyInfo,
+  Coin: coinPokerInfo,
+  CoinPoker: coinPokerInfo
 }

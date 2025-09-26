@@ -5,7 +5,7 @@ const evaluate_1 = require("../evaluate");
 const sort_1 = require("../sort");
 const evaluate_2 = require("../evaluate");
 // returns equity for every river, or whatever the flop hash returns/contains
-const equityEval = ({ board, hand, vsRange, chopIsWin }) => {
+const equityEval = ({ board, hand, vsRange }) => {
     if (board.length === 3) {
         const result = [];
         for (let j = 0; j < 52; j++) {
@@ -15,7 +15,6 @@ const equityEval = ({ board, hand, vsRange, chopIsWin }) => {
             result.push(...(0, exports.equityEval)({
                 hand,
                 vsRange,
-                chopIsWin,
                 board: [...board, j]
             }));
         }
@@ -23,8 +22,7 @@ const equityEval = ({ board, hand, vsRange, chopIsWin }) => {
     }
     else {
         const evalOptions = {
-            hand,
-            chopIsWin
+            hand
         };
         const evalFunc = hand.length >= 4 ? exports.omahaAheadScore : exports.aheadPct;
         if (board.length === 4) {

@@ -5,7 +5,7 @@ export type EvalOptions = {
     hand: number[];
     chopIsWin?: boolean;
 };
-export declare const equityEval: ({ board, hand, vsRange, chopIsWin }: EvalOptions & {
+export declare const equityEval: ({ board, hand, vsRange }: EvalOptions & {
     vsRange: PokerRange;
 }) => EquityResult[] | EquityResult;
 export declare const aheadPct: ({ board, hand }: Omit<EvalOptions, "chopIsWin">, vsRange: PokerRange, evalFunc?: (board: number[], hand: number[]) => number) => EquityResult;
@@ -25,4 +25,4 @@ export type ComboEquity = [
  */
 export declare const combosVsRangeAhead: ({ board, range, vsRange }: RvRArgs) => ComboEquity[];
 export declare const rangeVsRangeAhead: (args: RvRArgs) => EquityResult;
-export declare const omahaAheadScore: (evalOptions: Omit<EvalOptions, "chopIsWin">, vsRange: PokerRange) => EquityResult;
+export declare const omahaAheadScore: (evalOptions: EvalOptions, vsRange: PokerRange) => EquityResult;
