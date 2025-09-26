@@ -53,6 +53,7 @@ describe('cards/utils', () => {
     }
   })
   test('straightPossible', () => {
+    assert.equal(straightPossible(boardToInts('TsTc7d')), false)
     assert.equal(straightPossible(boardToInts('As7s5c')), false)
     assert.equal(straightPossible(boardToInts('As8s5c3s')), true)
   })

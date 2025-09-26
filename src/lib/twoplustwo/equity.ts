@@ -21,7 +21,7 @@ export const equityEval = ({
   if (board.length === 3) {
     const result: EquityResult[] = []
     for (let j = 0; j < 52; j++) {
-      if (board.includes(j)) {
+      if (board.includes(j) || hand.includes(j)) {
         continue
       }
       result.push(
