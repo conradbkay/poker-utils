@@ -65,9 +65,18 @@ describe('cards/utils', () => {
   test('oesdPossible', () => {
     assert.equal(oesdPossible(boardToInts('As7s5c')), true)
     assert.equal(oesdPossible(boardToInts('As9h6h')), true)
+    assert.equal(oesdPossible(boardToInts('As9h5h')), false)
+    assert.equal(oesdPossible(boardToInts('AsKs9h')), false)
+    assert.equal(oesdPossible(boardToInts('AsQs9h')), true)
+    assert.equal(oesdPossible(boardToInts('AsQh8h')), true) // JT
+    assert.equal(oesdPossible(boardToInts('Ts9c2h')), true)
+    assert.equal(oesdPossible(boardToInts('Ts6c3h')), true)
+    assert.equal(oesdPossible(boardToInts('Ts6c2h')), false)
     assert.equal(oesdPossible(boardToInts('7h3sAs')), true) // 54 can hit 6 or 2
+    assert.equal(oesdPossible(boardToInts('8h4s2c')), true) // 65 can hit 7 or 3
     assert.equal(oesdPossible(boardToInts('8h3sAs')), false)
     assert.equal(oesdPossible(boardToInts('Ks9s5h')), false)
+    assert.equal(oesdPossible(boardToInts('3s2sAs')), false)
   })
   test('randUniqueCards', () => {
     for (let i = 0; i < 5000; i++) {

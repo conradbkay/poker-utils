@@ -60,4 +60,3 @@ export declare const CARDS: (0 | 2 | 1 | 22 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 1
 export declare const c2str: {
     [k: string]: string;
 };
-/** 13x13 flattened */

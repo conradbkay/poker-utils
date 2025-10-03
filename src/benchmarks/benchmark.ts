@@ -14,6 +14,7 @@ import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
 import { readFileSync } from 'fs'
 import { HoldemRange } from '../lib/range/holdem'
+import { calcStraightOuts, oesdPossible } from '../lib/cards/utils'
 
 const { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
 
@@ -27,6 +28,14 @@ const readme =
 
 genRandHash()
 initFromPathSync(resolve('./HandRanks.dat'))
+
+bench('calcStraightOuts flop', () => {
+  calcStraightOuts(randCardsHashed(3))
+})
+
+bench('oesdPossible flop', () => {
+  oesdPossible(randCardsHashed(3))
+})
 
 const holdemAny2 = HoldemRange.fromPokerRange(any2)
 bench('2p2 range vs range river equity', () => {

@@ -73,14 +73,8 @@ const calcStraightOuts = (board) => {
     return result;
 };
 exports.calcStraightOuts = calcStraightOuts;
-/* returns false is straight already possible */
-const oesdPossible = (board) => {
-    if ((0, exports.straightPossible)(board)) {
-        return false;
-    }
-    const ranks = (0, exports.uniqueRanks)(board).sort((a, b) => a - b);
-    if (ranks.length < 2)
-        return false;
+// slow implementation
+const oesdPossiblePastFlop = (board) => {
     // Try all rank pairs (including pairs) for hole cards.
     for (let r1 = MIN_RANK; r1 <= ACE_RANK; r1++) {
         for (let r2 = r1; r2 <= ACE_RANK; r2++) {
@@ -93,6 +87,52 @@ const oesdPossible = (board) => {
         }
     }
     return false;
+};
+// adds wheel rank for straights
+const allRanks = [
+    MIN_RANK - 1,
+    ...Array.from({ length: 13 }, (_, i) => i + MIN_RANK)
+];
+// assumes 3 ranks sorted asc currently
+// tries to find 2 ranks to add that would make us have 2 unique ranks to make a straight
+const oesdPossibleFromRanks = (ranks) => {
+    const min = ranks[0];
+    const max = ranks[ranks.length - 1];
+    const candidates = allRanks
+        .filter((r) => r >= min - 2 && r <= max + 2)
+        .map((r) => (0, exports.makeCard)(r, 1));
+    const rankCards = ranks.map((r) => (0, exports.makeCard)(r, 1));
+    for (let i = 0; i < candidates.length; i++) {
+        for (let j = i + 1; j < candidates.length; j++) {
+            const outRanks = allRanks.filter((r) => (0, exports.containsStraight)([
+                ...rankCards,
+                candidates[i],
+                candidates[j],
+                (0, exports.makeCard)(r, 1)
+            ])).length;
+            if (outRanks >= 2) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+/* returns false is straight already possible,  */
+const oesdPossible = (board) => {
+    if ((0, exports.straightPossible)(board)) {
+        return false;
+    }
+    const ranks = (0, exports.uniqueRanks)(board).sort((a, b) => a - b);
+    if (ranks.length < 2)
+        return false;
+    if (ranks.length > 3)
+        return oesdPossiblePastFlop(board);
+    // wheel rank for straights
+    if (ranks.includes(ACE_RANK) &&
+        oesdPossibleFromRanks([MIN_RANK - 1, ...ranks.slice(-1)])) {
+        return true;
+    }
+    return oesdPossibleFromRanks(ranks);
 };
 exports.oesdPossible = oesdPossible;
 // returns whether you can add 2 cards to the board to make a straight

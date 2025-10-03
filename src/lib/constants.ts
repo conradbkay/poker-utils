@@ -68,7 +68,3 @@ export const CARDS = Object.values(DECK)
 export const c2str = Object.fromEntries(
   Object.entries(DECK).map(([k, v]) => [v, k])
 )
-
-// preflop ranges
-
-/** 13x13 flattened */

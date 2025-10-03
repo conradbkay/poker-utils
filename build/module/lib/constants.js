@@ -64,5 +64,3 @@ exports.DECK = {
 };
 exports.CARDS = Object.values(exports.DECK);
 exports.c2str = Object.fromEntries(Object.entries(exports.DECK).map(([k, v]) => [v, k]));
-// preflop ranges
-/** 13x13 flattened */
