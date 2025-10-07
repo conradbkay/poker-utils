@@ -84,6 +84,7 @@ export const calcStraightOuts = (board: number[]) => {
   return result
 }
 
+// from script ran from ../hashing/flops.ts
 const nonOesdFlopRanks = [
   '0',
   '1',

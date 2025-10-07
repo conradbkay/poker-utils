@@ -12,3 +12,23 @@ exports.flopIsoBoards = Array.from(new Set(exports.allFlops.map((flop) => (0, ut
 exports.flops = exports.flopIsoBoards
     .reverse()
     .map((flop) => [(0, utils_2.formatCards)(flop).join(''), flop, (0, iso_1.isoWeight)(flop)]);
+/*
+this is by far the fastest way to check if a flop is an OESD
+
+place the results in ../cards/utils to avoid circular dependency
+
+const nonOesdRanks = Array.from(
+  new Set(
+    flops
+      .map(([, cards]) => cards.map(getRank))
+      .filter((ranks) => !oesdPossible(ranks.map((r) => makeCard(r, 1))))
+      .map((ranks) =>
+        Array.from(new Set(ranks))
+          .sort((a, b) => a - b)
+          .join(',')
+      )
+  )
+)
+
+console.log(JSON.stringify(nonOesdRanks))
+*/

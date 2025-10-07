@@ -3,6 +3,7 @@ diff
 .idea/*
 .nyc_output
 dist
+build
 node_modules
 coverage
 *.log
