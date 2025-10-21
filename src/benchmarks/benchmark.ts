@@ -29,14 +29,6 @@ const readme =
 genRandHash()
 initFromPathSync(resolve('./HandRanks.dat'))
 
-bench('calcStraightOuts flop', () => {
-  calcStraightOuts(randCardsHashed(3))
-})
-
-bench('oesdPossible flop', () => {
-  oesdPossible(randCardsHashed(3))
-})
-
 const holdemAny2 = HoldemRange.fromPokerRange(any2)
 bench('2p2 range vs range river equity', () => {
   holdemAny2.equityVsRange({
@@ -85,6 +77,14 @@ if (!readme) {
 }
 
 if (!readme) {
+  bench('calcStraightOuts flop', () => {
+    calcStraightOuts(randCardsHashed(3))
+  })
+
+  bench('oesdPossible flop', () => {
+    oesdPossible(randCardsHashed(3))
+  })
+
   // phe
   bench('cardsToPHE', () => {
     cardsToPHE(sequentialCards)
@@ -152,6 +152,22 @@ if (!readme) {
     const add = sortCards(randCardsHashed(4))
     randomOmahaRange.set(add, 1)
   }
+
+  bench('omaha flop equity vs range', () => {
+    equityEval({
+      board: randCardsHashed(3),
+      hand: randCardsHashed(2),
+      vsRange: randomOmahaRange
+    })
+  })
+
+  bench('omaha turn equity vs range', () => {
+    equityEval({
+      board: randCardsHashed(4),
+      hand: randCardsHashed(2),
+      vsRange: randomOmahaRange
+    })
+  })
 
   bench('omaha flop hand strength', () => {
     evalOmaha(randCardsHashed(3), randCardsHashed(4))

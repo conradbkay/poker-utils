@@ -10,6 +10,8 @@ Really fast poker hand evaluation in pure TypeScript
 - site-specific rake information
 - easily generate and access from a hash of every combo on every unique flop
 
+_Update:_ if really fast isn't fast enough, check out <https://github.com/conradbkay/poker-wasm> for NLHE range vs range equity calculations
+
 ## Quickstart
 
 ```js
@@ -53,25 +55,30 @@ The deck is 0-indexed, ascending from 2c (0) to As (51). Most methods input/outp
 
 V8 is pretty fast, but the fastest algorithms (OMPEval) use SIMD which isn't available
 
-Ran using `mitata` for `poker-utils v12.0.0`
+Ran using `mitata` for `poker-utils v13.1.7`
 
-arch: x64-win32
+clk: ~5.07 GHz
+cpu: Intel(R) Core(TM) i5-14600K
+runtime: node
+
+arch: x64-linux
 clk: ~5 GHz
-Node.js v23.11.0
+Node.js v22.17.0
 
 | Benchmark                                           | Mean       | p99        |
 | --------------------------------------------------- | ---------- | ---------- |
-| range vs range river equity                         | `352.79µs` | `616.10µs` |
-| ...sparser ranges (random 100 combos)               | `56.30µs`  | `181.60µs` |
-| Node.js 7 cards .sort                               | `85.48ns`  | `162.28ns` |
-| poker-utils 7 cards sortCards()                     | `8.47ns`   | `11.25ns`  |
-| full range to isomorphic                            | `680.39µs` | `857.80µs` |
-| generate turn+river runouts                         | `40.46µs`  | `139.70µs` |
-| flop isomorphism                                    | `90.19ns`  | `117.97ns` |
-| phe rand 7 cards                                    | `75.92ns`  | `129.81ns` |
-| 2p2 rand 7 cards                                    | `169.06ns` | `223.41ns` |
-| 2p2 random 2 cards on fixed river                   | `12.27ns`  | `16.53ns`  |
-| 2p2 all combos all runouts after flop (~7.3m evals) | `47.37ms`  | `47.58ms`  |
+| 2p2 range vs range river equity                     | `318.16µs` | `507.69µs` |
+| ...sparser ranges (random 100 combos)               | `56.05µs`  | `151.04µs` |
+| Node.js 7 cards .sort                               | `110.31ns` | `186.67ns` |
+| poker-utils 7 cards sortCards()                     | `8.18ns`   | `10.22ns`  |
+| full range to isomorphic                            | `665.45µs` | `934.23µs` |
+| generate turn+river runouts                         | `57.49µs`  | `156.86µs` |
+| flop isomorphism                                    | `140.81ns` | `183.92ns` |
+| phe rand 7 cards                                    | `141.41ns` | `170.25ns` |
+| 2p2 rand 7 cards                                    | `86.71ns`  | `133.12ns` |
+| 2p2 random 2 cards on fixed river                   | `11.30ns`  | `13.03ns`  |
+| 2p2 all combos all runouts after flop (~7.3m evals) | `53.93ms`  | `54.26ms`  |
+| 2p2 turn equity vs range                            | `12.48ms`  | `12.99ms`  |
 
 ## Twoplustwo algorithm
 
@@ -86,9 +93,9 @@ for card in cards
 return p
 ```
 
-Poker-Hand-Evaluator (phe) has lookup tables that are much smaller, so even though there's much more computation, it gets better optimized away and 2p2 ends up 2x slower for completely random evaluations
+Poker-Hand-Evaluator (phe) has lookup tables that are much smaller, so even though there's much more computation, it gets better optimized away and ends up similar to using 2p2 for performance
 
-But for random evaluations on the same board, which is the case for the costliest operations (anything involving equity/multiple ranges), you can just store `p`, and now each hand only requires 2 lookups. Additionally, you're using much less of the lookup array resulting in better caching. The `genBoardEval` function implements this and leads to a 15-20x speedup: 83m hands per second on 5 GHz!
+But for random evaluations on the same board, which is the case for the costliest operations (anything involving equity/multiple ranges), you can just store `p`, and now each hand only requires 2 lookups. Additionally, you're using much less of the lookup array resulting in better caching. The `genBoardEval` function implements this and leads to a 10-20x speedup: 91m random 7 card hands per second on 5 GHz
 
 To load `hr`, which you can download here <https://github.com/chenosaurus/poker-evaluator/blob/master/data/HandRanks.dat> call `initFromPath`/`initFromPathSync`, or `init` if you already have the file loaded
 

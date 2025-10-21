@@ -16,11 +16,14 @@ export type EvalOptions = {
 export const equityEval = ({
   board,
   hand,
-  vsRange
-}: EvalOptions & { vsRange: PokerRange }): EquityResult[] | EquityResult => {
+  vsRange,
+  startRunoutIdx // 9d8d runout is same for equity as doing 8d9d
+}: EvalOptions & { vsRange: PokerRange; startRunoutIdx?: number }):
+  | EquityResult[]
+  | EquityResult => {
   if (board.length === 3) {
     const result: EquityResult[] = []
-    for (let j = 0; j < 52; j++) {
+    for (let j = startRunoutIdx ?? 0; j < 52; j++) {
       if (board.includes(j) || hand.includes(j)) {
         continue
       }
@@ -28,7 +31,8 @@ export const equityEval = ({
         ...(equityEval({
           hand,
           vsRange,
-          board: [...board, j]
+          board: [...board, j],
+          startRunoutIdx: j + 1
         }) as EquityResult[])
       )
     }
@@ -42,7 +46,7 @@ export const equityEval = ({
 
     if (board.length === 4) {
       const result: EquityResult[] = []
-      for (let j = 0; j < 52; j++) {
+      for (let j = startRunoutIdx ?? 0; j < 52; j++) {
         if (board.includes(j) || hand.includes(j)) {
           continue
         }

@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { hash } from '../lib/cards/permuHash'
-import { boardToInts, randUniqueCards } from '../lib/cards/utils'
+import { boardToInts } from '../lib/cards/utils'
 import { omahaAheadScore } from '../lib/twoplustwo/equity'
 import { evalOmaha } from 'src/lib/evaluate'
 import { PokerRange } from '../lib/range/range'
@@ -12,22 +12,23 @@ test('combinations hash', () => {
 })
 
 test('PLO Strength', () => {
-  const board = boardToInts('2s 5c 9h')
-  const hand = boardToInts('6s 7s 4c Ac')
+  const board = boardToInts('2s 5c 9h 3d 3c')
+  const hand = boardToInts('As 9c Kc Kd')
 
   evalOmaha(board, hand)
 
   const range = new PokerRange()
 
-  for (let i = 0; i < 100; i++) {
-    range.set(randUniqueCards(4))
-  }
+  range.set(boardToInts('2c4s8cJc'), 1)
+  range.set(boardToInts('AcAdJdJc'), 1)
 
-  omahaAheadScore(
+  const [win] = omahaAheadScore(
     {
       board,
       hand
     },
     range
   )
+
+  assert.ok(win === 0.5)
 })
