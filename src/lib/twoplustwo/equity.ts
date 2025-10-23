@@ -210,7 +210,7 @@ export const omahaAheadScore = (
   const [wins, ties, losses] = aheadPct(
     evalOptions,
     vsRange,
-    (b, h) => evalOmaha(b, h).value
+    (b, h) => evalOmaha(b, h).p
   )
   const total = wins + ties + losses
 
