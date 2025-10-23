@@ -34,14 +34,19 @@ export const evalOmaha = (
   let max = -Infinity
 
   for (const boardIdxs of boardIdxsArr) {
-    const handEval = genBoardEval([
+    const useBoard = [
       board[boardIdxs[0]],
       board[boardIdxs[1]],
       board[boardIdxs[2]]
-    ])
+    ]
 
     for (const holeIdxs of holeIdxsArr) {
-      const p = handEval([holeCards[holeIdxs[0]], holeCards[holeIdxs[1]]])
+      const useHand = [
+        ...useBoard,
+        holeCards[holeIdxs[0]],
+        holeCards[holeIdxs[1]]
+      ]
+      const p = phe(useHand)
 
       if (p > max) {
         max = p
