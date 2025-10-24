@@ -1,5 +1,6 @@
 /* for now this file is just a few utilities for 4 card omaha, since PokerRange is usable for storing 4-6 card omaha ranges */
 
+import { hash } from '../cards/permuHash'
 import { getRank, getSuit } from '../cards/utils'
 import { RANKS } from '../constants'
 
@@ -23,4 +24,18 @@ export const omahaToIsoPre = (hand: number[]) => {
   const flushStr = ['r', 'ss', 'ds', 'ts'][flushSuitCount]
 
   return sortedRankStr + flushStr
+}
+
+// returns all unique 2 card combos from an omaha hand
+export const omahaConstituentCombos = (hand: number[]) => {
+  const result: number[][] = []
+
+  const indicesArr = hash[hand.length][2]
+
+  for (const indices of indicesArr) {
+    const useHand = indices.map((idx) => hand[idx])
+    result.push(useHand)
+  }
+
+  return result
 }

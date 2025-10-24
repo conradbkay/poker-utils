@@ -11,6 +11,7 @@ export * from './lib/phe/phe'
 export * from './lib/range/range'
 export * from './lib/range/preflop'
 export * from './lib/range/holdem'
+export * from './lib/range/omaha'
 
 export * from './lib/twoplustwo/constants'
 export * from './lib/twoplustwo/equity'
