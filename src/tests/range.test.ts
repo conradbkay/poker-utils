@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import { any2 } from '../lib/range/range'
 import { any2pre, PreflopRange } from '../lib/range/preflop'
 import { PokerRange } from '../lib/range/range'
-import { formatCards, randUniqueCards } from '../lib/cards/utils'
+import { boardToInts, formatCards, randUniqueCards } from '../lib/cards/utils'
+import { omahaToIsoPre } from 'src/lib/range/omaha'
 
 describe('PreflopRange', () => {
   test('any2pre percentiles is [0,1]', () => {
@@ -95,5 +96,11 @@ describe('PokerRange', () => {
   it('can insert PLO range to empty and len changes to 4', () => {
     r.set(randUniqueCards(4))
     assert.equal(r.getHandLen(), 4)
+  })
+
+  it('properly handles omahaToIsoPre', () => {
+    assert.equal(omahaToIsoPre(boardToInts('AsKc4c3c')), 'AK43ss')
+    assert.equal(omahaToIsoPre(boardToInts('AcAd4s2h')), 'AA42r')
+    assert.equal(omahaToIsoPre(boardToInts('9h3sAs8h')), 'A983ds')
   })
 })
