@@ -14,11 +14,6 @@ import { resolve } from 'path'
 import { initFromPathSync } from '../lib/init'
 import { readFileSync } from 'fs'
 import { HoldemRange } from '../lib/range/holdem'
-import {
-  EquityCalculator,
-  HoldemRange as HoldemRangeWasm,
-  OmahaRange
-} from 'poker-wasm'
 
 const { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8'))
 
@@ -28,15 +23,8 @@ const readme =
 genRandHash()
 initFromPathSync(resolve('./HandRanks.dat'))
 
-// poker-wasm
-const handRanksData = readFileSync('./HandRanks.dat')
-const calculator = new EquityCalculator(new Uint8Array(handRanksData))
-
 const holdemAny2 = HoldemRange.fromPokerRange(any2)
-const holdemAny2Wasm = new HoldemRangeWasm()
-for (let i = 0; i < 1326; i++) {
-  holdemAny2Wasm.set(i, 1)
-}
+
 bench('2p2 range vs range river equity', () => {
   holdemAny2.equityVsRange({
     board: randCardsHashed(5),
@@ -51,44 +39,6 @@ bench('...sparser ranges (each random 100 combos)', () => {
     board: randCardsHashed(5),
     vsRange: sparse2
   })
-})
-
-bench('poker-wasm range vs range river equity', () => {
-  calculator.equity_vs_range(
-    holdemAny2Wasm,
-    holdemAny2Wasm,
-    new Uint8Array(randCardsHashed(5))
-  )
-})
-
-bench('poker-wasm range vs range turn equity', () => {
-  calculator.equity_vs_range(
-    holdemAny2Wasm,
-    holdemAny2Wasm,
-    new Uint8Array(randCardsHashed(4))
-  )
-})
-
-const omahaRange = new OmahaRange()
-for (let i = 0; i < 200; i++) {
-  omahaRange.addHand(new Uint8Array(sortCards(randCardsHashed(4))), 1)
-}
-
-bench('poker-wasm omaha turn equity vs 200 combos', () => {
-  calculator.omahaEquityVsRange(
-    new Uint8Array(randCardsHashed(4)),
-    omahaRange,
-    new Uint8Array(randCardsHashed(4))
-  )
-})
-
-bench('poker-wasm omaha monte carlo (100) flop equity vs 200 combos', () => {
-  calculator.omahaMonteCarloFlop(
-    new Uint8Array(randCardsHashed(4)),
-    omahaRange,
-    new Uint8Array(randCardsHashed(3)),
-    100
-  )
 })
 
 // sort
