@@ -1,12 +1,15 @@
 {
   "name": "poker-utils",
-  "version": "13.2.3",
+  "version": "13.2.4",
   "description": "Fast poker ranges, evaluation, equity calculation",
   "author": "Conrad Kay",
   "main": "build/module/index.js",
   "types": "build/module/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/conradbkay/poker-utils",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conradbkay/poker-utils.git"
+  },
   "license": "MIT",
   "keywords": [],
   "scripts": {
