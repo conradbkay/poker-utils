@@ -202,19 +202,19 @@ const coinPokerInfo = {
 }
 
 const wptUsdInfo = {
-  atEnd: false,
+  atEnd: true,
   percent: () => 0.04,
   cap: cap(wptUsdCutoffs)
 }
 
 const wptCnyInfo = {
-  atEnd: false,
+  atEnd: true,
   percent: (BBCents: number) => (BBCents >= 10000 ? 0.05 : 0.04),
   cap: cap(wptCnyCutoffs)
 }
 
 const wptPloInfo = {
-  atEnd: false,
+  atEnd: true,
   percent: () => 0.04,
   cap: cap(wptPloCutoffs)
 }
