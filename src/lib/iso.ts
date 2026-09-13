@@ -17,8 +17,8 @@ export const iso = ({ board, hand }: { board: number[]; hand?: number[] }) => {
  * expects and returns sorted board
  */
 export const canonize = (cards: number[], initSuitMap?: number[]) => {
-  let suits = cards.map(getSuit)
-  let ranks = cards.map(getRank)
+  const suits = cards.map(getSuit)
+  const ranks = cards.map(getRank)
 
   const suitMap = initSuitMap ? [...initSuitMap] : [-1, -1, -1, -1]
   let nextSuit = getNextSuit(suitMap)
@@ -26,10 +26,11 @@ export const canonize = (cards: number[], initSuitMap?: number[]) => {
   // for AhAcKc and AhAcKh we need to convert both to AsAhKs and not prior to AsAhKh
   // we only need to check the flop because it's the only sortable street
   // we only check first 2 because something like AhKcKh vs AhKhKc sorts to the same board
+  // swap in place: rebuilding suits/ranks as 3-element arrays dropped the turn/river
   if (ranks[0] === ranks[1] && suits[1] === suits[2]) {
     ;[cards[0], cards[1]] = [cards[1], cards[0]]
-    suits = [suits[1], suits[0], suits[2]]
-    ranks = [ranks[1], ranks[0], ranks[2]]
+    ;[suits[0], suits[1]] = [suits[1], suits[0]]
+    ;[ranks[0], ranks[1]] = [ranks[1], ranks[0]]
   }
 
   for (const suit of suits) {
@@ -138,6 +139,8 @@ export const totalIsoWeight = (runouts: Runouts) => {
  * can pass board pre or post-isomorphism and get same results
  */
 export const isoWeight = (board: number[]) => {
-  let sc = numSuits(board)
-  return [4, 12, 24, 24][sc - 1]
+  const ranks = new Set(board.map(getRank)).size
+  if (ranks === 1) return 4 // trips
+  if (ranks === 2) return 12 // paired, rainbow or two-tone
+  return [4, 12, 24][numSuits(board) - 1]
 }

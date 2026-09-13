@@ -42,6 +42,20 @@ describe('PreflopRange', () => {
     assert.deepEqual(fromString.getWeights(), pf.getWeights())
   })
 
+  test('fromString accepts spaces in documented PioSOLVER format', () => {
+    const fromString = PreflopRange.fromStr('AKs,44:0.75, 32o:.33')
+    assert.equal(fromString.getWeight('AKs'), 1)
+    assert.equal(fromString.getWeight('44'), 0.75)
+    assert.equal(fromString.getWeight('32o'), 0.33)
+  })
+
+  test('getWeight canonicalizes reversed offsuit hands', () => {
+    const range = new PreflopRange()
+    range.set('27o', 0.4)
+    assert.equal(range.getWeight('72o'), 0.4)
+    assert.equal(range.getWeight('27o'), 0.4)
+  })
+
   test('handCombos', () => {
     assert.deepEqual(
       PreflopRange.handCombos('22').map((c) => formatCards(c).join('')),

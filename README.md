@@ -111,7 +111,7 @@ For example, all monotone flops become 3 spades (Kh7h3h -> Ks7s3s)
 
 ### 12.0
 
-- **Breaking** Equity/ahead methods now return an array `[lose, tie, win]`, or `[combo, lose, tie, win][]` if evaluating a range
+- **Breaking** Equity/ahead methods now return an array `[win, tie, lose]`, or `[combo, win, tie, lose][]` if evaluating a range
 - Added `equityVsRange` to `HoldemRange` which is 10-200x faster
 - Deck now goes from 0-51, and ranks from 0-12
 
@@ -121,4 +121,3 @@ For example, all monotone flops become 3 spades (Kh7h3h -> Ks7s3s)
 - CLI commands for hash generation
 - bucketing, or other ways to trade precision for speed
 - Monte carlo is necessary for many preflop and 3+ players spots, and maybe for PLO flops
-- webassembly OMPEval <https://github.com/emscripten-core/emscripten> <https://emscripten.org/docs/porting/simd.html>

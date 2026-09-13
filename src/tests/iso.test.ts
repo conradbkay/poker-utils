@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { allFlops, flopIsoBoards, flops } from '../lib/hashing/flops'
-import { getIsoHand, isoRunouts, totalIsoWeight } from '../lib/iso'
+import { getIsoHand, iso, isoRunouts, totalIsoWeight } from '../lib/iso'
 import { pioFlops } from './data/pioFlops'
 import { genCardCombinations } from '../lib/utils'
 import { getSuit, makeCard, randUniqueCards, shuffle } from '../lib/cards/utils'
@@ -123,3 +123,30 @@ const generateFlopWithNSuits = (n: number): number[] => {
     ]
   }
 }
+
+describe('canonize paired flops with later streets', () => {
+  it('keeps turn and river ranks and blockers', () => {
+    // 4s4c3c9c: paired flop triggers the swap branch
+    const board = [11, 8, 4, 28, 50]
+    const hand = [49, 2]
+    const { board: isoBoard, hand: isoHand } = iso({ board, hand })
+    assert.deepEqual(
+      isoBoard.map((c) => c >> 2),
+      board.map((c) => c >> 2)
+    )
+    assert.equal(new Set([...isoBoard, ...isoHand]).size, 7)
+    // 9c shares a suit with 4c3c, Ah is a new suit
+    assert.equal(isoBoard[3] % 4, isoBoard[2] % 4)
+    assert.equal(isoBoard[4] % 4, 1)
+    assert.deepEqual(isoHand, [48, 1])
+  })
+})
+
+describe('isoWeight', () => {
+  it('flop weights sum to 22100', () => {
+    assert.equal(
+      flops.reduce((sum, [, , weight]) => sum + weight, 0),
+      allFlops.length
+    )
+  })
+})

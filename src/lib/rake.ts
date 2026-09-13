@@ -152,9 +152,11 @@ const wptPloCutoffs: Cutoff[] = [
 ]
 
 const cap = (cutoffs: Cutoff[]) => (BB: number, dealt: number) => {
-  const useIdx = cutoffs.findLastIndex((c) => BB <= c[0])
+  const useIdx = cutoffs.findIndex((c) => BB <= c[0])
+  const caps = cutoffs[useIdx === -1 ? cutoffs.length - 1 : useIdx][1]
+  const playerIdx = Math.min(caps.length - 1, Math.max(0, dealt - 2))
 
-  return cutoffs[useIdx][1][Math.min(4, dealt - 2)]
+  return caps[playerIdx]
 }
 
 // this changed some time around, ideally they should pass in an epoch (or just provide a separate "Stars Old" rake object)
@@ -223,6 +225,7 @@ export const rake: Record<
   string,
   {
     atEnd: boolean
+    raked3bets?: boolean
     percent: (bb: number) => number
     cap: ReturnType<typeof cap>
   }

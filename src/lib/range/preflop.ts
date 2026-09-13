@@ -236,7 +236,7 @@ const maxSumSubarrayIdxs = (prices: number[]) => {
  * this class isn't designed to be fast, usually it's converted to a `PokerRange` if doing anything computationally intensive
  */
 export class PreflopRange {
-  private weights: number[]
+  private weights!: number[]
 
   constructor() {
     this.reset()
@@ -247,7 +247,7 @@ export class PreflopRange {
   }
 
   public getWeight(hand: string) {
-    return this.getWeights()[PreflopRange.toIdx(hand)]
+    return this.getWeights()[this.parseHand(hand)]
   }
 
   public set(hand: string | number, weight = 1) {
@@ -316,7 +316,7 @@ export class PreflopRange {
   public static fromStr(str: string) {
     const range = new PreflopRange()
 
-    str.replaceAll(' ', '')
+    str = str.replaceAll(' ', '')
     const combos = str.split(',')
     for (let combo of combos) {
       const [hand, weightStr] = combo.split(':')
