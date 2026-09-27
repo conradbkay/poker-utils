@@ -60,7 +60,7 @@ export const equityEval = ({
   }
 }
 
-// doesn't account for runouts, just what % of hands you're ahead of currently
+// doesn't account for runouts, just what % of hands you're ahead of currently. [0, 0, 0] if fully blocked
 export const aheadPct = (
   { board, hand }: Omit<EvalOptions, 'chopIsWin'>,
   vsRange: PokerRange,
@@ -95,7 +95,10 @@ export const aheadPct = (
     }
   }
 
-  return [wins, ties, losses]
+  const total = wins + ties + losses
+  if (total === 0) return [0, 0, 0]
+
+  return [wins / total, ties / total, losses / total]
 }
 
 /** returns [hand, p, weight][] */
@@ -126,11 +129,13 @@ export type RvRArgs = {
 export type ComboEquity = [
   combo: number[],
   equity: EquityResult,
-  weight: number
+  weight: number,
+  /** unblocked vsRange weight this combo faces */
+  vsWeight: number
 ]
 
 /**
- * returns [combo, [wins, losses, ties], weight][]
+ * returns [combo, [win, tie, lose], weight, vsWeight][]
  */
 export const combosVsRangeAhead = ({
   board,
@@ -178,7 +183,8 @@ export const combosVsRangeAhead = ({
       result.push([
         sortCards(hand),
         [wins / totalWeight, ties / totalWeight, losses / totalWeight],
-        weight
+        weight,
+        totalWeight
       ])
     }
   }
@@ -186,35 +192,24 @@ export const combosVsRangeAhead = ({
   return result
 }
 
-// returns average ahead of range
+// returns average ahead of range, each unblocked combo pair weighted by weight * vsWeight
 export const rangeVsRangeAhead = (args: RvRArgs): EquityResult => {
-  const res = combosVsRangeAhead(args)
-  const totalWins = res.reduce((a, c) => a + c[1][0] * c[2], 0)
-  const totalTies = res.reduce((a, c) => a + c[1][1] * c[2], 0)
-  const totalLosses = res.reduce((a, c) => a + c[1][2] * c[2], 0)
-  const totalWeight = totalWins + totalTies + totalLosses
+  const totals: EquityResult = [0, 0, 0]
+  let totalWeight = 0
+
+  for (const [, eq, weight, vsWeight] of combosVsRangeAhead(args)) {
+    const pairWeight = weight * vsWeight
+    for (let i = 0; i < 3; i++) totals[i] += eq[i] * pairWeight
+    totalWeight += pairWeight
+  }
 
   if (totalWeight <= 0) return [0, 0, 0]
 
-  return [
-    totalWins / totalWeight,
-    totalTies / totalWeight,
-    totalLosses / totalWeight
-  ]
+  return totals.map((t) => t / totalWeight) as EquityResult
 }
 
 export const omahaAheadScore = (
   evalOptions: EvalOptions,
   vsRange: PokerRange
-): EquityResult => {
-  const [wins, ties, losses] = aheadPct(
-    evalOptions,
-    vsRange,
-    (b, h) => evalOmaha(b, h).p
-  )
-  const total = wins + ties + losses
-
-  if (total === 0) return [0, 0, 0]
-
-  return [wins / total, ties / total, losses / total]
-}
+): EquityResult =>
+  aheadPct(evalOptions, vsRange, (b, h) => evalOmaha(b, h).p)

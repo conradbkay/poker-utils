@@ -79,15 +79,17 @@ const forEachIso = (
   f: (isoBoard: number[], iso: number, map: number[], weight: number) => void
 ) => {
   const { suitMap, nextSuit, cards } = canonizeBoard(board)
-  let boardSet = new Set(cards)
+  const boardSet = new Set(cards)
 
-  for (let suit = 3; suit >= nextSuit; suit--) {
-    let weight = 1
-    if (suit < 0) break
-    if (suit === nextSuit) {
-      suitMap[suit] = suit
-      weight = suit + 1 // if suit is 3, that means it represents 0 1 2 3
-    }
+  // unused suits are interchangeable, give them the leftover iso suits so map stays a bijection
+  // (writing suitMap[nextSuit] = nextSuit mixed iso/original indices, so hole cards could land on board/runout cards)
+  for (let s = 0, free = nextSuit; s < 4; s++) {
+    if (suitMap[s] === -1) suitMap[s] = free--
+  }
+
+  for (let suit = 3; suit >= Math.max(0, nextSuit); suit--) {
+    // if suit is 3, that means it represents 0 1 2 3
+    const weight = suit === nextSuit ? suit + 1 : 1
 
     for (let rank = 0; rank < 13; rank++) {
       let c = makeCard(rank, suit)

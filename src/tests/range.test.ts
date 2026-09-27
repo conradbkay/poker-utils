@@ -63,9 +63,26 @@ describe('PreflopRange', () => {
     )
   })
 
-  test('fromPercentiles/toPercentiles run without error', () => {
-    const percentiled = PreflopRange.fromPercentiles(0.5, 0.6)
-    // todo fix assert.deepEqual(percentiled.toPercentiles(), [0.3, 0.5])
+  test('toPercentiles round trips through fromPercentiles', () => {
+    for (const [min, max] of [
+      [0.3, 0.5],
+      [0, 0.1],
+      [0.8, 1]
+    ]) {
+      const range = PreflopRange.fromPercentiles(min, max)
+      const [pMin, pMax] = range.toPercentiles()
+      assert.deepEqual(
+        PreflopRange.fromPercentiles(pMin, pMax).getWeights(),
+        range.getWeights()
+      )
+    }
+    assert.deepEqual(new PreflopRange().toPercentiles(), [0, 0])
+  })
+
+  test('fromStr ignores whitespace and empty tokens, rejects bad weights', () => {
+    assert.equal(PreflopRange.fromStr('').toString(), '')
+    assert.equal(PreflopRange.fromStr('AA,\nKK:0.5,').toString(), 'AA,KK:0.5')
+    assert.throws(() => PreflopRange.fromStr('AKs:abc'))
   })
 })
 

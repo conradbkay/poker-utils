@@ -1,8 +1,9 @@
 import test, { describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { any2 } from '../lib/range/range'
-import { rangeVsRangeAhead } from '../lib/twoplustwo/equity'
-import { randUniqueCards } from '../lib/cards/utils'
+import { aheadPct, rangeVsRangeAhead } from '../lib/twoplustwo/equity'
+import { boardToInts, randUniqueCards } from '../lib/cards/utils'
+import { PokerRange } from '../lib/range/range'
 import { HoldemRange } from '../lib/range/holdem'
 
 const range = any2
@@ -60,5 +61,34 @@ describe('equity calculations', () => {
       const validVsPer = 990 // 45 choose 2
       assert.equal(total, validCombos * validVsPer)
     }
+  })
+
+  test('rangeVsRangeAhead weights by unblocked combo pairs', () => {
+    const range = new PokerRange()
+    range.set(boardToInts('AhAs'), 1)
+    range.set(boardToInts('5c5d'), 1)
+    const vsRange = new PokerRange()
+    vsRange.set(boardToInts('AhKc'), 1)
+    vsRange.set(boardToInts('QcQd'), 1)
+    // AhAs only faces QcQd (win), 5c5d faces both (win, lose): 3 pairs, 2 wins
+    const [win, tie, lose] = rangeVsRangeAhead({
+      board: boardToInts('2c3d4h8s9s'),
+      range,
+      vsRange
+    })
+    assert.ok(Math.abs(win - 2 / 3) < 1e-9)
+    assert.equal(tie, 0)
+    assert.ok(Math.abs(lose - 1 / 3) < 1e-9)
+  })
+
+  test('aheadPct returns fractions', () => {
+    const vsRange = new PokerRange()
+    vsRange.set(boardToInts('AcAh'), 3)
+    vsRange.set(boardToInts('KcKh'), 1)
+    const result = aheadPct(
+      { board: boardToInts('2c7d9h4s5s'), hand: boardToInts('KdKs') },
+      vsRange
+    )
+    assert.deepEqual(result, [0, 0.25, 0.75])
   })
 })

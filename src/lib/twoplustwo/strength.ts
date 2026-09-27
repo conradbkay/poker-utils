@@ -34,15 +34,21 @@ export const fastEvalPartial = (cards: number[], p = 53) => {
   return p
 }
 
-// 2p2 eval only
+// 2p2 eval only, exactly 2 hole cards + 3 board cards
 export const genOmahaBoardEval = (board: number[]) => {
-  const boardIdxsArr = hash[board.length][3]
-
-  const boardPs = boardIdxsArr.map(([i1, i2, i3]) =>
+  const boardPs = hash[board.length][3].map(([i1, i2, i3]) =>
     fastEval([board[i1], board[i2], board[i3]])
   )
 
-  return (hand: number[]) => Math.max(...boardPs.map((p) => fastEval(hand, p)))
+  return (hand: number[]) => {
+    let max = 0
+    for (const [i, j] of hash[hand.length][2]) {
+      for (const p of boardPs) {
+        max = Math.max(max, finalP(fastEval([hand[i], hand[j]], p)))
+      }
+    }
+    return max
+  }
 } // copied from https://github.com/Sukhmai/poker-evaluator
 
 export const pInfo = (p: number) => ({

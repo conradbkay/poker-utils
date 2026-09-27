@@ -150,3 +150,14 @@ describe('isoWeight', () => {
     )
   })
 })
+
+describe('runout suit map', () => {
+  it('is a bijection that maps the flop onto its iso board', () => {
+    for (const flop of allFlops) {
+      const [{ map }] = Object.values(isoRunouts(flop, 1, false))
+      assert.equal(new Set(map).size, 4)
+      const mapped = flop.map((c) => makeCard(c >> 2, map[getSuit(c)]))
+      assert.deepEqual(iso({ board: mapped }).board, iso({ board: flop }).board)
+    }
+  })
+})

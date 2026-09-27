@@ -209,21 +209,21 @@ for (const hand of genCardCombinations(2)) {
   isoPre2Combos[iso].push(hand)
 }
 
-/** O(N) - Kadane's algorithm for https://en.wikipedia.org/wiki/Maximum_subarray_problem */
-const maxSumSubarrayIdxs = (prices: number[]) => {
-  let buy = 0
-  let bestProfit = 0
-  let bestIdxs = [0, prices.length - 1]
-  for (let i = 1; i < prices.length; i++) {
-    const profit = prices[i] - prices[buy]
-
-    if (profit > bestProfit) {
-      bestProfit = profit
-      bestIdxs = [buy, i]
+/** O(N) - Kadane's algorithm for https://en.wikipedia.org/wiki/Maximum_subarray_problem, returns [start, end) */
+const maxSumSubarrayIdxs = (values: number[]) => {
+  let best = -Infinity
+  let bestIdxs = [0, 0]
+  let sum = 0
+  let start = 0
+  for (let i = 0; i < values.length; i++) {
+    if (sum <= 0) {
+      sum = 0
+      start = i
     }
-
-    if (prices[i] < prices[buy]) {
-      buy = i
+    sum += values[i]
+    if (sum > best) {
+      best = sum
+      bestIdxs = [start, i + 1]
     }
   }
 
@@ -316,11 +316,13 @@ export class PreflopRange {
   public static fromStr(str: string) {
     const range = new PreflopRange()
 
-    str = str.replaceAll(' ', '')
-    const combos = str.split(',')
-    for (let combo of combos) {
+    const combos = str.replace(/\s+/g, '').split(',').filter(Boolean)
+    for (const combo of combos) {
       const [hand, weightStr] = combo.split(':')
-      const weight = weightStr ? parseFloat(weightStr) : undefined
+      const weight = weightStr ? Number(weightStr) : undefined
+      if (Number.isNaN(weight)) {
+        throw new Error(`invalid weight in ${combo}`)
+      }
       range.set(hand, weight)
     }
 
@@ -330,23 +332,15 @@ export class PreflopRange {
   // ! once PokerRange stores board state this should take that into account wrt weighting (many combos will be blocked things won't add up to 4/6/12)
   // public static fromPokerRange(range: PokerRange) {}
 
-  /** returns [0-1, 0-1] generating the closest match using min/max index of `order` */
+  /** returns [min, max] such that `fromPercentiles(min, max)` best matches this range, [0, 0] if empty */
   public toPercentiles() {
-    // we treat this as basically "best time to buy and sell stock"
-    const avgComboWeight =
-      this.weights.reduce((a, c) => a + c, 0) /
-      this.weights.filter((w) => w).length
-
-    let mask = this.weights.map((w) => (w ? avgComboWeight : -avgComboWeight))
-
-    let prices = mask.reduce((a, c, i) => {
-      a[i] = i ? c + a[i - 1] : c
-      return a
-    }, new Array(mask.length))
-
-    return maxSumSubarrayIdxs(prices).map(
-      (idx) => idx / (this.weights.length - 1)
+    // +1 for hands in the range, -1 for hands outside, in the same order fromPercentiles slices
+    const mask = preflopStrengthOrder.map((hand) =>
+      this.getWeight(hand) ? 1 : -1
     )
+    if (!mask.includes(1)) return [0, 0]
+
+    return maxSumSubarrayIdxs(mask).map((idx) => idx / NUM_COMBOS)
   }
 
   /** piosolver compatible "AA,KK,QQ,JJ:0.9,88:0.825" format */
